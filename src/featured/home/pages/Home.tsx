@@ -1,4 +1,5 @@
 // src/featured/home/pages/Home.tsx
+import "./home.css";
 import { useHorizontalScroll } from "../hooks/useHorizontalScroll";
 import ParallaxOcean from "../components/ParallaxOcean";
 import Section1TitleMobile from "../components/Section1TitleMobile";
