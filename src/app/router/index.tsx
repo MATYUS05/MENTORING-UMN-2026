@@ -1,3 +1,5 @@
+// src/app/router/index.tsx
+
 import { createBrowserRouter } from "react-router-dom";
 import UserLayout from "../layouts/UserLayout";
 import AdminLayout from "../layouts/AdminLayout";
@@ -10,7 +12,15 @@ import Faq from "../../featured/faq/pages/Faq";
 import Gallery from "../../featured/gallery/pages/Gallery";
 import Login from "../../featured/auth/pages/Login";
 import Admin from "../../featured/admin/pages/Admin";
+import AdminTeam from "../../featured/admin/pages/AdminTeam";
+import AdminDivisi from "../../featured/admin/pages/AdminDivisi";
+import AdminChatbot from "../../featured/admin/pages/AdminChatbot";
+import AdminFaq from "../../featured/admin/pages/AdminFaq";
+import AdminGaleri from "../../featured/admin/pages/AdminGaleri";
 import SuperAdmin from "../../featured/super-admin/pages/superAdmin";
+import SuperAdminAkun from "../../featured/super-admin/pages/SuperAdminAkun";
+import SuperAdminLogs from "../../featured/super-admin/pages/SuperAdminLogs";
+import DesignSystems from '../../featured/dev/DesignSystems';
 import NotFound from "../../featured/errors/pages/NotFound";
 
 export const router = createBrowserRouter([
@@ -23,10 +33,12 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayout />,
     children: [
-      {
-        path: "",
-        element: <Admin />,
-      },
+      { path: "", element: <Admin /> },
+      { path: "team", element: <AdminTeam /> },
+      { path: "divisi", element: <AdminDivisi /> },
+      { path: "chatbot", element: <AdminChatbot /> },
+      { path: "faq", element: <AdminFaq /> },
+      { path: "galeri", element: <AdminGaleri /> },
     ],
   },
 
@@ -34,10 +46,9 @@ export const router = createBrowserRouter([
     path: "/superadmin",
     element: <SuperAdminLayout />,
     children: [
-      {
-        path: "",
-        element: <SuperAdmin />,
-      },
+      { path: "", element: <SuperAdmin /> },
+      { path: "akun", element: <SuperAdminAkun /> },
+      { path: "logs", element: <SuperAdminLogs /> },
     ],
   },
   {
@@ -67,6 +78,10 @@ export const router = createBrowserRouter([
       {
         path: "/gallery",
         element: <Gallery />,
+      },
+      {
+        path: "/design-systems",
+        element: <DesignSystems />,
       },
     ],
   },

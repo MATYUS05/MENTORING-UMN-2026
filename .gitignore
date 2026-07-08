@@ -28,3 +28,9 @@ dist-ssr
 .env.local
 .env.development
 .env.production
+
+# Firebase admin credentials
+scripts/serviceAccountKey.json
+
+# Auto-generated inspection output (boleh dihapus baris ini kalau mau di-commit)
+FIRESTORE_STRUCTURE.md
