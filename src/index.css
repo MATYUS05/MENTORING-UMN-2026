@@ -1,1 +1,92 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --font-heading: 'Obra Letra', Georgia, serif;
+  --font-body: 'Futura', sans-serif;
+}
+
+@font-face {
+  font-family: 'Obra Letra';
+  src: url('/src/assets/fonts/ObraLetra-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Obra Letra';
+  src: url('/src/assets/fonts/ObraLetra-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Futura';
+  src: url('/src/assets/fonts/Futura-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Futura';
+  src: url('/src/assets/fonts/Futura-Book.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Futura';
+  src: url('/src/assets/fonts/Futura-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Futura';
+  src: url('/src/assets/fonts/Futura-Demi.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Futura';
+  src: url('/src/assets/fonts/Futura-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Futura';
+  src: url('/src/assets/fonts/Futura-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Futura';
+  src: url('/src/assets/fonts/Futura-Heavy.woff2') format('woff2');
+  font-weight: 900;
+  font-display: swap;
+}
+
+@theme {
+  --font-heading: 'Obra Letra', Georgia, serif;
+  --font-body: 'Futura', sans-serif;
+
+  --color-primary-light: #E7C48C;
+  --color-primary-dark: #B47C5B;
+
+  --color-secondary-deep: #2864AE;
+  --color-secondary-sky: #4EABEE;
+  --color-secondary-mint: #A2D6D7;
+
+  --color-accent-red: #B02C20;
+  --color-accent-red-light: #E2584A;
+  --color-accent-gold: #F8D486;
+
+  --color-neutral-cream: #FBF6EC;
+  --color-neutral-surface: #FDFEFF;
+  --color-neutral-sand: #EFE3CF;
+  --color-neutral-stone: #8C7B68;
+  --color-neutral-charcoal: #2A241F;
+  --color-neutral-charcoal-deep: #1C1815;
+
+  --color-success: #4E8F6A;
+  --color-success-light: #7CBB93;
+  --color-warning: #F8D486;
+  --color-danger: #B02C20;
+  --color-info: #4EABEE;
+}

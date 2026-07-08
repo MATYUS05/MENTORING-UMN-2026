@@ -1,19 +1,39 @@
-import { font } from "../../../shared/typography/font";
+// src/featured/home/pages/Home.tsx
+import "./home.css";
+import { useHorizontalScroll } from "../hooks/useHorizontalScroll";
+import ParallaxOcean from "../components/ParallaxOcean";
+import Section1TitleMobile from "../components/Section1TitleMobile";
+import Section1TaglineMobile from "../components/Section1TaglineMobile";
+import Section1Hero from "../components/Section1Hero";
+import Section2About from "../components/Section2About";
+import Section3Timeline from "../components/Section3Timeline";
+import Section4Values from "../components/Section4Values";
+import Section5PartnersGrid from "../components/Section5PartnersGrid";
+import Section5Contact from "../components/Section5Contact";
+import Section5Partners from "../components/Section5Partners";
+import Section6Cta from "../components/Section6Cta";
 
 export default function Home() {
+  const { containerRef, scrollLeft, maxScrollLeft } = useHorizontalScroll();
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center font-">
-      <h1 className={`${font.h1} `}>Sistem Informasi Organisasi</h1>
-      <h2 className={`${font.h2} mt-6 `}>Membangun Generasi Solid</h2>
-      <p className={`${font.h2}`}>Custom Font</p>
-      <p className={`${font.body} mt-4 max-w-2xl `}>
-        Ini adalah contoh teks paragraf. Karena kita sudah mengatur ukuran dan
-        spasi (leading-relaxed) di file font, semua paragraf di seluruh website
-        akan terlihat konsisten dan rapi plek ketiplek.
-      </p>
-      <span className={`${font.caption} mt-8 block`}>
-        *Pendaftaran panitia akan segera dibuka
-      </span>
+    <div className="relative h-screen w-screen overflow-hidden bg-secondary-sky">
+      <ParallaxOcean scrollLeft={scrollLeft} maxScrollLeft={maxScrollLeft} />
+      <div
+        ref={containerRef}
+        className="scrollbar-hide relative z-10 flex h-screen w-screen overflow-x-auto overflow-y-hidden"
+      >
+        <Section1TitleMobile />
+        <Section1TaglineMobile />
+        <Section1Hero />
+        <Section2About />
+        <Section3Timeline />
+        <Section4Values />
+        <Section5PartnersGrid />
+        <Section5Contact />
+        <Section5Partners />
+        <Section6Cta />
+      </div>
     </div>
   );
 }

@@ -1,11 +1,26 @@
+// src/shared/components/SuperAdminSidebar.tsx
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { useAuth } from "../../app/providers/AuthProvider";
+import ThemeToggle from "./ThemeToggle";
+
+const navItems = [
+  { label: "Dashboard", path: "/superadmin", end: true },
+  { label: "Team", path: "/admin/team", end: false },
+  { label: "Divisi", path: "/admin/divisi", end: false },
+  { label: "Chatbot", path: "/admin/chatbot", end: false },
+  { label: "FAQ", path: "/admin/faq", end: false },
+  { label: "Galeri", path: "/admin/galeri", end: false },
+  { label: "Akun", path: "/superadmin/akun", end: false },
+  { label: "Logs", path: "/superadmin/logs", end: false },
+];
 
 export default function SuperAdminSidebar() {
   const { userData } = useAuth();
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -16,49 +31,98 @@ export default function SuperAdminSidebar() {
     }
   };
 
-  return (
-    <aside className="flex w-64 flex-col border-r border-slate-200 bg-white p-6">
-      <div>
-        <h2 className="text-lg font-bold text-slate-900">Super Admin</h2>
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `rounded-lg px-3 py-2 font-body text-sm font-medium transition-all duration-200 ${
+      isActive
+        ? "bg-primary-dark/10 text-primary-dark dark:bg-primary-light/15 dark:text-primary-light"
+        : "text-neutral-stone hover:bg-neutral-cream hover:text-neutral-charcoal dark:hover:bg-neutral-charcoal-deep dark:hover:text-neutral-cream"
+    }`;
 
-        <p className="mt-1 text-sm text-slate-500">{userData?.username}</p>
+  return (
+    <>
+      {/* Header + dropdown untuk mobile & tablet */}
+      <div className="border-b-2 border-neutral-stone/25 bg-white dark:border-neutral-stone/15 dark:bg-neutral-charcoal md:hidden">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div>
+            <h2 className="font-heading text-base font-bold text-neutral-charcoal dark:text-neutral-cream">Super Admin</h2>
+            <p className="font-body text-xs text-neutral-stone">{userData?.username}</p>
+          </div>
+          <button
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label="Buka menu navigasi"
+            aria-expanded={mobileOpen}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 border-neutral-stone/30 text-neutral-charcoal transition-colors duration-200 hover:bg-neutral-cream dark:border-neutral-stone/20 dark:text-neutral-cream dark:hover:bg-neutral-charcoal-deep"
+          >
+            {mobileOpen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+              </svg>
+            )}
+          </button>
+        </div>
+        {mobileOpen && (
+          <div className="border-t-2 border-neutral-stone/20 px-4 pb-4 dark:border-neutral-stone/15">
+            <nav className="flex flex-col gap-1 pt-3">
+              {navItems.map((item) => (
+                <NavLink key={item.path} to={item.path} end={item.end} onClick={() => setMobileOpen(false)} className={navLinkClass}>
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+            <div className="mt-3 flex flex-col gap-1 border-t-2 border-neutral-stone/20 pt-3 dark:border-neutral-stone/15">
+              <ThemeToggle />
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 rounded-lg px-4 py-2 font-body text-sm font-medium text-accent-red transition-all duration-200 hover:bg-accent-red/10 dark:text-accent-red-light dark:hover:bg-accent-red/15"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                  />
+                </svg>
+                Log Out
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      <nav className="mt-8 flex flex-col gap-1">
-        <NavLink
-          to="/superadmin"
-          end
-          className={({ isActive }) =>
-            `rounded-lg px-3 py-2 text-sm font-medium transition ${
-              isActive
-                ? "bg-violet-50 text-violet-700"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-            }`
-          }
-        >
-          Dashboard
-        </NavLink>
-      </nav>
-      <button
-        onClick={handleLogout}
-        className="mt-auto flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-5 h-5"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-          />
-        </svg>
-        Log Out
-      </button>
-    </aside>
+      {/* Sidebar untuk desktop */}
+      <aside className="hidden w-64 flex-col border-r-2 border-neutral-stone/25 bg-white p-6 dark:border-neutral-stone/15 dark:bg-neutral-charcoal md:flex">
+        <div>
+          <h2 className="font-heading text-lg font-bold text-neutral-charcoal dark:text-neutral-cream">Super Admin</h2>
+          <p className="mt-1 font-body text-sm text-neutral-stone">{userData?.username}</p>
+        </div>
+        <nav className="mt-8 flex flex-col gap-1">
+          {navItems.map((item) => (
+            <NavLink key={item.path} to={item.path} end={item.end} className={navLinkClass}>
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="mt-auto flex flex-col gap-1">
+          <ThemeToggle />
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 rounded-lg px-4 py-2 font-body text-sm font-medium text-accent-red transition-all duration-200 hover:bg-accent-red/10 dark:text-accent-red-light dark:hover:bg-accent-red/15"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+              />
+            </svg>
+            Log Out
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

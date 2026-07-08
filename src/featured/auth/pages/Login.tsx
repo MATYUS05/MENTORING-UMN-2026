@@ -1,8 +1,11 @@
+// src/featured/auth/pages/Login.tsx
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../lib/firebase";
+import { logService } from "../../../lib/logService";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -29,6 +32,7 @@ export default function Login() {
 
       if (docSnap.exists()) {
         const userData = docSnap.data();
+        logService.catat(user.uid, userData.username, 'login_berhasil', 'auth', 'Login berhasil');
 
         if (userData.role === "admin") {
           navigate("/admin");
@@ -41,6 +45,7 @@ export default function Login() {
         setError("Data user tidak ditemukan di database.");
       }
     } catch (err: any) {
+      logService.catat('', email, 'login_gagal', 'auth', 'Percobaan login gagal');
       setError("Gagal login. Periksa kembali email dan password Anda.");
     } finally {
       setIsLoading(false);
