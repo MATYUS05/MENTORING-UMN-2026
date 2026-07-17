@@ -1,6 +1,6 @@
 // src/lib/fotoService.ts
 
-import { addDoc, collection, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, functions } from './firebase';
 import type { Foto } from '../shared/types/database';
@@ -23,7 +23,6 @@ export const fotoService = {
   },
 
   async hapus(id: string) {
-    const hapusFoto = httpsCallable(functions, 'hapusFoto');
-    await hapusFoto({ fotoId: id });
+    await deleteDoc(doc(db, COLLECTION, id));
   },
 };

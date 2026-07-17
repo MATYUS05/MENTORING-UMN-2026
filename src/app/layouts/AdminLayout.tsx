@@ -9,7 +9,7 @@ export default function AdminLayout() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-charcoal-deep text-secondary-sky">
+      <div className="flex h-screen items-center justify-center bg-neutral-charcoal-deep text-secondary-sky">
         Loading...
       </div>
     );
@@ -21,7 +21,7 @@ export default function AdminLayout() {
 
   return (
     <ThemeProvider>
-      <div className="flex min-h-screen flex-col bg-neutral-cream dark:bg-neutral-charcoal-deep md:flex-row">
+      <div className="flex h-screen w-full flex-col overflow-hidden bg-neutral-cream dark:bg-neutral-charcoal-deep md:flex-row">
         <AdminSidebar />
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <Outlet />

@@ -91,10 +91,10 @@ export default function Admin() {
         {statItems.map((item) => (
           <div
             key={item.label}
-            className={`${cardBase} p-4 text-center hover:scale-[1.03] hover:border-secondary-deep/50 hover:shadow-md dark:hover:border-secondary-sky/40`}
+            className={`${cardBase} flex flex-col items-center justify-center p-5 hover:-translate-y-1 hover:border-secondary-deep/60 hover:shadow-md dark:hover:border-secondary-sky/50 transition-all duration-300`}
           >
             <p className={`${font.h3} text-neutral-charcoal dark:text-neutral-cream`}>{item.value ?? '...'}</p>
-            <p className={`${font.caption} mt-1 text-neutral-stone`}>{item.label}</p>
+            <p className={`${font.caption} mt-1 font-medium text-neutral-stone`}>{item.label}</p>
           </div>
         ))}
       </div>

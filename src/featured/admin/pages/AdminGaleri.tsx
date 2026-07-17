@@ -1,5 +1,5 @@
 // src/featured/admin/pages/AdminGaleri.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { font } from '../../../shared/typography/font';
 import { useAuth } from '../../../app/providers/AuthProvider';
 import { fotoService } from '../../../lib/fotoService';
@@ -26,6 +26,7 @@ export default function AdminGaleri() {
   const [sesi, setSesi] = useState<Sesi>('pagi');
   const [minggu, setMinggu] = useState<Minggu>('minggu-1');
   const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const muatUlang = async () => {
     const data = await fotoService.ambilSemua();
@@ -50,10 +51,15 @@ export default function AdminGaleri() {
         uploadedBy: userData?.uid ?? '',
       });
       if (userData) {
-        logService.catat(userData.uid, userData.username, 'tambah', 'foto', `Mengunggah foto: ${judul || '(tanpa judul)'}`);
+        await logService.catat(userData.uid, userData.username, 'tambah', 'foto', `Mengunggah foto: ${judul || '(tanpa judul)'}`);
       }
       setJudul('');
+      setSesi('pagi');
+      setMinggu('minggu-1');
       setFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       setPesan('Foto berhasil diunggah.');
     } catch (err) {
       setPesan(err instanceof Error ? err.message : 'Gagal mengunggah foto. Silakan coba lagi.');
@@ -68,8 +74,9 @@ export default function AdminGaleri() {
     try {
       await fotoService.hapus(f.id);
       if (userData) {
-        logService.catat(userData.uid, userData.username, 'hapus', 'foto', `Menghapus foto: ${f.judul || '(tanpa judul)'}`);
+        await logService.catat(userData.uid, userData.username, 'hapus', 'foto', `Menghapus foto: ${f.judul || '(tanpa judul)'}`);
       }
+      setPesan('Foto berhasil dihapus.');
     } catch {
       setPesan('Gagal menghapus foto. Silakan coba lagi.');
     } finally {
@@ -114,6 +121,7 @@ export default function AdminGaleri() {
           </select>
           <input
             type="file"
+            ref={fileInputRef}
             accept="image/*"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             className="flex-1 cursor-pointer rounded-lg border-2 border-neutral-stone/40 font-body text-sm text-neutral-stone file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-secondary-deep/10 file:px-4 file:py-2 file:text-sm file:font-medium file:text-secondary-deep file:transition-all file:duration-200 hover:file:scale-105 hover:file:bg-secondary-deep/20 dark:border-neutral-stone/25 dark:file:bg-secondary-sky/10 dark:file:text-secondary-sky"
