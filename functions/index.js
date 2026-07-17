@@ -29,34 +29,50 @@ async function pastikanAdmin(auth) {
 export const hapusFoto = onCall(
   { secrets: [cloudinaryCloudName, cloudinaryApiKey, cloudinaryApiSecret] },
   async (request) => {
-    await pastikanAdmin(request.auth);
+    console.log('[BACKEND] Cloud Function hapusFoto terpanggil');
+    try {
+      console.log('[BACKEND] Memanggil pastikanAdmin');
+      await pastikanAdmin(request.auth);
+      console.log('[BACKEND] pastikanAdmin berhasil lolos');
 
-    const { fotoId } = request.data;
-    if (!fotoId) {
-      throw new HttpsError('invalid-argument', 'fotoId wajib diisi.');
+      const { fotoId } = request.data;
+      console.log('[BACKEND] fotoId yang diterima:', fotoId);
+      if (!fotoId) {
+        throw new HttpsError('invalid-argument', 'fotoId wajib diisi.');
+      }
+
+      console.log('[BACKEND] Mengambil fotoRef dari Firestore');
+      const fotoRef = db.collection('gallery').doc(fotoId);
+      const fotoSnap = await fotoRef.get();
+
+      console.log('[BACKEND] fotoSnap exists?', fotoSnap.exists);
+      if (!fotoSnap.exists) {
+        throw new HttpsError('not-found', 'Foto tidak ditemukan.');
+      }
+
+      const publicId = fotoSnap.data().publicId;
+      console.log('[BACKEND] publicId foto:', publicId);
+
+      if (publicId) {
+        cloudinary.config({
+          cloud_name: cloudinaryCloudName.value(),
+          api_key: cloudinaryApiKey.value(),
+          api_secret: cloudinaryApiSecret.value(),
+        });
+
+        console.log('[BACKEND] Menghapus foto dari Cloudinary');
+        await cloudinary.uploader.destroy(publicId);
+        console.log('[BACKEND] Berhasil menghapus dari Cloudinary');
+      }
+
+      console.log('[BACKEND] Menghapus dokumen dari Firestore');
+      await fotoRef.delete();
+      console.log('[BACKEND] Berhasil menghapus dokumen dari Firestore');
+
+      return { berhasil: true };
+    } catch (error) {
+      console.error('[BACKEND] Terjadi error di Cloud Function hapusFoto:', error);
+      throw error;
     }
-
-    const fotoRef = db.collection('gallery').doc(fotoId);
-    const fotoSnap = await fotoRef.get();
-
-    if (!fotoSnap.exists) {
-      throw new HttpsError('not-found', 'Foto tidak ditemukan.');
-    }
-
-    const publicId = fotoSnap.data().publicId;
-
-    if (publicId) {
-      cloudinary.config({
-        cloud_name: cloudinaryCloudName.value(),
-        api_key: cloudinaryApiKey.value(),
-        api_secret: cloudinaryApiSecret.value(),
-      });
-
-      await cloudinary.uploader.destroy(publicId);
-    }
-
-    await fotoRef.delete();
-
-    return { berhasil: true };
   }
 );

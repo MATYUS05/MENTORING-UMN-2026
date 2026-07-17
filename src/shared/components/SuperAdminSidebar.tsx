@@ -32,16 +32,16 @@ export default function SuperAdminSidebar() {
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `rounded-lg px-3 py-2 font-body text-sm font-medium transition-all duration-200 ${
+    `flex items-center gap-3 rounded-lg px-4 py-3 font-body text-sm transition-all duration-200 ${
       isActive
-        ? "bg-primary-dark/10 text-primary-dark dark:bg-primary-light/15 dark:text-primary-light"
-        : "text-neutral-stone hover:bg-neutral-cream hover:text-neutral-charcoal dark:hover:bg-neutral-charcoal-deep dark:hover:text-neutral-cream"
+        ? "bg-primary-dark/15 text-primary-dark shadow-sm font-semibold dark:bg-primary-light/20 dark:text-primary-light"
+        : "text-neutral-stone font-medium hover:bg-neutral-stone/10 hover:text-neutral-charcoal hover:translate-x-1 dark:hover:bg-white/5 dark:hover:text-neutral-cream"
     }`;
 
   return (
     <>
       {/* Header + dropdown untuk mobile & tablet */}
-      <div className="border-b-2 border-neutral-stone/25 bg-white dark:border-neutral-stone/15 dark:bg-neutral-charcoal md:hidden">
+      <div className="shrink-0 border-b-2 border-neutral-stone/25 bg-white dark:border-neutral-stone/15 dark:bg-neutral-charcoal md:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <div>
             <h2 className="font-heading text-base font-bold text-neutral-charcoal dark:text-neutral-cream">Super Admin</h2>
@@ -65,7 +65,7 @@ export default function SuperAdminSidebar() {
           </button>
         </div>
         {mobileOpen && (
-          <div className="border-t-2 border-neutral-stone/20 px-4 pb-4 dark:border-neutral-stone/15">
+          <div className="max-h-[calc(100vh-70px)] overflow-y-auto border-t-2 border-neutral-stone/20 px-4 pb-4 dark:border-neutral-stone/15">
             <nav className="flex flex-col gap-1 pt-3">
               {navItems.map((item) => (
                 <NavLink key={item.path} to={item.path} end={item.end} onClick={() => setMobileOpen(false)} className={navLinkClass}>
@@ -94,7 +94,7 @@ export default function SuperAdminSidebar() {
       </div>
 
       {/* Sidebar untuk desktop */}
-      <aside className="hidden w-64 flex-col border-r-2 border-neutral-stone/25 bg-white p-6 dark:border-neutral-stone/15 dark:bg-neutral-charcoal md:flex">
+      <aside className="hidden h-full w-64 shrink-0 flex-col overflow-y-auto border-r-2 border-neutral-stone/25 bg-white p-6 dark:border-neutral-stone/15 dark:bg-neutral-charcoal md:flex">
         <div>
           <h2 className="font-heading text-lg font-bold text-neutral-charcoal dark:text-neutral-cream">Super Admin</h2>
           <p className="mt-1 font-body text-sm text-neutral-stone">{userData?.username}</p>

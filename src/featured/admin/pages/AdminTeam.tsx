@@ -8,6 +8,7 @@ import { logService } from '../../../lib/logService';
 import { excelHelper } from '../../../lib/excelHelper';
 import { uploadImage } from '../../../lib/cloudinary';
 import DangerConfirmModal from '../../../shared/components/DangerConfirmModal';
+import ConfirmModal from '../../../shared/components/ConfirmModal';
 import type { Kelompok, Peserta, Sesi } from '../../../shared/types/database';
 const kelompokKosong = {
   namaKelompok: '',
@@ -40,6 +41,7 @@ const SESI_VALID: Sesi[] = ['pagi', 'siang', 'pengganti'];
 export default function AdminTeam() {
   const { userData } = useAuth();
   const [tab, setTab] = useState<'kelompok' | 'peserta' | 'data'>('kelompok');
+  const [searchQuery, setSearchQuery] = useState('');
   const [kelompokList, setKelompokList] = useState<Kelompok[]>([]);
   const [pesertaList, setPesertaList] = useState<Peserta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,9 @@ export default function AdminTeam() {
   const [importing, setImporting] = useState(false);
   const [showHapusSemua, setShowHapusSemua] = useState(false);
   const [menghapusSemua, setMenghapusSemua] = useState(false);
+  const [filterKelompok, setFilterKelompok] = useState('semua');
+  const [deletingKelompok, setDeletingKelompok] = useState<Kelompok | null>(null);
+  const [deletingPeserta, setDeletingPeserta] = useState<Peserta | null>(null);
   const [formKelompok, setFormKelompok] = useState(kelompokKosong);
   const [editingKelompokId, setEditingKelompokId] = useState<string | null>(null);
   const [showFormKelompok, setShowFormKelompok] = useState(false);
@@ -106,10 +111,14 @@ export default function AdminTeam() {
     setEditingKelompokId(k.id);
     setShowFormKelompok(true);
   };
-  const hapusKelompok = async (k: Kelompok) => {
-    if (!confirm('Hapus kelompok ini?')) return;
-    await kelompokService.hapus(k.id);
-    catat('hapus', 'kelompok', `Menghapus kelompok: ${k.namaKelompok}`);
+  const hapusKelompok = (k: Kelompok) => {
+    setDeletingKelompok(k);
+  };
+  const confirmHapusKelompok = async () => {
+    if (!deletingKelompok) return;
+    await kelompokService.hapus(deletingKelompok.id);
+    catat('hapus', 'kelompok', `Menghapus kelompok: ${deletingKelompok.namaKelompok}`);
+    setDeletingKelompok(null);
     await muatUlang();
   };
   const simpanPeserta = async () => {
@@ -135,13 +144,34 @@ export default function AdminTeam() {
     setEditingPesertaId(p.id);
     setShowFormPeserta(true);
   };
-  const hapusPeserta = async (p: Peserta) => {
-    if (!confirm('Hapus peserta ini?')) return;
-    await pesertaService.hapus(p.id);
-    catat('hapus', 'peserta', `Menghapus peserta: ${p.namaLengkap}`);
+  const hapusPeserta = (p: Peserta) => {
+    setDeletingPeserta(p);
+  };
+  const confirmHapusPeserta = async () => {
+    if (!deletingPeserta) return;
+    await pesertaService.hapus(deletingPeserta.id);
+    catat('hapus', 'peserta', `Menghapus peserta: ${deletingPeserta.namaLengkap}`);
+    setDeletingPeserta(null);
     await muatUlang();
   };
   const namaKelompokDari = (id: string) => kelompokList.find((k) => k.id === id)?.namaKelompok ?? '-';
+
+  const q = searchQuery.trim().toLowerCase();
+  const filteredKelompok = kelompokList.filter(
+    (k) =>
+      k.namaKelompok.toLowerCase().includes(q) ||
+      k.namaMentor.toLowerCase().includes(q) ||
+      k.sesi.toLowerCase().includes(q)
+  );
+  const filteredPeserta = pesertaList.filter((p) => {
+    const matchSearch =
+      p.namaLengkap.toLowerCase().includes(q) ||
+      p.nim.toLowerCase().includes(q) ||
+      p.jurusan.toLowerCase().includes(q) ||
+      namaKelompokDari(p.kelompokId).toLowerCase().includes(q);
+    const matchFilter = filterKelompok === 'semua' || p.kelompokId === filterKelompok;
+    return matchSearch && matchFilter;
+  });
   const exportExcel = () => {
     excelHelper.export(
       [
@@ -303,17 +333,28 @@ export default function AdminTeam() {
       {loading && <p className="font-body text-neutral-stone">Memuat data...</p>}
       {!loading && tab === 'kelompok' && (
         <div className="space-y-4">
-          <button
-            onClick={() => {
-              setFormKelompok(kelompokKosong);
-              setEditingKelompokId(null);
-              setShowFormKelompok(true);
-            }}
-            className={primaryButton}
-          >
-            + Tambah Kelompok
-          </button>
-          <div className={`overflow-x-auto ${cardBase}`}>
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                setFormKelompok(kelompokKosong);
+                setEditingKelompokId(null);
+                setShowFormKelompok(true);
+              }}
+              className={`shrink-0 ${primaryButton}`}
+            >
+              + Tambah Kelompok
+            </button>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari berdasarkan nama, mentor, atau NIM..."
+              className={inputBase}
+            />
+          </div>
+          {filteredKelompok.length === 0 ? (
+            <p className="font-body text-neutral-stone">Tidak ada data yang sesuai dengan pencarian.</p>
+          ) : (
+            <div className={`overflow-x-auto ${cardBase}`}>
             <table className="w-full text-left font-body text-sm">
               <thead className="border-b-2 border-neutral-stone/30 bg-neutral-sand/40 text-neutral-stone dark:border-neutral-stone/20 dark:bg-neutral-charcoal-deep">
                 <tr>
@@ -324,7 +365,7 @@ export default function AdminTeam() {
                 </tr>
               </thead>
               <tbody>
-                {kelompokList.map((k) => (
+                {filteredKelompok.map((k) => (
                   <tr
                     key={k.id}
                     className="border-t-2 border-neutral-stone/20 transition-colors duration-200 hover:bg-neutral-cream dark:hover:bg-neutral-charcoal-deep"
@@ -345,21 +386,45 @@ export default function AdminTeam() {
               </tbody>
             </table>
           </div>
+          )}
         </div>
       )}
       {!loading && tab === 'peserta' && (
         <div className="space-y-4">
-          <button
-            onClick={() => {
-              setFormPeserta(pesertaKosong);
-              setEditingPesertaId(null);
-              setShowFormPeserta(true);
-            }}
-            className={primaryButton}
-          >
-            + Tambah Peserta
-          </button>
-          <div className={`overflow-x-auto ${cardBase}`}>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <button
+              onClick={() => {
+                setFormPeserta(pesertaKosong);
+                setEditingPesertaId(null);
+                setShowFormPeserta(true);
+              }}
+              className={`shrink-0 ${primaryButton}`}
+            >
+              + Tambah Peserta
+            </button>
+            <div className="flex w-full flex-col gap-4 sm:flex-row">
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari berdasarkan nama, NIM, jurusan, atau kelompok..."
+                className={inputBase}
+              />
+              <select
+                value={filterKelompok}
+                onChange={(e) => setFilterKelompok(e.target.value)}
+                className={`${inputBase} shrink-0 sm:w-64`}
+              >
+                <option value="semua">Semua Kelompok</option>
+                {kelompokList.map(k => (
+                  <option key={k.id} value={k.id}>{k.namaKelompok}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {filteredPeserta.length === 0 ? (
+            <p className="font-body text-neutral-stone">Tidak ada data yang sesuai dengan pencarian.</p>
+          ) : (
+            <div className={`overflow-x-auto ${cardBase}`}>
             <table className="w-full text-left font-body text-sm">
               <thead className="border-b-2 border-neutral-stone/30 bg-neutral-sand/40 text-neutral-stone dark:border-neutral-stone/20 dark:bg-neutral-charcoal-deep">
                 <tr>
@@ -371,7 +436,7 @@ export default function AdminTeam() {
                 </tr>
               </thead>
               <tbody>
-                {pesertaList.map((p) => (
+                {filteredPeserta.map((p) => (
                   <tr
                     key={p.id}
                     className="border-t-2 border-neutral-stone/20 transition-colors duration-200 hover:bg-neutral-cream dark:hover:bg-neutral-charcoal-deep"
@@ -393,6 +458,7 @@ export default function AdminTeam() {
               </tbody>
             </table>
           </div>
+          )}
         </div>
       )}
       {!loading && tab === 'data' && (
@@ -579,6 +645,22 @@ export default function AdminTeam() {
           loading={menghapusSemua}
           onCancel={() => setShowHapusSemua(false)}
           onConfirm={hapusSemuaData}
+        />
+      )}
+      {deletingKelompok && (
+        <ConfirmModal
+          title="Hapus Kelompok"
+          description={`Apakah Anda yakin ingin menghapus kelompok "${deletingKelompok.namaKelompok}"? Tindakan ini tidak dapat dibatalkan.`}
+          onCancel={() => setDeletingKelompok(null)}
+          onConfirm={confirmHapusKelompok}
+        />
+      )}
+      {deletingPeserta && (
+        <ConfirmModal
+          title="Hapus Peserta"
+          description={`Apakah Anda yakin ingin menghapus peserta "${deletingPeserta.namaLengkap}"? Tindakan ini tidak dapat dibatalkan.`}
+          onCancel={() => setDeletingPeserta(null)}
+          onConfirm={confirmHapusPeserta}
         />
       )}
     </div>

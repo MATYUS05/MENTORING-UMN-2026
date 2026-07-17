@@ -8,6 +8,7 @@ import { logService } from '../../../lib/logService';
 import { uploadImage } from '../../../lib/cloudinary';
 import { excelHelper } from '../../../lib/excelHelper';
 import DangerConfirmModal from '../../../shared/components/DangerConfirmModal';
+import ConfirmModal from '../../../shared/components/ConfirmModal';
 import type { Divisi, Panitia, PosisiPanitia } from '../../../shared/types/database';
 const divisiKosong = {
   namaDivisi: '',
@@ -39,6 +40,7 @@ const keBoolean = (v: unknown) => v === true || String(v).trim().toLowerCase() =
 export default function AdminDivisi() {
   const { userData } = useAuth();
   const [tab, setTab] = useState<'divisi' | 'panitia' | 'data'>('divisi');
+  const [searchQuery, setSearchQuery] = useState('');
   const [divisiList, setDivisiList] = useState<Divisi[]>([]);
   const [panitiaList, setPanitiaList] = useState<Panitia[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +48,9 @@ export default function AdminDivisi() {
   const [importing, setImporting] = useState(false);
   const [showHapusSemua, setShowHapusSemua] = useState(false);
   const [menghapusSemua, setMenghapusSemua] = useState(false);
+  const [filterDivisi, setFilterDivisi] = useState('semua');
+  const [deletingDivisi, setDeletingDivisi] = useState<Divisi | null>(null);
+  const [deletingPanitia, setDeletingPanitia] = useState<Panitia | null>(null);
   const [formDivisi, setFormDivisi] = useState(divisiKosong);
   const [editingDivisiId, setEditingDivisiId] = useState<string | null>(null);
   const [showFormDivisi, setShowFormDivisi] = useState(false);
@@ -100,10 +105,14 @@ export default function AdminDivisi() {
     setEditingDivisiId(d.id);
     setShowFormDivisi(true);
   };
-  const hapusDivisi = async (d: Divisi) => {
-    if (!confirm('Hapus divisi ini? Panitia di dalamnya tidak otomatis terhapus.')) return;
-    await divisiService.hapus(d.id);
-    catat('hapus', 'divisi', `Menghapus divisi: ${d.namaDivisi}`);
+  const hapusDivisi = (d: Divisi) => {
+    setDeletingDivisi(d);
+  };
+  const confirmHapusDivisi = async () => {
+    if (!deletingDivisi) return;
+    await divisiService.hapus(deletingDivisi.id);
+    catat('hapus', 'divisi', `Menghapus divisi: ${deletingDivisi.namaDivisi}`);
+    setDeletingDivisi(null);
     await muatUlang();
   };
   const simpanPanitia = async () => {
@@ -129,13 +138,31 @@ export default function AdminDivisi() {
     setEditingPanitiaId(p.id);
     setShowFormPanitia(true);
   };
-  const hapusPanitia = async (p: Panitia) => {
-    if (!confirm('Hapus panitia ini?')) return;
-    await panitiaService.hapus(p.id);
-    catat('hapus', 'panitia', `Menghapus panitia: ${p.namaLengkap}`);
+  const hapusPanitia = (p: Panitia) => {
+    setDeletingPanitia(p);
+  };
+  const confirmHapusPanitia = async () => {
+    if (!deletingPanitia) return;
+    await panitiaService.hapus(deletingPanitia.id);
+    catat('hapus', 'panitia', `Menghapus panitia: ${deletingPanitia.namaLengkap}`);
+    setDeletingPanitia(null);
     await muatUlang();
   };
   const namaDivisiDari = (id: string) => divisiList.find((d) => d.id === id)?.namaDivisi ?? '-';
+
+  const q = searchQuery.trim().toLowerCase();
+  const filteredDivisi = divisiList.filter(
+    (d) => d.namaDivisi.toLowerCase().includes(q) || d.deskripsiDivisi.toLowerCase().includes(q)
+  );
+  const filteredPanitia = panitiaList.filter((p) => {
+    const matchSearch =
+      p.namaLengkap.toLowerCase().includes(q) ||
+      p.nim.toLowerCase().includes(q) ||
+      p.posisi.toLowerCase().includes(q) ||
+      namaDivisiDari(p.divisiId).toLowerCase().includes(q);
+    const matchFilter = filterDivisi === 'semua' || p.divisiId === filterDivisi;
+    return matchSearch && matchFilter;
+  });
   const exportExcel = () => {
     excelHelper.export(
       [
@@ -293,17 +320,28 @@ export default function AdminDivisi() {
       {loading && <p className="font-body text-neutral-stone">Memuat data...</p>}
       {!loading && tab === 'divisi' && (
         <div className="space-y-4">
-          <button
-            onClick={() => {
-              setFormDivisi(divisiKosong);
-              setEditingDivisiId(null);
-              setShowFormDivisi(true);
-            }}
-            className={primaryButton}
-          >
-            + Tambah Divisi
-          </button>
-          <div className={`overflow-x-auto ${cardBase}`}>
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                setFormDivisi(divisiKosong);
+                setEditingDivisiId(null);
+                setShowFormDivisi(true);
+              }}
+              className={`shrink-0 ${primaryButton}`}
+            >
+              + Tambah Divisi
+            </button>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari berdasarkan nama divisi atau tipe..."
+              className={inputBase}
+            />
+          </div>
+          {filteredDivisi.length === 0 ? (
+            <p className="font-body text-neutral-stone">Tidak ada data yang sesuai dengan pencarian.</p>
+          ) : (
+            <div className={`overflow-x-auto ${cardBase}`}>
             <table className="w-full text-left font-body text-sm">
               <thead className="border-b-2 border-neutral-stone/30 bg-neutral-sand/40 text-neutral-stone dark:border-neutral-stone/20 dark:bg-neutral-charcoal-deep">
                 <tr>
@@ -313,7 +351,7 @@ export default function AdminDivisi() {
                 </tr>
               </thead>
               <tbody>
-                {divisiList.map((d) => (
+                {filteredDivisi.map((d) => (
                   <tr
                     key={d.id}
                     className="border-t-2 border-neutral-stone/20 transition-colors duration-200 hover:bg-neutral-cream dark:hover:bg-neutral-charcoal-deep"
@@ -333,21 +371,45 @@ export default function AdminDivisi() {
               </tbody>
             </table>
           </div>
+          )}
         </div>
       )}
       {!loading && tab === 'panitia' && (
         <div className="space-y-4">
-          <button
-            onClick={() => {
-              setFormPanitia(panitiaKosong);
-              setEditingPanitiaId(null);
-              setShowFormPanitia(true);
-            }}
-            className={primaryButton}
-          >
-            + Tambah Panitia
-          </button>
-          <div className={`overflow-x-auto ${cardBase}`}>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <button
+              onClick={() => {
+                setFormPanitia(panitiaKosong);
+                setEditingPanitiaId(null);
+                setShowFormPanitia(true);
+              }}
+              className={`shrink-0 ${primaryButton}`}
+            >
+              + Tambah Panitia
+            </button>
+            <div className="flex w-full flex-col gap-4 sm:flex-row">
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari nama, NIM, atau divisi..."
+                className={inputBase}
+              />
+              <select
+                value={filterDivisi}
+                onChange={(e) => setFilterDivisi(e.target.value)}
+                className={`${inputBase} shrink-0 sm:w-64`}
+              >
+                <option value="semua">Semua Divisi</option>
+                {divisiList.map(d => (
+                  <option key={d.id} value={d.id}>{d.namaDivisi}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {filteredPanitia.length === 0 ? (
+            <p className="font-body text-neutral-stone">Tidak ada data yang sesuai dengan pencarian.</p>
+          ) : (
+            <div className={`overflow-x-auto ${cardBase}`}>
             <table className="w-full text-left font-body text-sm">
               <thead className="border-b-2 border-neutral-stone/30 bg-neutral-sand/40 text-neutral-stone dark:border-neutral-stone/20 dark:bg-neutral-charcoal-deep">
                 <tr>
@@ -359,7 +421,7 @@ export default function AdminDivisi() {
                 </tr>
               </thead>
               <tbody>
-                {panitiaList.map((p) => (
+                {filteredPanitia.map((p) => (
                   <tr
                     key={p.id}
                     className="border-t-2 border-neutral-stone/20 transition-colors duration-200 hover:bg-neutral-cream dark:hover:bg-neutral-charcoal-deep"
@@ -381,6 +443,7 @@ export default function AdminDivisi() {
               </tbody>
             </table>
           </div>
+          )}
         </div>
       )}
       {!loading && tab === 'data' && (
@@ -557,6 +620,22 @@ export default function AdminDivisi() {
           loading={menghapusSemua}
           onCancel={() => setShowHapusSemua(false)}
           onConfirm={hapusSemuaData}
+        />
+      )}
+      {deletingDivisi && (
+        <ConfirmModal
+          title="Hapus Divisi"
+          description={`Apakah Anda yakin ingin menghapus divisi "${deletingDivisi.namaDivisi}"? Tindakan ini tidak dapat dibatalkan.`}
+          onCancel={() => setDeletingDivisi(null)}
+          onConfirm={confirmHapusDivisi}
+        />
+      )}
+      {deletingPanitia && (
+        <ConfirmModal
+          title="Hapus Panitia"
+          description={`Apakah Anda yakin ingin menghapus panitia "${deletingPanitia.namaLengkap}"? Tindakan ini tidak dapat dibatalkan.`}
+          onCancel={() => setDeletingPanitia(null)}
+          onConfirm={confirmHapusPanitia}
         />
       )}
     </div>
