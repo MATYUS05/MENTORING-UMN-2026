@@ -67,14 +67,13 @@ export default function Gallery() {
         className="
           pointer-events-none
           absolute
-          left-12
-          top-36
+          right-16
+          top-120
           hidden
-          w-14
-          rotate-12
+          w-20
           opacity-80
-          md:block
-          animate-[floatGem_5s_ease-in-out_infinite]
+          xl:block
+          animate-[floatGem_8s_ease-in-out_infinite]
         "
       />
 
@@ -84,14 +83,18 @@ export default function Gallery() {
         className="
           pointer-events-none
           absolute
-          right-20
-          top-52
-          hidden
-          w-12
-          -rotate-12
-          opacity-80
-          lg:block
-          animate-[floatGem_4s_ease-in-out_infinite]
+          left-2
+          top-24
+          w-8
+          opacity-60
+          animate-[floatGem_5s_ease-in-out_infinite]
+
+          md:left-6
+          md:top-28
+          md:w-12
+
+          lg:w-16
+          opacity-40 md:opacity-70
         "
       />
 
@@ -101,14 +104,13 @@ export default function Gallery() {
         className="
           pointer-events-none
           absolute
-          bottom-44
-          left-16
+          bottom-32
+          left-8
           hidden
-          w-12
-          rotate-12
-          opacity-80
+          w-14
+          opacity-70
           lg:block
-          animate-[floatGem_6s_ease-in-out_infinite]
+          animate-[floatGem_7s_ease-in-out_infinite]
         "
       />
 
@@ -118,14 +120,16 @@ export default function Gallery() {
         className="
           pointer-events-none
           absolute
-          bottom-28
-          right-20
-          hidden
-          w-14
-          -rotate-12
-          opacity-80
-          lg:block
-          animate-[floatGem_5s_ease-in-out_infinite]
+          right-2
+          top-90
+          w-8
+          opacity-60
+          animate-[floatGem_6s_ease-in-out_infinite]
+
+          md:right-6
+          md:w-12
+          opacity-40 md:opacity-70
+          lg:w-16
         "
       />
 

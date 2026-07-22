@@ -70,37 +70,39 @@ export default function Faq() {
       <img
         src={tali}
         alt=""
-        className="
-          pointer-events-none
-          absolute
-          left-5
-          top-0
-          z-0
-          hidden
-          h-64
-          rotate-6
-          opacity-80
-          md:block
-        "
+          className="
+            pointer-events-none
+            absolute
+            left-2
+            top-0
+            z-0
+            h-40
+            rotate-6
+            opacity-60
+            block
+            md:left-5
+            md:h-64
+          "
       />
 
       {/* TALI KANAN */}
       <img
         src={tali}
         alt=""
-        className="
-          pointer-events-none
-          absolute
-          right-5
-          top-0
-          z-0
-          hidden
-          h-72
-          -rotate-6
-          scale-x-[-1]
-          opacity-80
-          md:block
-        "
+          className="
+            pointer-events-none
+            absolute
+            right-2
+            top-0
+            z-0
+            h-44
+            -scale-x-100
+            -rotate-6
+            opacity-60
+            block
+            md:right-5
+            md:h-72
+          "
       />
 
       <div className="relative z-10 mx-auto max-w-3xl px-6 py-12">
@@ -123,7 +125,7 @@ export default function Faq() {
             src={mascotObor}
             alt="Maskot"
             className="
-              hidden
+              
               w-24
               rotate-12
               transition-transform
@@ -276,7 +278,7 @@ export default function Faq() {
               absolute
               -right-5
               -top-12
-              hidden
+              
               w-20
               rotate-12
               opacity-90
