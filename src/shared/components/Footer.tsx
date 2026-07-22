@@ -1,4 +1,4 @@
-import "./Footer.css";
+import "../style/Footer.css";
 export default function Footer() {
   return (
     <footer className="footerBg border-t border-slate-200 bg-cover bg-center bg-no-repeat">
