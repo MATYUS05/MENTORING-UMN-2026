@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import "./Navbar.css";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -16,8 +17,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <header className="navbar-header sticky top-0 z-50 border-b border-slate-200 bg-cover bg-center bg-no-repeat">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
         <Link
           to="/"
           onClick={() => setIsOpen(false)}
