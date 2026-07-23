@@ -90,3 +90,13 @@
   --color-danger: #B02C20;
   --color-info: #4EABEE;
 }
+
+@keyframes floatGem {
+  0%,100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
