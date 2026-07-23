@@ -1,6 +1,7 @@
+import "../style/Footer.css";
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-white">
+    <footer className="footerBg border-t border-slate-200 bg-cover bg-center bg-no-repeat">
       <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <div>

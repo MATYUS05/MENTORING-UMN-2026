@@ -1,0 +1,26 @@
+/* src/shared/components/Footer.module.css */
+
+/* 1. MOBILE FIRST (Default) */
+.footerBg {
+    background-image: url('../../assets/footer/footer mobile.png');
+    background-size: 100% 100%;    /* Agar gambar fleksibel memenuhi area footer */
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+}
+
+/* 2. TABLET (Layar >= 640px) */
+@media (min-width: 640px) {
+    .footerBg {
+        background-image: url('../../assets/footer/footer tab.png');
+        background-size: 100% 100%;    /* Agar gambar fleksibel memenuhi area footer */
+    }
+}
+
+/* 3. DESKTOP (Layar >= 1024px) */
+@media (min-width: 1024px) {
+    .footerBg {
+        background-image: url('../../assets/footer/footer desktop.png');
+        background-size: 100% 100%;       /* Tampilan desktop biasanya lebih pas pakai cover */
+    }
+}
