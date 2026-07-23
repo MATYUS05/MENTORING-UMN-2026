@@ -1,8 +1,8 @@
 /* Styling background responsif untuk Navbar */
 .navbar-header {
-    background-image: url('D:\MENTORING-UMN-2026\src\assets\navbar\header mobile.png');
+    background-image: url('../../assets/navbar/header mobile.png');
     background-size: 100% 100%;      /* Memastikan gambar memenuhi seluruh header */
-    background-position: center; /* Mengetengahkan gambar */
+    background-position: center; 
     background-repeat: no-repeat;
     height: 70px;
     width: 100%;                /* Tinggi navbar di HP */
@@ -11,7 +11,7 @@
 /* Tampilan Tablet (>= 640px) */
 @media (min-width: 640px) {
     .navbar-header {
-        background-image: url('D:\MENTORING-UMN-2026\src\assets\navbar\header tab.png');
+        background-image: url('../../assets/navbar/header tab.png');
         height: 72px; /* Tinggi navbar di Tablet */
     }
 }
@@ -19,7 +19,7 @@
 /* Tampilan Desktop (>= 1024px) */
 @media (min-width: 1024px) {
     .navbar-header {
-        background-image: url('D:\MENTORING-UMN-2026\src\assets\navbar\header desktop.png');
+        background-image: url('../../assets/navbar/header desktop.png');
         height: 80px; /* Tinggi navbar di Desktop */
     }
 }
