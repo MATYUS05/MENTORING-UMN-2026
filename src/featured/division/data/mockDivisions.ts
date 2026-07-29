@@ -102,5 +102,15 @@ export const DEFAULT_DIVISIONS: Division[] = [
       { id: 'i1', name: 'Deni Kurniawan', position: 'Koordinator Divisi', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=300', nim: '00000089001' },
       { id: 'i2', name: 'Elsa Mayori', position: 'Wakil Koordinator', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300', nim: '00000089002' }
     ]
+  },
+  {
+    id: 'logistics',
+    name: 'Logistics',
+    logo: '📦',
+    description: 'Divisi Logistik & Perlengkapan. Bertanggung jawab atas pengadaan barang, tata kelola perlengkapan, serta kebutuhan sarana dan prasarana acara Mentoring UMN 2026.',
+    members: [
+      { id: 'l1', name: 'Fikri Ramadhan', position: 'Koordinator Divisi', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300', nim: '00000090001' },
+      { id: 'l2', name: 'Nadia Safira', position: 'Wakil Koordinator', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=300', nim: '00000090002' }
+    ]
   }
 ];

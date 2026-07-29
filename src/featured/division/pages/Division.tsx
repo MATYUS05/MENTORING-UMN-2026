@@ -47,9 +47,9 @@ export default function DivisionPage() {
             };
           });
 
-          // Ensure exactly 10 divisions by filling up with default/dummy divisions if Firestore has fewer than 10
-          if (mappedDivisions.length < 10) {
-            const extraDummies = DEFAULT_DIVISIONS.slice(mappedDivisions.length, 10);
+          // Ensure all divisions from default if Firestore has fewer divisions
+          if (mappedDivisions.length < DEFAULT_DIVISIONS.length) {
+            const extraDummies = DEFAULT_DIVISIONS.slice(mappedDivisions.length);
             mappedDivisions = [...mappedDivisions, ...extraDummies];
           }
 

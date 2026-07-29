@@ -15,8 +15,8 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
   activeIndex,
   onSelectDivision,
 }) => {
-  const topShelf = divisions.slice(0, 5);
-  const bottomShelf = divisions.slice(5, 10);
+  const topShelf = divisions.slice(0, 6);
+  const bottomShelf = divisions.slice(6);
 
   const handleSelect = (originalIndex: number) => {
     onSelectDivision(originalIndex);
@@ -47,7 +47,7 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
         </div>
 
         {/* Circular Logo Badge (Enlarged Mobile Size, Desktop Reverted) */}
-        <div className="relative flex h-25 w-25 items-center justify-center rounded-full border border-[#4a2e1b]/70 bg-[#120804]/90 transition-all duration-300 sm:h-18 sm:w-18 md:h-20 md:w-20 lg:h-22 lg:w-22 group-hover:scale-110 group-hover:border-amber-600/80 group-hover:bg-[#2b170c]">
+        <div className="relative flex h-25 w-25 items-center justify-center rounded-full border border-[#4a2e1b]/70 bg-[#120804]/90 transition-all duration-300 sm:h-15 sm:w-15 md:h-18 md:w-18 lg:h-21 lg:w-21 group-hover:scale-110 group-hover:border-amber-600/80 group-hover:bg-[#2b170c]">
           {division.logo && (division.logo.startsWith('http') || division.logo.startsWith('/')) ? (
             <img
               src={division.logo}
@@ -83,14 +83,14 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
           className="absolute inset-0 w-full h-full object-fill pointer-events-none"
         />
 
-        {/* Desktop Row 1: Rak Atas (5 Divisi - Top Slot) */}
-        <div className="absolute top-[13.5%] bottom-[48%] left-[5.5%] right-[5.5%] z-20 flex items-center justify-around px-6">
+        {/* Desktop Row 1: Rak Atas (6 Divisi - Top Slot) */}
+        <div className="absolute top-[13.5%] bottom-[48%] left-[4.5%] right-[4.5%] z-20 flex items-center justify-around px-3 sm:px-4 md:px-6">
           {topShelf.map((division, idx) => renderLogoButton(division, idx))}
         </div>
 
         {/* Desktop Row 2: Rak Bawah (5 Divisi - Bottom Slot) */}
-        <div className="absolute top-[54%] bottom-[11.5%] left-[5.5%] right-[5.5%] z-20 flex items-center justify-around px-6">
-          {bottomShelf.map((division, idx) => renderLogoButton(division, idx + 5))}
+        <div className="absolute top-[54%] bottom-[11.5%] left-[5.5%] right-[5.5%] z-20 flex items-center justify-around px-4 sm:px-6">
+          {bottomShelf.map((division, idx) => renderLogoButton(division, idx + topShelf.length))}
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
           className="absolute inset-0 w-full h-full object-fill pointer-events-none"
         />
 
-        {/* Mobile Single Vertical Column: All 10 Divisions Trimmed Safely Inside Wooden Shelf Frame */}
+        {/* Mobile Single Vertical Column: All Divisions Trimmed Safely Inside Wooden Shelf Frame */}
         <div className="absolute top-[5%] bottom-[5%] left-[10%] right-[10%] z-20 flex flex-col items-center justify-start gap-4 py-2 overflow-y-auto hide-scrollbar">
           {divisions.map((division, idx) => renderLogoButton(division, idx))}
         </div>
