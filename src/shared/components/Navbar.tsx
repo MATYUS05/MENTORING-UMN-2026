@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import "../style/Navbar.css";
+import mentoringLogo from "../../assets/navbar/Logo Mentoring 2026 (White Outline Ver.).png";
+import { font } from "../typography/font";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -17,24 +19,31 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="navbar-header sticky top-0 z-50 border-b border-slate-200 bg-cover bg-center bg-no-repeat">
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
+    <header className="fixed top-2.5 left-0 z-50 flex w-full justify-center relative">
+      <div className="navbar-container flex h-[120px] w-[92%] max-w-[1340px] items-center justify-between px-8 lg:px-12">
         <Link
           to="/"
           onClick={() => setIsOpen(false)}
-          className="text-lg font-bold tracking-wide text-slate-900"
-        >
-          MENTORING UMN
+          className="flex w-[220px] shrink-0 items-center gap-3 md:w-[260px] lg:w-[320px]" >
+            <img
+                src={mentoringLogo}
+                alt="Mentoring UMN"
+                className="h-12 w-12 object-contain sm:h-14 sm:w-14 lg:h-16 lg:w-16" />
+            <div className="flex flex-col">
+                <h1 className={`${font.navbar} text-slate-900`}>
+                    MENTORING UMN
+                </h1>
+            </div>
         </Link>
 
         <nav>
-          <ul className="hidden items-center gap-8 md:flex">
+          <ul className="hidden items-center gap-8 lg:flex">
             {navItems.map((item) => (
               <li key={item.path}>
                 <NavLink
                   to={item.path}
                   className={({ isActive }) =>
-                    `text-sm font-medium transition ${
+                    `text-medium font-medium transition ${
                       isActive
                         ? "text-slate-900"
                         : "text-slate-500 hover:text-slate-900"
@@ -52,7 +61,7 @@ export default function Navbar() {
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label={isOpen ? "Tutup menu" : "Buka menu"}
           aria-expanded={isOpen}
-          className="text-slate-600 md:hidden"
+          className="text-slate-600 lg:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -71,26 +80,63 @@ export default function Navbar() {
         </button>
       </div>
 
-      {isOpen && (
-        <nav className="border-t border-slate-200 bg-white md:hidden">
-          <ul className="flex flex-col px-6 py-4">
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <NavLink
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
-                  className={({ isActive }) =>
-                    `block py-3 text-sm font-medium transition ${
-                      isActive ? "text-slate-900" : "text-slate-500 hover:text-slate-900"
-                    }`
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
+      {(
+        <div
+          className={`
+            absolute
+            top-[132px]
+            left-1/2
+            w-[92%]
+            -translate-x-1/2
+            transition-all
+            duration-300
+            lg:hidden
+
+            ${
+              isOpen
+                ? "opacity-100 translate-y-0"
+                : "pointer-events-none opacity-0 -translate-y-4"
+            }
+          `}
+        >
+          <nav
+            className="
+              mobile-dropdown
+              overflow-hidden
+            "
+          >
+            <ul className="flex flex-col px-5 py-6">
+              {navItems.map((item) => (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    onClick={() => setIsOpen(false)}
+                    className={({ isActive }) =>
+                      `
+                      block
+                      rounded-xl
+                      px-4
+                      py-3
+                      text-lg
+                      font-medium
+                      transition-all
+                      duration-200
+
+                      ${
+                        isActive
+                          ? "bg-[#143E63] text-white"
+                          : "text-[#2B2B2B] hover:bg-white/40"
+                      }
+                      `
+                    }
+                  >
+                      {item.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
       )}
     </header>
   );

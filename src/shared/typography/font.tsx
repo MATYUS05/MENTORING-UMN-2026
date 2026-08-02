@@ -6,4 +6,6 @@ export const font = {
   body: "font-body text-sm sm:text-base font-normal leading-relaxed",
   bodySmall: "font-body text-xs sm:text-sm font-normal leading-relaxed",
   caption: "font-body text-xs sm:text-sm font-light text-slate-400",
+  navbar: "font-heading text-lg sm:text-xl lg:text-2xl font-bold tracking-wide",
+
 } as const;

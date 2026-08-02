@@ -1,25 +1,33 @@
 /* Styling background responsif untuk Navbar */
-.navbar-header {
-    background-image: url('../../assets/navbar/header mobile.png');
-    background-size: 100% 100%;      /* Memastikan gambar memenuhi seluruh header */
-    background-position: center; 
-    background-repeat: no-repeat;
-    height: 70px;
-    width: 100%;                /* Tinggi navbar di HP */
+.navbar-container {
+    background-image: url("../../assets/navbar/header mobile.png");
+    background-size:100% 100%;
+    background-position:center;
+    background-repeat:no-repeat;
+
+    filter: drop-shadow(0 12px 20px rgba(0,0,0,.18));               /* Tinggi navbar di HP */
 }
 
 /* Tampilan Tablet (>= 640px) */
 @media (min-width: 640px) {
-    .navbar-header {
+    .navbar-container {
         background-image: url('../../assets/navbar/header tab.png');
-        height: 72px; /* Tinggi navbar di Tablet */
     }
 }
 
 /* Tampilan Desktop (>= 1024px) */
 @media (min-width: 1024px) {
-    .navbar-header {
+    .navbar-container {
         background-image: url('../../assets/navbar/header desktop.png');
-        height: 80px; /* Tinggi navbar di Desktop */
     }
+}
+
+.mobile-dropdown {
+    background-image: url("../../assets/navbar/kertas.png");
+    /* background: red; */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .18));
 }
