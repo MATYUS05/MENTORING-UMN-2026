@@ -19,7 +19,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="fixed top-2.5 left-0 z-50 flex w-full justify-center relative">
+    <header className="fixed top-2.5 left-0 z-50 flex w-full justify-center relative sticky">
       <div className="navbar-container flex h-[120px] w-[92%] max-w-[1340px] items-center justify-between px-8 lg:px-12">
         <Link
           to="/"
