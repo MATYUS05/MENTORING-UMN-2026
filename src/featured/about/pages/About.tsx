@@ -88,9 +88,9 @@ export default function About() {
 
       {/* Hero — sits over the scene background, text + image side by side per the Figma */}
       <Section className="flex min-h-screen items-center pt-10 sm:pt-14">
-        <div className="flex flex-col items-center gap-10 md:flex-row md:items-center md:gap-12">
+        <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-12">
           <div
-            className="flex-1 rounded-2xl p-6 text-center sm:p-8 md:text-left"
+            className="flex-1 rounded-2xl p-6 text-center sm:p-8 lg:text-left"
             style={{ backgroundColor: `${colors.neutral.surface}E6` }}
           >
             <h1 className={font.h1} style={{ color: colors.neutral.charcoal }}>
@@ -102,7 +102,7 @@ export default function About() {
               mewujudkan visi, dan menciptakan dampak nyata bagi lingkungan melalui nilai 5C.
             </p>
           </div>
-          <ImagePlaceholder alt="About" className="aspect-video w-full flex-1 md:max-w-md" />
+          <ImagePlaceholder alt="About" className="aspect-video w-full flex-1 lg:max-w-md" />
         </div>
       </Section>
 

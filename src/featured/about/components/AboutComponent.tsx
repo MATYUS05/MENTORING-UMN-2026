@@ -1,9 +1,10 @@
-import React, { useEffect, useState, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import React, { useState, type ReactNode } from 'react'
 import { colors } from '../../../shared/theme/colors'
 import { font } from '../../../shared/typography/font'
 
 const PLACEHOLDER_IMG = 'https://placehold.co/600x400/EFE3CF/8C7B68?text=Image'
+
+/*  Layout primitives                                                  */
 
 export function Container({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
@@ -42,6 +43,8 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   )
 }
 
+/*  Image placeholder */
+
 export function ImagePlaceholder({
   src,
   alt = '',
@@ -74,7 +77,7 @@ export function CirclePlaceholder({
   return <ImagePlaceholder src={src} alt={alt} rounded="rounded-full" className={className} />
 }
 
-/*Seek / Strive / Surpass */
+/*  for Seek / Strive / Surpass                     */
 
 export function PillarCard({ title, description }: { title: string; description: string }) {
   return (
@@ -92,7 +95,7 @@ export function PillarCard({ title, description }: { title: string; description:
   )
 }
 
-/*Motion Lines / Shooting Star / Airplane*/
+/*  for Motion Lines / Shooting Star / Airplane*/
 
 export function LogoMeaningRow({
   title,
@@ -107,13 +110,13 @@ export function LogoMeaningRow({
 }) {
   return (
     <div
-      className={`flex flex-col items-center gap-6 sm:gap-8 md:flex-row ${
-        reverse ? 'md:flex-row-reverse' : ''
+      className={`flex flex-col items-center gap-6 sm:gap-8 lg:flex-row ${
+        reverse ? 'lg:flex-row-reverse' : ''
       }`}
     >
       <CirclePlaceholder src={image} alt={title} className="h-40 w-40 shrink-0 sm:h-48 sm:w-48" />
       <div
-        className="flex-1 rounded-2xl border p-6 text-center shadow-sm md:text-left"
+        className="flex-1 rounded-2xl border p-6 text-center shadow-sm lg:text-left"
         style={{ backgroundColor: colors.neutral.surface, borderColor: colors.neutral.sand }}
       >
         <h3 className={`${font.h3} mb-2`} style={{ color: colors.neutral.charcoal }}>
@@ -127,7 +130,7 @@ export function LogoMeaningRow({
   )
 }
 
-/*  Activity card + carousel*/
+/*  Activity card + carousel                                           */
 
 export interface Activity {
   title: string
@@ -182,7 +185,7 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
             onClick={prev}
             aria-label="Previous activity"
             className="flex h-10 w-10 items-center justify-center rounded-full border transition"
-            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone, backgroundColor: colors.neutral.surface }}
+            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone }}
           >
             &#8249;
           </button>
@@ -194,7 +197,7 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
             onClick={next}
             aria-label="Next activity"
             className="flex h-10 w-10 items-center justify-center rounded-full border transition"
-            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone, backgroundColor: colors.neutral.surface }}
+            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone }}
           >
             &#8250;
           </button>
@@ -221,27 +224,17 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
 }
 
 export function SceneBackground({ src, alt = '' }: { src?: string; alt?: string }) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) return null
-
-  return createPortal(
+  return (
     <div
-      className="fixed inset-0 -z-10 h-screen w-screen"
-      style={{ backgroundColor: colors.neutral.cream }}
+      className="pointer-events-none fixed inset-0 -z-10 h-screen w-screen"
       aria-hidden={!alt}
     >
       <img src={src ?? PLACEHOLDER_IMG} alt={alt} className="h-full w-full object-cover" />
-    </div>,
-    document.body,
+    </div>
   )
 }
 
-/*  Modal — simple centered popup with backdrop */
+/*  Modal — simple centered popup with backdrop                        */
 
 export function Modal({
   open,
@@ -281,13 +274,10 @@ export function Modal({
   )
 }
 
-/* ------------------------------------------------------------------ */
 /*  Kenal Zachery — reveal button that pops the description in a modal */
 /*  Desktop (lg+): fixed pill button, top-left, below the navbar        */
 /*  Mobile/Tablet (<lg): plain centered button inside its own section   */
-/* ------------------------------------------------------------------ */
 
-// Distance from the top of the viewport for the floating desktop button.
 const FLOATING_BUTTON_TOP = 96 // px
 
 export function ZacheryReveal({
