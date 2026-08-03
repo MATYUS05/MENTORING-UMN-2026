@@ -64,17 +64,17 @@ function formatCountdown(targetDate: Date, now: Date) {
   };
 }
 
-function getFrameStyle(index: number) {
-  const variants = [
-    'row-span-1 [&_img]:h-[7rem] md:[&_img]:h-[8rem]',
-    'row-span-2 [&_img]:h-[10.5rem] md:[&_img]:h-[12rem]',
-    'row-span-1 [&_img]:h-[8rem] md:[&_img]:h-[9rem]',
-    'row-span-2 [&_img]:h-[11rem] md:[&_img]:h-[12.75rem]',
-    'row-span-1 [&_img]:h-[7.5rem] md:[&_img]:h-[8.5rem]',
-  ];
+// function getFrameStyle(index: number) {
+//   const variants = [
+//     'row-span-1 [&_img]:h-[7rem] md:[&_img]:h-[8rem]',
+//     'row-span-2 [&_img]:h-[10.5rem] md:[&_img]:h-[12rem]',
+//     'row-span-1 [&_img]:h-[8rem] md:[&_img]:h-[9rem]',
+//     'row-span-2 [&_img]:h-[11rem] md:[&_img]:h-[12.75rem]',
+//     'row-span-1 [&_img]:h-[7.5rem] md:[&_img]:h-[8.5rem]',
+//   ];
 
-  return variants[index % variants.length];
-}
+//   return variants[index % variants.length];
+// }
 
 export default function Gallery() {
   const [fotoList, setFotoList] = useState<Foto[]>([]);
@@ -329,22 +329,21 @@ export default function Gallery() {
               </div>
             </div>
 
-            <div className="grid auto-rows-[92px] grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5">
-              {filteredFoto.map((foto, index) => (
+            <div className="columns-2 gap-3 md:columns-4 lg:columns-5">
+              {filteredFoto.map((foto) => (
                 <figure
                   key={foto.id}
-                  className={`group overflow-hidden rounded-[1.2rem] border border-black/10 bg-white p-1.5 transition duration-300 hover:-translate-y-0.5 hover:shadow-md ${getFrameStyle(
-                    index
-                  )}`}
+                  className="mb-3 break-inside-avoid overflow-hidden rounded-[1.2rem] border border-black/10 bg-white p-1.5 transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
                 >
-                  <div className="h-full overflow-hidden rounded-[0.95rem] bg-slate-100">
+                  <div className="overflow-hidden rounded-[0.95rem] bg-slate-100">
                     <img
                       src={foto.fotoUrl}
                       alt="Dokumentasi mentoring"
                       onError={(e) => {
                         e.currentTarget.src = '/placeholder.webp';
                       }}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      className="h-auto w-full object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
                     />
                   </div>
                 </figure>
