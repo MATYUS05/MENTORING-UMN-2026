@@ -1,23 +1,22 @@
 // src/featured/teams/pages/Teams.tsx
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { font } from '../../../shared/typography/font';
 import { kelompokService } from '../../../lib/kelompokService';
 import { pesertaService } from '../../../lib/pesertaService';
 import type { Kelompok, Peserta, Sesi } from '../../../shared/types/database';
 import teamsLangit from '../../../assets/teams/teams-langit.png';
 import teamsPasir from '../../../assets/teams/teams-pasir.png';
-import textureKayu from '../../../assets/teams/texture-kayu.png';
-import pagiIcon from '../../../assets/teams/pagi-icon.png';
-import siangIcon from '../../../assets/teams/siang-icon.png';
-import penggantiIcon from '../../../assets/teams/pengganti-icon.png';
+import { kayuStyle, kelasTombolPapan, sesiIcon } from '../theme';
+import KelompokItem from '../components/KelompokItem';
+import Pagination from '../components/Pagination';
 
 type FilterSesi = 'semua' | Sesi;
 
-const sesiIcon: Record<Sesi, string> = {
-  pagi: pagiIcon,
-  siang: siangIcon,
-  pengganti: penggantiIcon,
+type Saran = {
+  kunci: string;
+  label: string;
+  keterangan: string;
 };
 
 const SESI_OPTIONS: { value: FilterSesi; label: string }[] = [
@@ -27,10 +26,10 @@ const SESI_OPTIONS: { value: FilterSesi; label: string }[] = [
   { value: 'pengganti', label: 'Pengganti' },
 ];
 
-const kayuStyle = {
-  backgroundImage: `url(${textureKayu})`,
-  backgroundSize: '280px',
-};
+const KELOMPOK_PER_HALAMAN = 10;
+/** Saran baru muncul setelah keyword sepanjang ini. */
+const MIN_KARAKTER_SARAN = 3;
+const MAKS_SARAN = 8;
 
 export default function Teams() {
   const [kelompokList, setKelompokList] = useState<Kelompok[]>([]);
@@ -39,7 +38,13 @@ export default function Teams() {
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [filterSesi, setFilterSesi] = useState<FilterSesi>('semua');
-  const [selectedKelompok, setSelectedKelompok] = useState<Kelompok | null>(null);
+  const [halaman, setHalaman] = useState(1);
+  const [terbuka, setTerbuka] = useState<Record<string, boolean>>({});
+  const [saranTampil, setSaranTampil] = useState(false);
+  const [saranSorot, setSaranSorot] = useState(-1);
+
+  const kotakCariRef = useRef<HTMLDivElement>(null);
+  const daftarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setSearch(searchInput), 300);
@@ -58,24 +63,146 @@ export default function Teams() {
     })();
   }, []);
 
+  // Tutup dropdown saran saat klik di luar kotak pencarian.
+  useEffect(() => {
+    function onPointerDown(e: MouseEvent) {
+      if (!kotakCariRef.current?.contains(e.target as Node)) setSaranTampil(false);
+    }
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, []);
+
+  const pesertaPerKelompok = useMemo(() => {
+    const peta = new Map<string, Peserta[]>();
+    for (const p of pesertaList) {
+      const daftar = peta.get(p.kelompokId);
+      if (daftar) daftar.push(p);
+      else peta.set(p.kelompokId, [p]);
+    }
+    return peta;
+  }, [pesertaList]);
+
+  const namaKelompokById = useMemo(() => {
+    const peta = new Map<string, string>();
+    for (const k of kelompokList) peta.set(k.id, k.namaKelompok);
+    return peta;
+  }, [kelompokList]);
+
   const filteredKelompok = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
     return kelompokList.filter((k) => {
-      const cocokSesi = filterSesi === 'semua' || k.sesi === filterSesi;
-      const cocokKeyword =
-        keyword === '' ||
+      if (filterSesi !== 'semua' && k.sesi !== filterSesi) return false;
+      if (keyword === '') return true;
+
+      if (
         k.namaKelompok.toLowerCase().includes(keyword) ||
-        k.namaMentor.toLowerCase().includes(keyword);
+        k.namaMentor.toLowerCase().includes(keyword) ||
+        k.nimMentor.toLowerCase().includes(keyword)
+      ) {
+        return true;
+      }
 
-      return cocokSesi && cocokKeyword;
+      return (pesertaPerKelompok.get(k.id) ?? []).some(
+        (p) =>
+          p.namaLengkap.toLowerCase().includes(keyword) ||
+          p.nim.toLowerCase().includes(keyword),
+      );
     });
-  }, [kelompokList, search, filterSesi]);
+  }, [kelompokList, search, filterSesi, pesertaPerKelompok]);
 
-  const pesertaKelompokTerpilih = useMemo(() => {
-    if (!selectedKelompok) return [];
-    return pesertaList.filter((p) => p.kelompokId === selectedKelompok.id);
-  }, [pesertaList, selectedKelompok]);
+  const saranList = useMemo<Saran[]>(() => {
+    const keyword = searchInput.trim().toLowerCase();
+    if (keyword.length < MIN_KARAKTER_SARAN) return [];
+
+    // Saran adalah kata kunci, bukan baris data: label yang sama digabung
+    // jadi satu entri supaya nama populer tidak memenuhi seluruh daftar.
+    const kandidat = new Map<string, { label: string; tipe: string; konteks: Set<string> }>();
+
+    function tambah(label: string, tipe: string, konteks?: string) {
+      const kunci = `${tipe}|${label.toLowerCase()}`;
+      let entri = kandidat.get(kunci);
+      if (!entri) {
+        entri = { label, tipe, konteks: new Set<string>() };
+        kandidat.set(kunci, entri);
+      }
+      if (konteks) entri.konteks.add(konteks);
+    }
+
+    for (const k of kelompokList) {
+      if (k.namaKelompok.toLowerCase().includes(keyword)) tambah(k.namaKelompok, 'Kelompok');
+      if (k.namaMentor.toLowerCase().includes(keyword))
+        tambah(k.namaMentor, 'Mentor', k.namaKelompok);
+    }
+
+    for (const p of pesertaList) {
+      const namaKelompok = namaKelompokById.get(p.kelompokId) ?? 'Tanpa kelompok';
+      if (p.namaLengkap.toLowerCase().includes(keyword))
+        tambah(p.namaLengkap, 'Peserta', namaKelompok);
+      if (p.nim.toLowerCase().includes(keyword)) tambah(p.nim, 'NIM', p.namaLengkap);
+    }
+
+    return [...kandidat.values()].slice(0, MAKS_SARAN).map((entri) => {
+      const konteks = [...entri.konteks];
+      const keterangan =
+        konteks.length === 0
+          ? entri.tipe
+          : konteks.length === 1
+            ? `${entri.tipe} · ${konteks[0]}`
+            : `${entri.tipe} · ${konteks.length} hasil`;
+
+      return { kunci: `${entri.tipe}|${entri.label}`, label: entri.label, keterangan };
+    });
+  }, [searchInput, kelompokList, pesertaList, namaKelompokById]);
+
+  const totalHalaman = Math.max(
+    1,
+    Math.ceil(filteredKelompok.length / KELOMPOK_PER_HALAMAN),
+  );
+  const halamanAman = Math.min(halaman, totalHalaman);
+  const awalIndeks = (halamanAman - 1) * KELOMPOK_PER_HALAMAN;
+  const kelompokHalamanIni = filteredKelompok.slice(
+    awalIndeks,
+    awalIndeks + KELOMPOK_PER_HALAMAN,
+  );
+
+  const adaPencarian = search.trim() !== '';
+  // Saat mencari, panel dibuka otomatis agar nama yang ter-highlight langsung terlihat.
+  const cekTerbuka = (id: string) =>
+    adaPencarian ? terbuka[id] !== false : terbuka[id] === true;
+
+  function pilihSaran(saran: Saran) {
+    setSearchInput(saran.label);
+    setSearch(saran.label);
+    setHalaman(1);
+    setSaranTampil(false);
+    setSaranSorot(-1);
+  }
+
+  function onKeyDownCari(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!saranTampil || saranList.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSaranSorot((i) => (i + 1) % saranList.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSaranSorot((i) => (i <= 0 ? saranList.length - 1 : i - 1));
+    } else if (e.key === 'Enter') {
+      if (saranSorot >= 0) {
+        e.preventDefault();
+        pilihSaran(saranList[saranSorot]);
+      }
+    } else if (e.key === 'Escape') {
+      setSaranTampil(false);
+      setSaranSorot(-1);
+    }
+  }
+
+  function pindahHalaman(tujuan: number) {
+    setHalaman(Math.min(Math.max(tujuan, 1), totalHalaman));
+    daftarRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   return (
     <div className="relative min-h-screen">
@@ -104,16 +231,58 @@ export default function Teams() {
           </div>
 
           <p className={`${font.body} mt-4 text-center font-medium text-[#5C4327]`}>
-            Cari kelompok mentoring berdasarkan nama kelompok atau nama mentor.
+            Cari kelompok mentoring berdasarkan nama kelompok, mentor, nama peserta, atau
+            NIM.
           </p>
 
           <div className="mt-8 flex flex-col gap-4">
-            <input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Cari nama kelompok atau mentor..."
-              className="w-full rounded-lg border-2 border-[#595959] bg-amber-50 px-4 py-3 text-[#4A3320] placeholder-[#a3835f] outline-none transition focus:bg-white"
-            />
+            <div ref={kotakCariRef} className="relative">
+              <input
+                value={searchInput}
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  setHalaman(1);
+                  setSaranTampil(true);
+                  setSaranSorot(-1);
+                }}
+                onFocus={() => setSaranTampil(true)}
+                onKeyDown={onKeyDownCari}
+                placeholder="Cari kelompok, mentor, nama peserta, atau NIM..."
+                role="combobox"
+                aria-expanded={saranTampil && saranList.length > 0}
+                aria-controls="saran-pencarian"
+                aria-autocomplete="list"
+                className="w-full rounded-lg border-2 border-[#595959] bg-amber-50 px-4 py-3 font-body text-[#4A3320] placeholder-[#a3835f] outline-none transition focus:bg-white"
+              />
+
+              {saranTampil && saranList.length > 0 && (
+                <ul
+                  id="saran-pencarian"
+                  role="listbox"
+                  className="absolute inset-x-0 top-full z-30 mt-2 max-h-72 overflow-y-auto rounded-lg border-2 border-[#595959] bg-amber-50 py-1 shadow-xl"
+                >
+                  {saranList.map((saran, i) => (
+                    <li key={saran.kunci} role="option" aria-selected={i === saranSorot}>
+                      <button
+                        type="button"
+                        onMouseEnter={() => setSaranSorot(i)}
+                        onClick={() => pilihSaran(saran)}
+                        className={`flex w-full items-baseline justify-between gap-3 px-4 py-2 text-left font-body transition ${
+                          i === saranSorot ? 'bg-[#F7E2C6]' : 'hover:bg-[#F7E2C6]'
+                        }`}
+                      >
+                        <span className="truncate text-sm font-semibold text-[#4A3320]">
+                          {saran.label}
+                        </span>
+                        <span className="shrink-0 text-xs text-[#a3835f]">
+                          {saran.keterangan}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {SESI_OPTIONS.map((opsi) => {
@@ -121,8 +290,13 @@ export default function Teams() {
                 return (
                   <button
                     key={opsi.value}
-                    onClick={() => setFilterSesi(opsi.value)}
-                    className={`flex items-center gap-2 rounded-lg border-2 border-[#595959] px-4 py-2 text-sm font-semibold transition sm:text-base ${
+                    type="button"
+                    onClick={() => {
+                      setFilterSesi(opsi.value);
+                      setHalaman(1);
+                    }}
+                    aria-pressed={aktif}
+                    className={`${kelasTombolPapan} ${
                       aktif
                         ? 'bg-amber-50 text-[#4A3320] shadow-inner'
                         : 'bg-white/50 text-[#6b5233] hover:bg-amber-50/80'
@@ -132,6 +306,7 @@ export default function Teams() {
                       <img
                         src={sesiIcon[opsi.value]}
                         alt=""
+                        aria-hidden
                         className="h-5 w-5 object-contain"
                       />
                     )}
@@ -143,43 +318,44 @@ export default function Teams() {
           </div>
 
           {loading && (
-            <p className="mt-8 text-center font-medium text-[#5C4327]">
+            <p className="mt-8 text-center font-body font-medium text-[#5C4327]">
               Memuat data kelompok...
             </p>
           )}
 
           {!loading && filteredKelompok.length === 0 && (
-            <p className="mt-8 text-center font-medium text-[#5C4327]">
+            <p className="mt-8 text-center font-body font-medium text-[#5C4327]">
               Tidak ada kelompok yang cocok.
             </p>
           )}
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredKelompok.map((k) => (
-              <button
+          {!loading && filteredKelompok.length > 0 && (
+            <p className="mt-8 text-center font-body text-sm text-[#5C4327]">
+              Menampilkan {awalIndeks + 1}–{awalIndeks + kelompokHalamanIni.length} dari{' '}
+              {filteredKelompok.length} kelompok
+            </p>
+          )}
+
+          <div ref={daftarRef} className="mt-4 flex scroll-mt-24 flex-col gap-4">
+            {kelompokHalamanIni.map((k) => (
+              <KelompokItem
                 key={k.id}
-                onClick={() => setSelectedKelompok(k)}
-                className="flex flex-col items-start gap-3 rounded-xl border-4 border-[#595959] p-5 text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl"
-                style={kayuStyle}
-              >
-                <img
-                  src={k.fotoMentorUrl || '/placeholder.webp'}
-                  alt={k.namaMentor}
-                  onError={(e) => {
-                    e.currentTarget.src = '/placeholder.webp';
-                  }}
-                  className="h-16 w-16 rounded-full border-2 border-[#595959] bg-white object-cover"
-                />
-                <div>
-                  <h2 className="font-semibold text-[#3F2E1C]">{k.namaKelompok}</h2>
-                  <p className="text-sm text-[#6b5233]">Mentor: {k.namaMentor}</p>
-                  <span className="mt-1 inline-block rounded-full border border-[#595959]/50 bg-white/70 px-2 py-0.5 text-xs font-medium capitalize text-[#4A3320]">
-                    {k.sesi}
-                  </span>
-                </div>
-              </button>
+                kelompok={k}
+                peserta={pesertaPerKelompok.get(k.id) ?? []}
+                keyword={search.trim()}
+                terbuka={cekTerbuka(k.id)}
+                onToggle={() =>
+                  setTerbuka((prev) => ({ ...prev, [k.id]: !cekTerbuka(k.id) }))
+                }
+              />
             ))}
           </div>
+
+          <Pagination
+            halaman={halamanAman}
+            totalHalaman={totalHalaman}
+            onPindah={pindahHalaman}
+          />
         </div>
 
         {/* Kaki papan */}
@@ -188,69 +364,6 @@ export default function Teams() {
           <div className="h-16 w-9 rounded-b-md border-4 border-[#595959] bg-[#EF9950]" />
         </div>
       </div>
-
-      {selectedKelompok && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
-          onClick={() => setSelectedKelompok(null)}
-        >
-          <div
-            className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-2xl border-4 border-[#595959] bg-amber-50 p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-[#3F2E1C]">
-                {selectedKelompok.namaKelompok}
-              </h3>
-              <button
-                onClick={() => setSelectedKelompok(null)}
-                className="text-[#a3835f] hover:text-[#4A3320]"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mt-2 flex items-center gap-2">
-              <img
-                src={sesiIcon[selectedKelompok.sesi]}
-                alt={selectedKelompok.sesi}
-                className="h-6 w-6 object-contain"
-              />
-              <span className="text-sm font-medium capitalize text-[#6b5233]">
-                Sesi {selectedKelompok.sesi}
-              </span>
-            </div>
-
-            <p className="mt-1 text-sm text-[#6b5233]">
-              Mentor: {selectedKelompok.namaMentor}
-            </p>
-
-            <h4 className="mt-6 text-sm font-semibold text-[#4A3320]">
-              Peserta ({pesertaKelompokTerpilih.length})
-            </h4>
-
-            {pesertaKelompokTerpilih.length === 0 ? (
-              <p className="mt-2 text-sm text-[#a3835f]">
-                Belum ada peserta di kelompok ini.
-              </p>
-            ) : (
-              <ul className="mt-3 space-y-2">
-                {pesertaKelompokTerpilih.map((p) => (
-                  <li
-                    key={p.id}
-                    className="rounded-lg border border-[#595959]/20 bg-white/80 px-4 py-2"
-                  >
-                    <p className="font-medium text-[#3F2E1C]">{p.namaLengkap}</p>
-                    <p className="text-xs text-[#6b5233]">
-                      {p.nim} · {p.jurusan}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
