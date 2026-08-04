@@ -8,12 +8,15 @@ import {
   PillarCard,
   LogoMeaningRow,
   ActivityCarousel,
-  ProfileCard,
+  SceneBackground,
+  ZacheryReveal,
   type Activity,
 } from '../components/AboutComponent'
 
-// IF real assets imma put it here
-// import aboutBg from '../assets/about_bg.png'
+import aboutBg from '../../../assets/about/aboutbg.png'
+
+const zacheryDescription =
+  'Zachery (Burung Hantu): Zachery (Latin) merupakan bentuk perwujudan dari logo Mentoring UMN 2021 yang menggambarkan sifat kejujuran, kecerdasan, dan keyakinan yang tinggi. Zachery akan menemani Mentee mengarungi perjalanan panjang yang tak terlupakan.'
 
 const pillars = [
   {
@@ -76,11 +79,20 @@ const activities: Activity[] = [
 
 export default function About() {
   return (
-    <div style={{ backgroundColor: colors.neutral.cream }}>
-      {/* Hero */}
-      <Section className="pt-10 sm:pt-14">
-        <div className="flex flex-col items-center gap-10 md:flex-row md:items-center md:gap-12">
-          <div className="flex-1 text-center md:text-left">
+    <div className="relative">
+      {/* Single fixed background — same on mobile, tablet, and desktop */}
+      <SceneBackground src={aboutBg} alt="Zachery" />
+
+      {/* Desktop-only: floating "Kenal Zachery" button, top-left, over the scene */}
+      <ZacheryReveal variant="floating" description={zacheryDescription} />
+
+      {/* Hero — sits over the scene background, text + image side by side per the Figma */}
+      <Section className="flex min-h-screen items-center pt-10 sm:pt-14">
+        <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-12">
+          <div
+            className="flex-1 rounded-2xl p-6 text-center sm:p-8 lg:text-left"
+            style={{ backgroundColor: `${colors.neutral.surface}E6` }}
+          >
             <h1 className={font.h1} style={{ color: colors.neutral.charcoal }}>
               Transforming Vision To Action, Turning Potential To Impact
             </h1>
@@ -90,11 +102,7 @@ export default function About() {
               mewujudkan visi, dan menciptakan dampak nyata bagi lingkungan melalui nilai 5C.
             </p>
           </div>
-          <ImagePlaceholder
-            // src={aboutBg}
-            alt="About hero"
-            className="aspect-video w-full flex-1 md:max-w-md"
-          />
+          <ImagePlaceholder alt="About" className="aspect-video w-full flex-1 lg:max-w-md" />
         </div>
       </Section>
 
@@ -108,8 +116,8 @@ export default function About() {
         </div>
       </Section>
 
-      {/* Logo */}
-      <Section style={{ backgroundColor: colors.neutral.surface }}>
+      {/* Our Logo */}
+      <Section>
         <SectionTitle>Our Logo</SectionTitle>
         <div className="flex flex-col gap-10 sm:gap-12">
           {logoMeanings.map((item, i) => (
@@ -129,13 +137,9 @@ export default function About() {
         <ActivityCarousel activities={activities} />
       </Section>
 
-      {/* Meet Zachery */}
-      <Section style={{ backgroundColor: colors.neutral.surface }}>
-        <SectionTitle>Meet Zachery</SectionTitle>
-        <ProfileCard
-          title="Meet Zachery"
-          description="Zachery (Burung Hantu): Zachery (Latin) merupakan bentuk perwujudan dari logo Mentoring UMN 2021 yang menggambarkan sifat kejujuran, kecerdasan, dan keyakinan yang tinggi. Zachery akan menemani Mentee mengarungi perjalanan panjang yang tak terlupakan."
-        />
+      {/* Mobile/Tablet only — desktop uses the floating button instead */}
+      <Section className="lg:hidden">
+        <ZacheryReveal variant="inline" description={zacheryDescription} />
       </Section>
     </div>
   )

@@ -4,6 +4,8 @@ import { font } from '../../../shared/typography/font'
 
 const PLACEHOLDER_IMG = 'https://placehold.co/600x400/EFE3CF/8C7B68?text=Image'
 
+/*  Layout primitives                                                  */
+
 export function Container({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div className={`mx-auto w-full max-w-6xl px-5 sm:px-8 lg:px-10 ${className}`}>
@@ -41,7 +43,7 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   )
 }
 
-// For now its just a placeholder, i will replace it with real one later if asset is here
+/*  Image placeholder */
 
 export function ImagePlaceholder({
   src,
@@ -75,7 +77,7 @@ export function CirclePlaceholder({
   return <ImagePlaceholder src={src} alt={alt} rounded="rounded-full" className={className} />
 }
 
-/*  Pillar card — used for Seek / Strive / Surpass                     */
+/*  for Seek / Strive / Surpass                     */
 
 export function PillarCard({ title, description }: { title: string; description: string }) {
   return (
@@ -93,7 +95,7 @@ export function PillarCard({ title, description }: { title: string; description:
   )
 }
 
-/*  Logo meaning row — used for Motion Lines / Shooting Star / Airplane*/
+/*  for Motion Lines / Shooting Star / Airplane*/
 
 export function LogoMeaningRow({
   title,
@@ -108,13 +110,13 @@ export function LogoMeaningRow({
 }) {
   return (
     <div
-      className={`flex flex-col items-center gap-6 sm:gap-8 md:flex-row ${
-        reverse ? 'md:flex-row-reverse' : ''
+      className={`flex flex-col items-center gap-6 sm:gap-8 lg:flex-row ${
+        reverse ? 'lg:flex-row-reverse' : ''
       }`}
     >
       <CirclePlaceholder src={image} alt={title} className="h-40 w-40 shrink-0 sm:h-48 sm:w-48" />
       <div
-        className="flex-1 rounded-2xl border p-6 text-center shadow-sm md:text-left"
+        className="flex-1 rounded-2xl border p-6 text-center shadow-sm lg:text-left"
         style={{ backgroundColor: colors.neutral.surface, borderColor: colors.neutral.sand }}
       >
         <h3 className={`${font.h3} mb-2`} style={{ color: colors.neutral.charcoal }}>
@@ -183,7 +185,7 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
             onClick={prev}
             aria-label="Previous activity"
             className="flex h-10 w-10 items-center justify-center rounded-full border transition"
-            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone, backgroundColor: colors.neutral.surface }}
+            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone }}
           >
             &#8249;
           </button>
@@ -195,7 +197,7 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
             onClick={next}
             aria-label="Next activity"
             className="flex h-10 w-10 items-center justify-center rounded-full border transition"
-            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone, backgroundColor: colors.neutral.surface }}
+            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone }}
           >
             &#8250;
           </button>
@@ -221,31 +223,115 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
   )
 }
 
-/*  Profile section — used for Meet Zachery                            */
-
-export function ProfileCard({
-  title,
-  description,
-  image,
-}: {
-  title: string
-  description: string
-  image?: string
-}) {
+export function SceneBackground({ src, alt = '' }: { src?: string; alt?: string }) {
   return (
-    <div className="flex flex-col items-center gap-8 md:flex-row">
+    <div
+      className="pointer-events-none fixed inset-0 -z-10 h-screen w-screen"
+      aria-hidden={!alt}
+    >
+      <img src={src ?? PLACEHOLDER_IMG} alt={alt} className="h-full w-full object-cover" />
+    </div>
+  )
+}
+
+/*  Modal — simple centered popup with backdrop                        */
+
+export function Modal({
+  open,
+  onClose,
+  children,
+}: {
+  open: boolean
+  onClose: () => void
+  children: ReactNode
+}) {
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
       <div
-        className="flex-1 rounded-2xl border p-6 shadow-sm"
+        className="absolute inset-0"
+        style={{ backgroundColor: `${colors.neutral.charcoalDeep}B3` }}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        className="relative w-full max-w-sm rounded-2xl border p-6 shadow-lg"
         style={{ backgroundColor: colors.neutral.surface, borderColor: colors.neutral.sand }}
       >
-        <h3 className={`${font.h3} mb-2`} style={{ color: colors.neutral.charcoal }}>
-          {title}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Tutup"
+          className="absolute right-4 top-4 text-xl leading-none"
+          style={{ color: colors.neutral.stone }}
+        >
+          &times;
+        </button>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+/*  Kenal Zachery — reveal button that pops the description in a modal */
+/*  Desktop (lg+): fixed pill button, top-left, below the navbar        */
+/*  Mobile/Tablet (<lg): plain centered button inside its own section   */
+
+const FLOATING_BUTTON_TOP = 96 // px
+
+export function ZacheryReveal({
+  description,
+  variant,
+}: {
+  description: string
+  variant: 'floating' | 'inline'
+}) {
+  const [open, setOpen] = useState(false)
+
+  const buttonStyle: React.CSSProperties = {
+    backgroundColor: colors.neutral.surface,
+    borderColor: colors.neutral.sand,
+    color: colors.neutral.charcoal,
+  }
+
+  return (
+    <>
+      {variant === 'floating' ? (
+        <div
+          className="fixed left-6 z-40 hidden lg:block"
+          style={{ top: FLOATING_BUTTON_TOP }}
+        >
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className={`${font.bodySmall} rounded-full border px-4 py-2 shadow-sm transition hover:shadow-md`}
+            style={buttonStyle}
+          >
+            Kenal Zachery
+          </button>
+        </div>
+      ) : (
+        <div className="flex justify-center lg:hidden">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="rounded-full border px-5 py-2.5 shadow-sm transition"
+            style={buttonStyle}
+          >
+            Kenal Zachery
+          </button>
+        </div>
+      )}
+
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <h3 className={`${font.h3} mb-2 pr-6`} style={{ color: colors.neutral.charcoal }}>
+          Kenal Zachery
         </h3>
         <p className={font.body} style={{ color: colors.neutral.stone }}>
           {description}
         </p>
-      </div>
-      <ImagePlaceholder src={image} alt={title} className="aspect-square w-full max-w-xs shrink-0" />
-    </div>
+      </Modal>
+    </>
   )
 }
