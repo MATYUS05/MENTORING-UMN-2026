@@ -92,7 +92,7 @@ export default function DivisionPage() {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] w-full text-[#f8ebd0] select-none font-body flex flex-col justify-between overflow-hidden">
+    <div className="relative min-h-screen -mt-[132px] pt-[132px] w-full text-[#f8ebd0] select-none font-body flex flex-col justify-between overflow-hidden">
       {/* Keyframe Animations */}
       <style>{`
         @keyframes slideLeft {
@@ -123,7 +123,7 @@ export default function DivisionPage() {
       </div>
 
       {/* Main Page Container (Fills viewport height & pushes global Footer to bottom) */}
-      <div className="relative z-10 mx-auto flex max-w-7xl w-full flex-1 flex-col items-center justify-between px-4 pt-6 pb-6 sm:px-6 sm:pt-8 lg:px-8">
+      <div className="relative z-10 mx-auto flex max-w-7xl w-full flex-1 flex-col items-center justify-between px-4 pt-2 sm:pt-4 lg:px-8">
         {/* Top Header Title */}
         <header className="text-center">
           <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold tracking-wider text-[#3a2012] drop-shadow-[0_2px_10px_rgba(255,255,255,0.85)]">
