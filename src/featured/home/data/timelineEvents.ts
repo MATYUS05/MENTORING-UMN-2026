@@ -30,4 +30,11 @@ export const timelineEvents: TimelineEvent[] = [
     description:
       "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
   },
+  {
+    id: 4,
+    title: "Event 4",
+    image: placeholder,
+    description:
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+  },
 ];

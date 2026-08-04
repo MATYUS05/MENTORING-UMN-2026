@@ -64,17 +64,17 @@ function formatCountdown(targetDate: Date, now: Date) {
   };
 }
 
-// function getFrameStyle(index: number) {
-//   const variants = [
-//     'row-span-1 [&_img]:h-[7rem] md:[&_img]:h-[8rem]',
-//     'row-span-2 [&_img]:h-[10.5rem] md:[&_img]:h-[12rem]',
-//     'row-span-1 [&_img]:h-[8rem] md:[&_img]:h-[9rem]',
-//     'row-span-2 [&_img]:h-[11rem] md:[&_img]:h-[12.75rem]',
-//     'row-span-1 [&_img]:h-[7.5rem] md:[&_img]:h-[8.5rem]',
-//   ];
+function getFrameStyle(index: number) {
+  const variants = [
+    'row-span-1 [&_img]:h-[7rem] md:[&_img]:h-[8rem]',
+    'row-span-2 [&_img]:h-[10.5rem] md:[&_img]:h-[12rem]',
+    'row-span-1 [&_img]:h-[8rem] md:[&_img]:h-[9rem]',
+    'row-span-2 [&_img]:h-[11rem] md:[&_img]:h-[12.75rem]',
+    'row-span-1 [&_img]:h-[7.5rem] md:[&_img]:h-[8.5rem]',
+  ];
 
-//   return variants[index % variants.length];
-// }
+  return variants[index % variants.length];
+}
 
 export default function Gallery() {
   const [fotoList, setFotoList] = useState<Foto[]>([]);
@@ -115,13 +115,6 @@ export default function Gallery() {
     sessionFilters.find((item) => item.value === filterSesi) ?? sessionFilters[0];
 
   const countdown = formatCountdown(TARGET_DATE, currentTime);
-
-  const countdownItems = [
-    { label: 'Hari', value: countdown.days },
-    { label: 'Jam', value: countdown.hours },
-    { label: 'Menit', value: countdown.minutes },
-    { label: 'Detik', value: countdown.seconds },
-  ];
 
   return (
     <div className="relative overflow-hidden">
@@ -167,7 +160,7 @@ export default function Gallery() {
             </div>
 
             <div className="rounded-[1.5rem] border border-black/10 bg-[#fafafa] p-4">
-              <div className="flex items-center gap-3">
+              <div className="mb-3 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white">
                   <img
                     src={selectedSession.image}
@@ -180,10 +173,29 @@ export default function Gallery() {
                   <p className="text-sm font-semibold text-slate-800">
                     {selectedSession.label}
                   </p>
-                  <p className="text-xs text-slate-500">
-                    Filter sesi yang sedang aktif
-                  </p>
+                  <p className="text-xs text-slate-500">Countdown ke 1 September 2026</p>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { label: 'Hari', value: countdown.days },
+                  { label: 'Jam', value: countdown.hours },
+                  { label: 'Menit', value: countdown.minutes },
+                  { label: 'Detik', value: countdown.seconds },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-black/10 bg-white px-2 py-3 text-center"
+                  >
+                    <p className="text-lg font-bold text-slate-900 md:text-xl">
+                      {item.value}
+                    </p>
+                    <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                      {item.label}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -281,32 +293,11 @@ export default function Gallery() {
 
         {!loading && filteredFoto.length === 0 && (
           <div className="mt-4 rounded-[1.8rem] border border-dashed border-black/15 bg-white/92 px-6 py-12 text-center shadow-sm">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-              Dokumentasi Mentoring
-            </p>
-
-            <div className="mx-auto mb-6 max-w-xs rounded-[1.5rem] border border-black/10 bg-[#fafafa] p-4">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Countdown ke 1 September 2026
-              </p>
-
-              <div className="grid grid-cols-4 gap-2">
-                {countdownItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-2xl border border-black/10 bg-white px-2 py-3 text-center"
-                  >
-                    <p className="text-lg font-bold text-slate-900 md:text-xl">
-                      {item.value}
-                    </p>
-                    <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                      {item.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
+            <img
+              src={gemAll}
+              alt=""
+              className="mx-auto mb-4 h-12 w-12 object-contain opacity-80"
+            />
             <p className="text-lg font-semibold text-slate-800">
               Belum ada foto untuk filter ini.
             </p>
@@ -329,21 +320,22 @@ export default function Gallery() {
               </div>
             </div>
 
-            <div className="columns-2 gap-3 md:columns-4 lg:columns-5">
-              {filteredFoto.map((foto) => (
+            <div className="grid auto-rows-[92px] grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5">
+              {filteredFoto.map((foto, index) => (
                 <figure
                   key={foto.id}
-                  className="mb-3 break-inside-avoid overflow-hidden rounded-[1.2rem] border border-black/10 bg-white p-1.5 transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                  className={`group overflow-hidden rounded-[1.2rem] border border-black/10 bg-white p-1.5 transition duration-300 hover:-translate-y-0.5 hover:shadow-md ${getFrameStyle(
+                    index
+                  )}`}
                 >
-                  <div className="overflow-hidden rounded-[0.95rem] bg-slate-100">
+                  <div className="h-full overflow-hidden rounded-[0.95rem] bg-slate-100">
                     <img
                       src={foto.fotoUrl}
                       alt="Dokumentasi mentoring"
                       onError={(e) => {
                         e.currentTarget.src = '/placeholder.webp';
                       }}
-                      className="h-auto w-full object-cover transition duration-500 group-hover:scale-105"
-                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
                   </div>
                 </figure>

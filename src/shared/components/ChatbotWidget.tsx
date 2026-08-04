@@ -1,9 +1,19 @@
 // src/shared/components/ChatbotWidget.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ChatbotModal from './ChatbotModal';
 
 export default function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenChatbot = () => setIsOpen(true);
+
+    window.addEventListener('open-chatbot', handleOpenChatbot);
+
+    return () => {
+      window.removeEventListener('open-chatbot', handleOpenChatbot);
+    };
+  }, []);
 
   return (
     <>

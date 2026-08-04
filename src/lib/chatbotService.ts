@@ -1,6 +1,6 @@
 // src/lib/chatbotService.ts
 
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { ChatbotConfig } from '../shared/types/database';
 
@@ -31,5 +31,28 @@ export const chatbotService = {
   async perbaruiKonfigurasi(data: Partial<Omit<ChatbotConfig, 'id'>>, updatedBy: string) {
     const ref = doc(db, COLLECTION, DOC_ID);
     await setDoc(ref, { ...data, updatedBy, updatedAt: new Date() }, { merge: true });
+  },
+
+  pantauKonfigurasi(onChange: (config: ChatbotConfig) => void) {
+    const ref = doc(db, COLLECTION, DOC_ID);
+
+    return onSnapshot(ref, async (snapshot) => {
+      if (!snapshot.exists()) {
+        const defaultConfig: ChatbotConfig = {
+          id: DOC_ID,
+          isActive: true,
+          greeting: 'Hai! Ada yang bisa saya bantu seputar mentoring?',
+          faqs: [],
+          updatedAt: new Date(),
+          updatedBy: '',
+        };
+
+        await setDoc(ref, defaultConfig);
+        onChange(defaultConfig);
+        return;
+      }
+
+      onChange({ id: snapshot.id, ...snapshot.data() } as ChatbotConfig);
+    });
   },
 };

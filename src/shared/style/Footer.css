@@ -1,0 +1,58 @@
+/* src/shared/components/Footer.module.css */
+
+/* 1. MOBILE FIRST (Default) */
+.footerBg {
+    background-image: url('../../assets/footer/footer mobile.png');
+    background-size: 100% 100%;    /* Agar gambar fleksibel memenuhi area footer */
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+}
+
+/* 2. TABLET (Layar >= 640px) */
+@media (min-width: 640px) {
+    .footerBg {
+        background-image: url('../../assets/footer/footer tab.png');
+        background-size: 100% 100%;    /* Agar gambar fleksibel memenuhi area footer */
+    }
+}
+
+/* 3. DESKTOP (Layar >= 1024px) */
+@media (min-width: 1024px) {
+    .footerBg {
+        background-image: url('../../assets/footer/footer desktop.png');
+        background-size: 100% 100%;       /* Tampilan desktop biasanya lebih pas pakai cover */
+    }
+}
+
+.footer-brand{
+    position:relative;
+}
+
+.footer-brand::after{
+    content: "";
+    position: absolute;
+    inset-block: 12%;
+    right: calc(var(--footer-gap) / -2);
+
+    width: 3.5px;
+    border-radius: 3px;
+
+    background:#D8873D55;
+}
+
+.footer-contact{
+    position:relative;
+}
+
+.footer-contact::after{
+    content: "";
+    position: absolute;
+    inset-block: 12%;
+    right: calc(var(--footer-gap) / -2);
+
+    width: 3.5px;
+    border-radius: 3px;
+
+    background:#D8873D55;
+}
