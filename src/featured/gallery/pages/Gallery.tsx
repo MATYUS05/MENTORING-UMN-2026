@@ -3,7 +3,7 @@ import { font } from '../../../shared/typography/font';
 import { fotoService } from '../../../lib/fotoService';
 import type { Foto, Minggu, Sesi } from '../../../shared/types/database';
 
-import galeriBg from '../../../assets/galeri/galeri bg.png';
+import galeriBg from '../../../assets/galeri/galeri bg.svg';
 import gemAll from '../../../assets/galeri/gem_all.png';
 import gemPagi from '../../../assets/galeri/gem_pagi.png';
 import gemSiang from '../../../assets/galeri/gem_siang.png';
@@ -126,7 +126,7 @@ export default function Gallery() {
   return (
     <div className="relative overflow-hidden">
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none fixed inset-0 -z-10"
         style={{
           backgroundImage: `url(${galeriBg})`,
           backgroundSize: 'cover',
@@ -134,140 +134,129 @@ export default function Gallery() {
           backgroundRepeat: 'no-repeat',
         }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-white/65 backdrop-blur-[1px]" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-white/50" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8 lg:py-10">
         <section className="rounded-[1.8rem] border border-black/10 bg-white/92 p-4 shadow-sm md:p-5 lg:p-6">
-          <div className="grid gap-4 lg:grid-cols-[1fr_360px] lg:items-start">
-            <div>
-              <div className="mb-3 inline-flex rounded-full border border-black/10 bg-[#f6f6f6] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-700">
-                Gallery Mentoring
-              </div>
-
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
+            <div className="inline-block">
               <h1 className={`${font.h1} text-slate-900`}>Gallery Mentoring</h1>
 
-              <p className={`${font.body} mt-2 max-w-2xl text-slate-600`}>
-                Dokumentasi kegiatan mentoring yang tersusun rapi berdasarkan sesi
-                dan minggu, dengan fokus penuh pada foto tanpa teks di dalam frame.
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-600">
-                <span className="rounded-full border border-black/10 bg-white px-3 py-1.5">
-                  {filteredFoto.length} foto tampil
-                </span>
-                <span className="rounded-full border border-black/10 bg-white px-3 py-1.5">
-                  {selectedSession.label}
-                </span>
-                <span className="rounded-full border border-black/10 bg-white px-3 py-1.5">
-                  {filterMinggu === 'semua'
-                    ? 'Semua Minggu'
-                    : weekOptions.find((week) => week.value === filterMinggu)?.label}
-                </span>
-              </div>
-            </div>
-
-            <div className="rounded-[1.5rem] border border-black/10 bg-[#fafafa] p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white">
+              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-[250px_290px]">
+                <div className="flex h-[163px] flex-col items-center justify-center gap-2 rounded-[1.5rem] border border-black/10 bg-[#f6f6f6] px-6 text-center">
                   <img
                     src={selectedSession.image}
                     alt=""
-                    className="h-5 w-5 object-contain"
+                    className="h-14 w-14 object-contain"
                   />
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold text-slate-800">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-700">
                     {selectedSession.label}
+                  </span>
+                </div>
+
+                <div className="flex h-[163px] flex-col justify-center rounded-[1.5rem] border border-black/10 bg-[#fafafa] px-5 py-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                    Total Ditampilkan
                   </p>
-                  <p className="text-xs text-slate-500">
-                    Filter sesi yang sedang aktif
+                  <p className="mt-1.5 flex items-baseline gap-1.5">
+                    <span className="text-2xl font-bold text-slate-900">
+                      {filteredFoto.length}
+                    </span>
+                    <span className="text-sm text-slate-600">foto</span>
+                  </p>
+                  <p className="mt-1.5 text-xs leading-snug text-slate-500">
+                    {filterSesi === 'semua' && filterMinggu === 'semua'
+                      ? 'Menampilkan semua dokumentasi yang tersedia.'
+                      : `Menampilkan dokumentasi ${selectedSession.label}${
+                          filterMinggu === 'semua'
+                            ? ''
+                            : ` · ${weekOptions.find((week) => week.value === filterMinggu)?.label}`
+                        }.`}
                   </p>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
 
-        <section className="mt-4 rounded-[1.8rem] border border-black/10 bg-white/92 p-4 shadow-sm md:p-5">
-          <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-            <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-                Filter Sesi
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {sessionFilters.map((item) => {
-                  const active = filterSesi === item.value;
-
-                  return (
-                    <button
-                      key={item.value}
-                      type="button"
-                      onClick={() => setFilterSesi(item.value)}
-                      className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition ${
-                        active
-                          ? 'border-slate-900 bg-slate-900 text-white'
-                          : 'border-black/10 bg-white text-slate-700 hover:border-slate-400'
-                      }`}
-                    >
-                      <img
-                        src={item.image}
-                        alt=""
-                        className="h-4 w-4 object-contain"
-                      />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-                  Minggu
+            <div className="flex w-full flex-col gap-4 lg:w-[420px]">
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+                  Filter Sesi
                 </p>
 
-                <button
-                  type="button"
-                  onClick={() => setFilterMinggu('semua')}
-                  className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition ${
-                    filterMinggu === 'semua'
-                      ? 'border-slate-900 bg-slate-900 text-white'
-                      : 'border-black/10 bg-white text-slate-600 hover:border-slate-400'
-                  }`}
-                >
-                  Semua Minggu
-                </button>
-              </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {sessionFilters.map((item) => {
+                    const active = filterSesi === item.value;
 
-              <div className="grid grid-cols-3 gap-2">
-                {weekOptions.map((week) => {
-                  const active = filterMinggu === week.value;
-
-                  return (
-                    <button
-                      key={week.value}
-                      type="button"
-                      onClick={() => setFilterMinggu(week.value)}
-                      className={`rounded-2xl border px-3 py-3 text-left transition ${
-                        active
-                          ? 'border-slate-900 bg-slate-900 text-white'
-                          : 'border-black/10 bg-white text-slate-700 hover:border-slate-400'
-                      }`}
-                    >
-                      <p className="text-sm font-semibold">{week.label}</p>
-                      <p
-                        className={`mt-1 text-xs ${
-                          active ? 'text-white/75' : 'text-slate-500'
+                    return (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => setFilterSesi(item.value)}
+                        className={`flex h-11 w-full items-center justify-center gap-2 rounded-full border px-3 text-sm font-medium transition
+                        ${
+                          active
+                            ? 'border-slate-900 bg-slate-900 text-white'
+                            : 'border-black/10 bg-white text-slate-700 hover:border-slate-400'
                         }`}
                       >
-                        {countdown.days} hari
-                      </p>
-                    </button>
-                  );
-                })}
+                        <img
+                          src={item.image}
+                          alt=""
+                          className="h-4 w-4 object-contain"
+                        />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+                    Minggu
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterMinggu('semua')}
+                    className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition ${
+                      filterMinggu === 'semua'
+                        ? 'border-slate-900 bg-slate-900 text-white'
+                        : 'border-black/10 bg-white text-slate-600 hover:border-slate-400'
+                    }`}
+                  >
+                    Semua Minggu
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  {weekOptions.map((week) => {
+                    const active = filterMinggu === week.value;
+
+                    return (
+                      <button
+                        key={week.value}
+                        type="button"
+                        onClick={() => setFilterMinggu(week.value)}
+                        className={`rounded-2xl border px-3 py-3 text-left transition ${
+                          active
+                            ? 'border-slate-900 bg-slate-900 text-white'
+                            : 'border-black/10 bg-white text-slate-700 hover:border-slate-400'
+                        }`}
+                      >
+                        <p className="text-sm font-semibold">{week.label}</p>
+                        <p
+                          className={`mt-1 text-xs ${
+                            active ? 'text-white/75' : 'text-slate-500'
+                          }`}
+                        >
+                          {countdown.days} hari
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
