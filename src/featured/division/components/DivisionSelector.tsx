@@ -32,6 +32,7 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
   };
 
   const renderLogoButton = (division: Division, originalIndex: number) => {
+    const isActive = originalIndex === activeIndex;
     return (
       <button
         key={division.id || `div-${originalIndex}`}
@@ -47,7 +48,7 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
         </div>
 
         {/* Circular Logo Badge (Enlarged Mobile Size, Desktop Reverted) */}
-        <div className="relative flex h-25 w-25 items-center justify-center rounded-full border border-[#4a2e1b]/70 bg-[#120804]/90 transition-all duration-300 sm:h-15 sm:w-15 md:h-18 md:w-18 lg:h-21 lg:w-21 group-hover:scale-110 group-hover:border-amber-600/80 group-hover:bg-[#2b170c]">
+        <div className={`relative flex h-25 w-25 items-center justify-center rounded-full border transition-all duration-300 sm:h-15 sm:w-15 md:h-18 md:w-18 lg:h-21 lg:w-21 group-hover:scale-110 group-hover:border-amber-600/80 group-hover:bg-[#2b170c] ${isActive ? 'border-amber-500 bg-[#2b170c] ring-2 ring-amber-400/60 shadow-[0_0_15px_rgba(245,158,11,0.5)] scale-105' : 'border-[#4a2e1b]/70 bg-[#120804]/90'}`}>
           {division.logo && (division.logo.startsWith('http') || division.logo.startsWith('/')) ? (
             <img
               src={division.logo}
