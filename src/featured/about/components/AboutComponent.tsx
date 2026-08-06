@@ -1,10 +1,10 @@
-import React, { useState, type ReactNode } from 'react'
+import React, { useEffect, useState, type ReactNode } from 'react'
 import { colors } from '../../../shared/theme/colors'
 import { font } from '../../../shared/typography/font'
 
 const PLACEHOLDER_IMG = 'https://placehold.co/600x400/EFE3CF/8C7B68?text=Image'
 
-/*  Layout primitives                                                  */
+/*  Layout primitives */
 
 export function Container({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
@@ -43,7 +43,7 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   )
 }
 
-/*  Image placeholder */
+/*  Image placeholder*/
 
 export function ImagePlaceholder({
   src,
@@ -77,7 +77,7 @@ export function CirclePlaceholder({
   return <ImagePlaceholder src={src} alt={alt} rounded="rounded-full" className={className} />
 }
 
-/*  for Seek / Strive / Surpass                     */
+/*  for Seek / Strive / Surpass  */
 
 export function PillarCard({ title, description }: { title: string; description: string }) {
   return (
@@ -185,7 +185,7 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
             onClick={prev}
             aria-label="Previous activity"
             className="flex h-10 w-10 items-center justify-center rounded-full border transition"
-            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone }}
+            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone, backgroundColor: colors.neutral.surface }}
           >
             &#8249;
           </button>
@@ -197,7 +197,7 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
             onClick={next}
             aria-label="Next activity"
             className="flex h-10 w-10 items-center justify-center rounded-full border transition"
-            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone }}
+            style={{ borderColor: colors.neutral.sand, color: colors.neutral.stone, backgroundColor: colors.neutral.surface }}
           >
             &#8250;
           </button>
@@ -223,6 +223,7 @@ export function ActivityCarousel({ activities }: { activities: Activity[] }) {
   )
 }
 
+
 export function SceneBackground({ src, alt = '' }: { src?: string; alt?: string }) {
   return (
     <div
@@ -233,8 +234,6 @@ export function SceneBackground({ src, alt = '' }: { src?: string; alt?: string 
     </div>
   )
 }
-
-/*  Modal — simple centered popup with backdrop                        */
 
 export function Modal({
   open,
@@ -275,10 +274,37 @@ export function Modal({
 }
 
 /*  Kenal Zachery — reveal button that pops the description in a modal */
-/*  Desktop (lg+): fixed pill button, top-left, below the navbar        */
+/*  Desktop: fixed pill button, top-left, below the navbar        */
 /*  Mobile/Tablet (<lg): plain centered button inside its own section   */
 
-const FLOATING_BUTTON_TOP = 96 // px
+const FLOATING_BUTTON_GAP = 16 // px
+
+const FLOATING_BUTTON_FALLBACK_TOP = 96 // px
+
+function useHeaderBottom(fallback: number) {
+  const [bottom, setBottom] = useState(fallback)
+
+  useEffect(() => {
+    const header = document.querySelector('header')
+    if (!header) return
+
+    const update = () => setBottom(header.getBoundingClientRect().bottom)
+    update()
+
+    const resizeObserver = new ResizeObserver(update)
+    resizeObserver.observe(header)
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, { passive: true })
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update)
+    }
+  }, [])
+
+  return bottom
+}
 
 export function ZacheryReveal({
   description,
@@ -288,6 +314,7 @@ export function ZacheryReveal({
   variant: 'floating' | 'inline'
 }) {
   const [open, setOpen] = useState(false)
+  const headerBottom = useHeaderBottom(FLOATING_BUTTON_FALLBACK_TOP - FLOATING_BUTTON_GAP)
 
   const buttonStyle: React.CSSProperties = {
     backgroundColor: colors.neutral.surface,
@@ -300,7 +327,7 @@ export function ZacheryReveal({
       {variant === 'floating' ? (
         <div
           className="fixed left-6 z-40 hidden lg:block"
-          style={{ top: FLOATING_BUTTON_TOP }}
+          style={{ top: headerBottom + FLOATING_BUTTON_GAP }}
         >
           <button
             type="button"

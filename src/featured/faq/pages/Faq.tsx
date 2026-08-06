@@ -5,7 +5,7 @@ import { font } from '../../../shared/typography/font';
 import { chatbotService } from '../../../lib/chatbotService';
 import type { FaqItem } from '../../../shared/types/database';
 
-import faqBg from '../../../assets/faq/faq bg.png';
+import faqBg from '../../../assets/faq/faq bg.svg';
 import maskotObor from '../../../assets/faq/maskot obor.png';
 import tali from '../../../assets/faq/tali.png';
 
@@ -44,16 +44,18 @@ export default function Faq() {
   }, [faqs, search]);
 
   return (
-    <section
-      className="relative overflow-hidden bg-[#fbfaf7]"
-      style={{
-        backgroundImage: `url(${faqBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      <div className="absolute inset-0 bg-white/35" />
+    <section className="relative isolate -mt-32 pt-32 bg-[#fbfaf7]">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          backgroundImage: `url(${faqBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-white/35" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 pb-20 pt-12 md:px-8 md:pb-24 md:pt-16">
         <div className="mx-auto max-w-5xl">
