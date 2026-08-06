@@ -5,11 +5,14 @@ import { SiLine, SiGmail, } from "react-icons/si";
 import { Phone } from "lucide-react";
 import { font } from "../typography/font";
 
+interface FooterProps {
+  showContent?: boolean;
+}
 
-
-export default function Footer() {
+export default function Footer({showContent = true,}: FooterProps) {
   return (
     <footer className="footerBg w-full">
+      {showContent && (
         <div
             className="
             mx-auto
@@ -99,6 +102,7 @@ export default function Footer() {
             </div>
 
         </div>
+      )}
     </footer>
   );
 }
