@@ -15,11 +15,20 @@ const navItems = [
   { label: "FAQ", path: "/faq" },
 ];
 
-export default function Navbar() {
+type NavbarProps = {
+  position?: "sticky" | "fixed";
+};
+
+export default function Navbar({ position = "sticky",}: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="fixed top-2.5 left-0 z-50 flex w-full justify-center relative sticky">
+    <header className={`${position === "fixed" ? "fixed top-2.5 left-0" : "sticky top-2.5"}
+      z-50
+      flex
+      w-full
+      justify-center
+    `}>
       <div className="navbar-container flex h-[120px] w-[92%] max-w-[1340px] items-center justify-between px-8 lg:px-12">
         <Link
           to="/"

@@ -9,7 +9,7 @@ export default function UserLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar />
+      <Navbar position={isHome ? "fixed" : "sticky"} />
       <main className="grow">
         <Outlet />
       </main>

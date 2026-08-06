@@ -25,29 +25,48 @@ export default function Section1Hero() {
   const [activeInfo, setActiveInfo] = useState<InfoContent | null>(null);
 
   return (
-    <section className="hidden h-screen w-screen shrink-0 flex-col items-center justify-center gap-4 px-6 text-center sm:flex sm:px-12 md:px-20">
-      <h1 className={`${font.h1} text-neutral-charcoal-deep`}>
-        CHARACTER BUILDING MENTORING 2026
-      </h1>
-      <img
-        src={minerva}
-        alt="Minerva"
-        className="h-60 w-60 animate-[float_4s_ease-in-out_infinite] md:h-75 md:w-75"
-      />
-      <button
-        onClick={() => setActiveInfo(TEMA_INFO)}
-        className={`${font.h3} text-neutral-charcoal-deep transition-transform duration-200 hover:scale-105`}
-      >
-        Brave the Step, Build the Impact
-      </button>
-      <button
-        onClick={() => setActiveInfo(TAGLINE_INFO)}
-        className={`${font.h3} max-w-2xl italic text-neutral-charcoal transition-transform duration-200 hover:scale-105`}
-      >
-        "Navigating Beyond Familiar Shores to Anchor Potential into Purposeful
-        Impact"
-      </button>
-      <InfoModal content={activeInfo} onClose={() => setActiveInfo(null)} />
+    <section className="hidden
+      h-screen
+      w-screen
+      shrink-0
+      sm:flex
+      flex-col
+      overflow-hidden
+      pt-32
+      pb-14
+      px-10">
+
+      <div className = "flex flex-1 items-center justify-center pt-6">
+        <h1 className={`${font.h1} text-neutral-charcoal-deep`}>
+          CHARACTER BUILDING MENTORING 2026
+        </h1>
+      </div>
+
+      <div className = "flex flex-[2] items-center justify-center">
+        <img
+          src={minerva}
+          alt="Minerva"
+          className="h-60 w-60 animate-[float_4s_ease-in-out_infinite] md:h-75 md:w-75"
+        />
+      </div>
+
+      <div className = "flex flex-1 flex-col items-center justify-start space-y-3">
+        <button
+          onClick={() => setActiveInfo(TEMA_INFO)}
+          className={`${font.h3} text-neutral-charcoal-deep transition-transform duration-200 hover:scale-105`}
+        >
+          Brave the Step, Build the Impact
+        </button>
+        <button
+          onClick={() => setActiveInfo(TAGLINE_INFO)}
+          className={`${font.h3} max-w-2xl italic text-neutral-charcoal transition-transform duration-200 hover:scale-105`}
+        >
+          "Navigating Beyond Familiar Shores to Anchor Potential into Purposeful
+          Impact"
+        </button>
+        <InfoModal content={activeInfo} onClose={() => setActiveInfo(null)} />
+      </div>
+
     </section>
   );
 }
