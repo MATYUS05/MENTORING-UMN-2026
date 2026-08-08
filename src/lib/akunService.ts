@@ -23,7 +23,7 @@ export const akunService = {
     return snapshot.docs.map((d) => ({ uid: d.id, ...d.data() })) as UserAccount[];
   },
 
-  async tambah(data: Omit<UserAccount, 'uid' | 'createdAt'>, password: string) {
+  async tambah(data: Omit<UserAccount, 'uid' | 'createdAt' | 'updatedAt'>, password: string) {
     const secondaryApp = initializeApp(firebaseConfig, `secondary-${Date.now()}`);
     const secondaryAuth = getAuth(secondaryApp);
 
@@ -31,9 +31,11 @@ export const akunService = {
       const credential = await createUserWithEmailAndPassword(secondaryAuth, data.email, password);
       const uid = credential.user.uid;
 
+      const sekarang = new Date();
       await setDoc(doc(db, COLLECTION, uid), {
         ...data,
-        createdAt: new Date(),
+        createdAt: sekarang,
+        updatedAt: sekarang,
       });
 
       await signOut(secondaryAuth);
@@ -43,8 +45,9 @@ export const akunService = {
     }
   },
 
-  async perbarui(uid: string, data: Partial<UserAccount>) {
-    await updateDoc(doc(db, COLLECTION, uid), data);
+  // createdAt sengaja tidak bisa dikirim pemanggil supaya waktu pembuatan tidak tertimpa.
+  async perbarui(uid: string, data: Partial<Omit<UserAccount, 'uid' | 'createdAt' | 'updatedAt'>>) {
+    await updateDoc(doc(db, COLLECTION, uid), { ...data, updatedAt: new Date() });
   },
 
   async hapus(uid: string) {

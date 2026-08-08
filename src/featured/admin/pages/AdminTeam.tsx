@@ -9,6 +9,9 @@ import { excelHelper } from '../../../lib/excelHelper';
 import { uploadImage } from '../../../lib/cloudinary';
 import DangerConfirmModal from '../../../shared/components/DangerConfirmModal';
 import ConfirmModal from '../../../shared/components/ConfirmModal';
+import InputWithCounter from '../../../shared/components/InputWithCounter';
+import TablePagination from '../../../shared/components/TablePagination';
+import { BATAS_KELOMPOK, BATAS_PESERTA } from '../../../shared/constants/batasKarakter';
 import type { Kelompok, Peserta, Sesi } from '../../../shared/types/database';
 const kelompokKosong = {
   namaKelompok: '',
@@ -38,6 +41,13 @@ const dangerLink =
   'text-accent-red transition-all duration-200 hover:underline hover:drop-shadow-[0_0_6px_rgba(176,44,32,0.6)] dark:text-accent-red-light dark:hover:drop-shadow-[0_0_6px_rgba(226,88,74,0.6)]';
 const neutralLink = 'text-neutral-stone transition-all duration-200 hover:underline hover:text-neutral-charcoal dark:hover:text-neutral-cream';
 const SESI_VALID: Sesi[] = ['pagi', 'siang', 'pengganti'];
+const KELOMPOK_PER_HALAMAN = 10;
+const PESERTA_PER_HALAMAN = 10;
+/** Kolom tabel Kelompok yang bisa diurutkan. */
+type KolomKelompok = 'namaKelompok' | 'namaMentor' | 'sesi';
+/** Kolom tabel Peserta yang bisa diurutkan. 'kelompok' diambil dari nama kelompok, bukan id. */
+type KolomPeserta = 'namaLengkap' | 'nim' | 'jurusan' | 'kelompok';
+type ArahUrut = 'asc' | 'desc';
 export default function AdminTeam() {
   const { userData } = useAuth();
   const [tab, setTab] = useState<'kelompok' | 'peserta' | 'data'>('kelompok');
@@ -50,6 +60,12 @@ export default function AdminTeam() {
   const [showHapusSemua, setShowHapusSemua] = useState(false);
   const [menghapusSemua, setMenghapusSemua] = useState(false);
   const [filterKelompok, setFilterKelompok] = useState('semua');
+  const [filterSesi, setFilterSesi] = useState<'semua' | Sesi>('semua');
+  const [urutKelompok, setUrutKelompok] = useState<{ kolom: KolomKelompok; arah: ArahUrut } | null>(null);
+  const [halamanKelompok, setHalamanKelompok] = useState(1);
+  const [filterJurusan, setFilterJurusan] = useState('semua');
+  const [urutPeserta, setUrutPeserta] = useState<{ kolom: KolomPeserta; arah: ArahUrut } | null>(null);
+  const [halamanPeserta, setHalamanPeserta] = useState(1);
   const [deletingKelompok, setDeletingKelompok] = useState<Kelompok | null>(null);
   const [deletingPeserta, setDeletingPeserta] = useState<Peserta | null>(null);
   const [formKelompok, setFormKelompok] = useState(kelompokKosong);
@@ -71,6 +87,13 @@ export default function AdminTeam() {
   useEffect(() => {
     muatUlang();
   }, []);
+  // Search/filter/sorting berubah -> kembali ke halaman pertama.
+  useEffect(() => {
+    setHalamanKelompok(1);
+  }, [searchQuery, filterSesi, urutKelompok]);
+  useEffect(() => {
+    setHalamanPeserta(1);
+  }, [searchQuery, filterKelompok, filterJurusan, urutPeserta]);
   const catat = (aksi: 'tambah' | 'perbarui' | 'hapus', entitas: 'kelompok' | 'peserta', keterangan: string) => {
     if (!userData) return;
     logService.catat(userData.uid, userData.username, aksi, entitas, keterangan);
@@ -157,21 +180,101 @@ export default function AdminTeam() {
   const namaKelompokDari = (id: string) => kelompokList.find((k) => k.id === id)?.namaKelompok ?? '-';
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredKelompok = kelompokList.filter(
-    (k) =>
+
+  // Urutan pemrosesan tabel Kelompok: data asli -> search -> filter sesi -> sorting -> pagination.
+  const kelompokTersaring = kelompokList.filter((k) => {
+    const cocokCari =
       k.namaKelompok.toLowerCase().includes(q) ||
       k.namaMentor.toLowerCase().includes(q) ||
-      k.sesi.toLowerCase().includes(q)
+      k.sesi.toLowerCase().includes(q);
+    const cocokSesi = filterSesi === 'semua' || k.sesi === filterSesi;
+    return cocokCari && cocokSesi;
+  });
+
+  // Sorting dilakukan pada seluruh hasil filter, bukan hanya data di halaman aktif.
+  const kelompokTerurut = urutKelompok
+    ? [...kelompokTersaring].sort((a, b) => {
+        const arah = urutKelompok.arah === 'asc' ? 1 : -1;
+        // Sesi diurutkan mengikuti urutan waktunya (pagi -> siang -> pengganti), bukan abjad.
+        if (urutKelompok.kolom === 'sesi') {
+          return (SESI_VALID.indexOf(a.sesi) - SESI_VALID.indexOf(b.sesi)) * arah;
+        }
+        return a[urutKelompok.kolom].localeCompare(b[urutKelompok.kolom], 'id') * arah;
+      })
+    : kelompokTersaring;
+
+  const totalHalamanKelompok = Math.max(1, Math.ceil(kelompokTerurut.length / KELOMPOK_PER_HALAMAN));
+  // Dijepit supaya halaman tetap valid ketika hasil filter mengecil atau data dihapus.
+  const halamanKelompokAman = Math.min(halamanKelompok, totalHalamanKelompok);
+  const kelompokHalamanIni = kelompokTerurut.slice(
+    (halamanKelompokAman - 1) * KELOMPOK_PER_HALAMAN,
+    halamanKelompokAman * KELOMPOK_PER_HALAMAN
   );
-  const filteredPeserta = pesertaList.filter((p) => {
+
+  const sedangMenyaring = q !== '' || filterSesi !== 'semua';
+
+  const ubahUrutan = (kolom: KolomKelompok) => {
+    setUrutKelompok((prev) => {
+      if (!prev || prev.kolom !== kolom) return { kolom, arah: 'asc' };
+      if (prev.arah === 'asc') return { kolom, arah: 'desc' };
+      return null; // klik ketiga mengembalikan ke urutan default
+    });
+  };
+
+  const ikonUrutan = (kolom: KolomKelompok) =>
+    urutKelompok?.kolom === kolom ? (urutKelompok.arah === 'asc' ? '↑' : '↓') : '↕';
+  // Opsi jurusan diturunkan dari data peserta, bukan daftar tetap.
+  const daftarJurusan = [...new Set(pesertaList.map((p) => p.jurusan.trim()).filter(Boolean))].sort(
+    (a, b) => a.localeCompare(b, 'id')
+  );
+
+  // Urutan pemrosesan tabel Peserta: data asli -> search -> filter -> sorting -> pagination.
+  const pesertaTersaring = pesertaList.filter((p) => {
     const matchSearch =
       p.namaLengkap.toLowerCase().includes(q) ||
       p.nim.toLowerCase().includes(q) ||
       p.jurusan.toLowerCase().includes(q) ||
       namaKelompokDari(p.kelompokId).toLowerCase().includes(q);
-    const matchFilter = filterKelompok === 'semua' || p.kelompokId === filterKelompok;
-    return matchSearch && matchFilter;
+    const matchKelompok = filterKelompok === 'semua' || p.kelompokId === filterKelompok;
+    const matchJurusan = filterJurusan === 'semua' || p.jurusan.trim() === filterJurusan;
+    return matchSearch && matchKelompok && matchJurusan;
   });
+
+  // Kolom Kelompok diurutkan berdasarkan nama kelompok yang tampil, bukan kelompokId.
+  const nilaiUrutPeserta = (p: Peserta, kolom: KolomPeserta) =>
+    kolom === 'kelompok' ? namaKelompokDari(p.kelompokId) : p[kolom];
+
+  const pesertaTerurut = urutPeserta
+    ? [...pesertaTersaring].sort((a, b) => {
+        const arah = urutPeserta.arah === 'asc' ? 1 : -1;
+        return (
+          nilaiUrutPeserta(a, urutPeserta.kolom).localeCompare(
+            nilaiUrutPeserta(b, urutPeserta.kolom),
+            'id'
+          ) * arah
+        );
+      })
+    : pesertaTersaring;
+
+  const totalHalamanPeserta = Math.max(1, Math.ceil(pesertaTerurut.length / PESERTA_PER_HALAMAN));
+  const halamanPesertaAman = Math.min(halamanPeserta, totalHalamanPeserta);
+  const pesertaHalamanIni = pesertaTerurut.slice(
+    (halamanPesertaAman - 1) * PESERTA_PER_HALAMAN,
+    halamanPesertaAman * PESERTA_PER_HALAMAN
+  );
+
+  const sedangMenyaringPeserta = q !== '' || filterKelompok !== 'semua' || filterJurusan !== 'semua';
+
+  const ubahUrutanPeserta = (kolom: KolomPeserta) => {
+    setUrutPeserta((prev) => {
+      if (!prev || prev.kolom !== kolom) return { kolom, arah: 'asc' };
+      if (prev.arah === 'asc') return { kolom, arah: 'desc' };
+      return null; // klik ketiga mengembalikan ke urutan default
+    });
+  };
+
+  const ikonUrutanPeserta = (kolom: KolomPeserta) =>
+    urutPeserta?.kolom === kolom ? (urutPeserta.arah === 'asc' ? '↑' : '↓') : '↕';
   const exportExcel = () => {
     excelHelper.export(
       [
@@ -333,7 +436,7 @@ export default function AdminTeam() {
       {loading && <p className="font-body text-neutral-stone">Memuat data...</p>}
       {!loading && tab === 'kelompok' && (
         <div className="space-y-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <button
               onClick={() => {
                 setFormKelompok(kelompokKosong);
@@ -344,28 +447,61 @@ export default function AdminTeam() {
             >
               + Tambah Kelompok
             </button>
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari berdasarkan nama, mentor, atau NIM..."
-              className={inputBase}
-            />
+            <div className="flex w-full flex-col gap-4 sm:flex-row">
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari berdasarkan nama, mentor, atau NIM..."
+                className={inputBase}
+              />
+              <select
+                value={filterSesi}
+                onChange={(e) => setFilterSesi(e.target.value as 'semua' | Sesi)}
+                className={`${inputBase} shrink-0 sm:w-48`}
+              >
+                <option value="semua">Semua Sesi</option>
+                {SESI_VALID.map((s) => (
+                  <option key={s} value={s} className="capitalize">
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          {filteredKelompok.length === 0 ? (
+          <p className="font-body text-sm text-neutral-stone">
+            {sedangMenyaring
+              ? `Menampilkan ${kelompokTersaring.length} dari ${kelompokList.length} kelompok`
+              : `${kelompokList.length} kelompok terdaftar`}
+          </p>
+          {kelompokTerurut.length === 0 ? (
             <p className="font-body text-neutral-stone">Tidak ada data yang sesuai dengan pencarian.</p>
           ) : (
             <div className={`overflow-x-auto ${cardBase}`}>
             <table className="w-full text-left font-body text-sm">
               <thead className="border-b-2 border-neutral-stone/30 bg-neutral-sand/40 text-neutral-stone dark:border-neutral-stone/20 dark:bg-neutral-charcoal-deep">
                 <tr>
-                  <th className="px-4 py-3">Nama Kelompok</th>
-                  <th className="px-4 py-3">Mentor</th>
-                  <th className="px-4 py-3">Sesi</th>
+                  {([
+                    ['namaKelompok', 'Nama Kelompok'],
+                    ['namaMentor', 'Mentor'],
+                    ['sesi', 'Sesi'],
+                  ] as [KolomKelompok, string][]).map(([kolom, judul]) => (
+                    <th key={kolom} className="px-4 py-3">
+                      <button
+                        onClick={() => ubahUrutan(kolom)}
+                        className="inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-neutral-charcoal dark:hover:text-neutral-cream"
+                      >
+                        {judul}
+                        <span aria-hidden className="text-xs">
+                          {ikonUrutan(kolom)}
+                        </span>
+                      </button>
+                    </th>
+                  ))}
                   <th className="px-4 py-3">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredKelompok.map((k) => (
+                {kelompokHalamanIni.map((k) => (
                   <tr
                     key={k.id}
                     className="border-t-2 border-neutral-stone/20 transition-colors duration-200 hover:bg-neutral-cream dark:hover:bg-neutral-charcoal-deep"
@@ -387,6 +523,15 @@ export default function AdminTeam() {
             </table>
           </div>
           )}
+          {kelompokTerurut.length > 0 && (
+            <TablePagination
+              halaman={halamanKelompokAman}
+              perHalaman={KELOMPOK_PER_HALAMAN}
+              totalData={kelompokTerurut.length}
+              satuan="kelompok"
+              onPindah={setHalamanKelompok}
+            />
+          )}
         </div>
       )}
       {!loading && tab === 'peserta' && (
@@ -402,41 +547,70 @@ export default function AdminTeam() {
             >
               + Tambah Peserta
             </button>
-            <div className="flex w-full flex-col gap-4 sm:flex-row">
-              <input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari berdasarkan nama, NIM, jurusan, atau kelompok..."
-                className={inputBase}
-              />
-              <select
-                value={filterKelompok}
-                onChange={(e) => setFilterKelompok(e.target.value)}
-                className={`${inputBase} shrink-0 sm:w-64`}
-              >
-                <option value="semua">Semua Kelompok</option>
-                {kelompokList.map(k => (
-                  <option key={k.id} value={k.id}>{k.namaKelompok}</option>
-                ))}
-              </select>
-            </div>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari berdasarkan nama, NIM, jurusan, atau kelompok..."
+              className={inputBase}
+            />
           </div>
-          {filteredPeserta.length === 0 ? (
-            <p className="font-body text-neutral-stone">Tidak ada data yang sesuai dengan pencarian.</p>
+          <div className="flex flex-col gap-4 sm:max-w-xl sm:flex-row">
+            <select
+              value={filterKelompok}
+              onChange={(e) => setFilterKelompok(e.target.value)}
+              className={inputBase}
+            >
+              <option value="semua">Semua Kelompok</option>
+              {kelompokList.map(k => (
+                <option key={k.id} value={k.id}>{k.namaKelompok}</option>
+              ))}
+            </select>
+            <select
+              value={filterJurusan}
+              onChange={(e) => setFilterJurusan(e.target.value)}
+              className={inputBase}
+            >
+              <option value="semua">Semua Jurusan</option>
+              {daftarJurusan.map((j) => (
+                <option key={j} value={j}>{j}</option>
+              ))}
+            </select>
+          </div>
+          <p className="font-body text-sm text-neutral-stone">
+            {sedangMenyaringPeserta
+              ? `${pesertaTersaring.length} peserta ditemukan dari ${pesertaList.length} peserta`
+              : `${pesertaList.length} peserta terdaftar`}
+          </p>
+          {pesertaTerurut.length === 0 ? (
+            <p className="font-body text-neutral-stone">Peserta tidak ditemukan.</p>
           ) : (
             <div className={`overflow-x-auto ${cardBase}`}>
             <table className="w-full text-left font-body text-sm">
               <thead className="border-b-2 border-neutral-stone/30 bg-neutral-sand/40 text-neutral-stone dark:border-neutral-stone/20 dark:bg-neutral-charcoal-deep">
                 <tr>
-                  <th className="px-4 py-3">Nama</th>
-                  <th className="px-4 py-3">NIM</th>
-                  <th className="px-4 py-3">Jurusan</th>
-                  <th className="px-4 py-3">Kelompok</th>
+                  {([
+                    ['namaLengkap', 'Nama'],
+                    ['nim', 'NIM'],
+                    ['jurusan', 'Jurusan'],
+                    ['kelompok', 'Kelompok'],
+                  ] as [KolomPeserta, string][]).map(([kolom, judul]) => (
+                    <th key={kolom} className="px-4 py-3">
+                      <button
+                        onClick={() => ubahUrutanPeserta(kolom)}
+                        className="inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-neutral-charcoal dark:hover:text-neutral-cream"
+                      >
+                        {judul}
+                        <span aria-hidden className="text-xs">
+                          {ikonUrutanPeserta(kolom)}
+                        </span>
+                      </button>
+                    </th>
+                  ))}
                   <th className="px-4 py-3">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredPeserta.map((p) => (
+                {pesertaHalamanIni.map((p) => (
                   <tr
                     key={p.id}
                     className="border-t-2 border-neutral-stone/20 transition-colors duration-200 hover:bg-neutral-cream dark:hover:bg-neutral-charcoal-deep"
@@ -458,6 +632,15 @@ export default function AdminTeam() {
               </tbody>
             </table>
           </div>
+          )}
+          {pesertaTerurut.length > 0 && (
+            <TablePagination
+              halaman={halamanPesertaAman}
+              perHalaman={PESERTA_PER_HALAMAN}
+              totalData={pesertaTerurut.length}
+              satuan="peserta"
+              onPindah={setHalamanPeserta}
+            />
           )}
         </div>
       )}
@@ -515,26 +698,30 @@ export default function AdminTeam() {
             <h3 className={`${font.h3} text-neutral-charcoal dark:text-neutral-cream`}>
               {editingKelompokId ? 'Edit Kelompok' : 'Tambah Kelompok'}
             </h3>
-            <input
+            <InputWithCounter
               value={formKelompok.namaKelompok}
+              maxLength={BATAS_KELOMPOK.namaKelompok}
               onChange={(e) => setFormKelompok({ ...formKelompok, namaKelompok: e.target.value })}
               placeholder="Nama kelompok"
               className={inputBase}
             />
-            <input
+            <InputWithCounter
               value={formKelompok.namaMentor}
+              maxLength={BATAS_KELOMPOK.namaMentor}
               onChange={(e) => setFormKelompok({ ...formKelompok, namaMentor: e.target.value })}
               placeholder="Nama mentor"
               className={inputBase}
             />
-            <input
+            <InputWithCounter
               value={formKelompok.nimMentor}
+              maxLength={BATAS_KELOMPOK.nimMentor}
               onChange={(e) => setFormKelompok({ ...formKelompok, nimMentor: e.target.value })}
               placeholder="NIM mentor"
               className={inputBase}
             />
-            <input
+            <InputWithCounter
               value={formKelompok.idLineMentor}
+              maxLength={BATAS_KELOMPOK.idLineMentor}
               onChange={(e) => setFormKelompok({ ...formKelompok, idLineMentor: e.target.value })}
               placeholder="ID Line mentor"
               className={inputBase}
@@ -597,20 +784,23 @@ export default function AdminTeam() {
             <h3 className={`${font.h3} text-neutral-charcoal dark:text-neutral-cream`}>
               {editingPesertaId ? 'Edit Peserta' : 'Tambah Peserta'}
             </h3>
-            <input
+            <InputWithCounter
               value={formPeserta.namaLengkap}
+              maxLength={BATAS_PESERTA.namaLengkap}
               onChange={(e) => setFormPeserta({ ...formPeserta, namaLengkap: e.target.value })}
               placeholder="Nama lengkap"
               className={inputBase}
             />
-            <input
+            <InputWithCounter
               value={formPeserta.nim}
+              maxLength={BATAS_PESERTA.nim}
               onChange={(e) => setFormPeserta({ ...formPeserta, nim: e.target.value })}
               placeholder="NIM"
               className={inputBase}
             />
-            <input
+            <InputWithCounter
               value={formPeserta.jurusan}
+              maxLength={BATAS_PESERTA.jurusan}
               onChange={(e) => setFormPeserta({ ...formPeserta, jurusan: e.target.value })}
               placeholder="Jurusan"
               className={inputBase}

@@ -8,6 +8,7 @@ import { DivisionCarousel } from '../components/DivisionCarousel';
 import { DivisionSelector } from '../components/DivisionSelector';
 import { DivisionModal } from '../components/DivisionModal';
 import bgImage from '../../../assets/division/divisions bg.png';
+import scrollImg from '../../../assets/division/scroll.png';
 import type { Divisi, Panitia } from '../../../shared/types/database';
 
 export default function DivisionPage() {
@@ -19,42 +20,51 @@ export default function DivisionPage() {
   // Fetch Firestore data and merge with fallback / ensure 10 items
   useEffect(() => {
     let isMounted = true;
+
+    const bangunDivisions = (divisiData: Divisi[], panitiaData: Panitia[]): Division[] => {
+      let mappedDivisions: Division[] = divisiData.map((d: Divisi) => {
+        const members: Member[] = panitiaData
+          .filter((p: Panitia) => p.divisiId === d.id)
+          .map((p: Panitia) => ({
+            id: p.id,
+            name: p.namaLengkap,
+            position: p.posisi === 'koordinator' ? 'Koordinator Divisi' : p.posisi === 'executive' ? 'Executive' : 'Staff Divisi',
+            image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
+            nim: p.nim,
+          }));
+
+        return {
+          id: d.id,
+          name: d.namaDivisi,
+          logo: d.fotoDivisiUrl || '📜',
+          description: d.deskripsiDivisi || 'Divisi Mentoring UMN 2026.',
+          members,
+        };
+      });
+
+      // Ensure all divisions from default if Firestore has fewer divisions
+      if (mappedDivisions.length < DEFAULT_DIVISIONS.length) {
+        const extraDummies = DEFAULT_DIVISIONS.slice(mappedDivisions.length);
+        mappedDivisions = [...mappedDivisions, ...extraDummies];
+      }
+
+      return mappedDivisions;
+    };
+
     (async () => {
       try {
-        const [divisiData, panitiaData] = await Promise.all([
-          divisiService.ambilSemua(),
-          panitiaService.ambilSemua(),
-        ]);
+        // Kedua request tetap berjalan paralel, tapi carousel tidak lagi menunggu
+        // keduanya selesai: nama & logo divisi ditampilkan begitu data divisi tiba.
+        // Data panitia hanya dipakai untuk daftar anggota di dalam modal.
+        const promisPanitia = panitiaService.ambilSemua().catch(() => [] as Panitia[]);
+        const divisiData = await divisiService.ambilSemua();
 
-        if (isMounted && divisiData && divisiData.length > 0) {
-          let mappedDivisions: Division[] = divisiData.map((d: Divisi) => {
-            const members: Member[] = panitiaData
-              .filter((p: Panitia) => p.divisiId === d.id)
-              .map((p: Panitia) => ({
-                id: p.id,
-                name: p.namaLengkap,
-                position: p.posisi === 'koordinator' ? 'Koordinator Divisi' : p.posisi === 'executive' ? 'Executive' : 'Staff Divisi',
-                image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
-                nim: p.nim,
-              }));
+        if (!isMounted || !divisiData || divisiData.length === 0) return;
+        setDivisions(bangunDivisions(divisiData, []));
 
-            return {
-              id: d.id,
-              name: d.namaDivisi,
-              logo: d.fotoDivisiUrl || '📜',
-              description: d.deskripsiDivisi || 'Divisi Mentoring UMN 2026.',
-              members,
-            };
-          });
-
-          // Ensure all divisions from default if Firestore has fewer divisions
-          if (mappedDivisions.length < DEFAULT_DIVISIONS.length) {
-            const extraDummies = DEFAULT_DIVISIONS.slice(mappedDivisions.length);
-            mappedDivisions = [...mappedDivisions, ...extraDummies];
-          }
-
-          setDivisions(mappedDivisions);
-        }
+        const panitiaData = await promisPanitia;
+        if (!isMounted) return;
+        setDivisions(bangunDivisions(divisiData, panitiaData));
       } catch (error) {
         console.warn('Firestore fetch fallback to default divisions:', error);
       }
@@ -63,6 +73,16 @@ export default function DivisionPage() {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  // Latar perkamen (scroll.png) dan varian font Futura Medium baru diunduh saat modal
+  // pertama kali dibuka. Keduanya dihangatkan ke cache setelah halaman settle supaya
+  // klik "CLICK TO OPEN" pertama tidak menunggu unduhan, tanpa membebani initial load.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      new Image().src = scrollImg;
+    }, 1200);
+    return () => window.clearTimeout(timer);
   }, []);
 
   // Keyboard Left / Right Navigation Listener

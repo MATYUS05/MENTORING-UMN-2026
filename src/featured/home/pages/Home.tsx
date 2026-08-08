@@ -1,4 +1,5 @@
 // src/featured/home/pages/Home.tsx
+import { useEffect } from "react";
 import "./home.css";
 import { useHorizontalScroll } from "../hooks/useHorizontalScroll";
 import ParallaxOcean from "../components/ParallaxOcean";
@@ -16,12 +17,18 @@ import Section6Cta from "../components/Section6Cta";
 export default function Home() {
   const { containerRef, scrollLeft, maxScrollLeft } = useHorizontalScroll();
 
+  // Home mengisi tepat area di bawah navbar, jadi halaman tidak perlu scroll vertikal
+  useEffect(() => {
+    document.body.classList.add("home-lock-scroll");
+    return () => document.body.classList.remove("home-lock-scroll");
+  }, []);
+
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-secondary-sky">
+    <div className="home-shell relative w-screen overflow-hidden bg-secondary-sky">
       <ParallaxOcean scrollLeft={scrollLeft} maxScrollLeft={maxScrollLeft} />
       <div
         ref={containerRef}
-        className="scrollbar-hide relative z-10 flex h-screen w-screen overflow-x-auto overflow-y-hidden"
+        className="scrollbar-hide relative z-10 flex h-full w-full overflow-x-auto overflow-y-hidden"
       >
         <Section1TitleMobile />
         <Section1TaglineMobile />

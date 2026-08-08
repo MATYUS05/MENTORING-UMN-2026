@@ -1,11 +1,12 @@
 // src/app/layouts/AdminLayout.tsx
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../providers/AuthProvider';
 import { ThemeProvider } from '../../shared/theme/ThemeContext';
 import AdminSidebar from '../../shared/components/AdminSidebar';
 
 export default function AdminLayout() {
   const { userData, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -17,6 +18,13 @@ export default function AdminLayout() {
 
   if (!userData || (userData.role !== 'admin' && userData.role !== 'superadmin')) {
     return <Navigate to="/login-mentoring" replace />;
+  }
+
+  // Dashboard /admin hanya menampilkan 5 statistik milik role admin. Superadmin
+  // punya dashboard sendiri dengan 8 statistik, jadi ia selalu dialihkan ke sana.
+  // Halaman /admin/* lainnya (team, divisi, chatbot, faq, galeri) tetap dipakai bersama.
+  if (userData.role === 'superadmin' && location.pathname === '/admin') {
+    return <Navigate to="/superadmin" replace />;
   }
 
   return (

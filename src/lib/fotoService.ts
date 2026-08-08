@@ -13,13 +13,19 @@ export const fotoService = {
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Foto[];
   },
 
-  async tambah(data: Omit<Foto, 'id' | 'uploadedAt'>) {
-    const ref = await addDoc(collection(db, COLLECTION), { ...data, uploadedAt: new Date() });
+  async tambah(data: Omit<Foto, 'id' | 'uploadedAt' | 'updatedAt'>) {
+    const sekarang = new Date();
+    const ref = await addDoc(collection(db, COLLECTION), {
+      ...data,
+      uploadedAt: sekarang,
+      updatedAt: sekarang,
+    });
     return ref.id;
   },
 
-  async perbarui(id: string, data: Partial<Foto>) {
-    await updateDoc(doc(db, COLLECTION, id), data);
+  // uploadedAt (waktu pembuatan koleksi ini) sengaja tidak bisa dikirim pemanggil.
+  async perbarui(id: string, data: Partial<Omit<Foto, 'id' | 'uploadedAt' | 'updatedAt'>>) {
+    await updateDoc(doc(db, COLLECTION, id), { ...data, updatedAt: new Date() });
   },
 
   async hapus(id: string) {

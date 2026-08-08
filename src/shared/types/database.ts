@@ -3,6 +3,10 @@
 export type UserRole = 'admin' | 'superadmin';
 export type DivisiAkun = 'executive' | 'website' | 'documentation' | 'visual' | 'insurer';
 
+/**
+ * `updatedAt` diisi oleh service saat data dibuat maupun diubah.
+ * Opsional karena dokumen yang dibuat sebelum field ini ada belum memilikinya.
+ */
 export interface UserAccount {
   uid: string;
   email: string;
@@ -10,6 +14,7 @@ export interface UserAccount {
   role: UserRole;
   divisi: DivisiAkun | null;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export interface Divisi {
@@ -19,6 +24,7 @@ export interface Divisi {
   deskripsiDivisi: string;
   tipeExec: boolean;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export type PosisiPanitia = 'koordinator' | 'anggota' | 'executive';
@@ -30,6 +36,7 @@ export interface Panitia {
   divisiId: string;
   posisi: PosisiPanitia;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export type Sesi = 'pagi' | 'siang' | 'pengganti';
@@ -43,6 +50,7 @@ export interface Kelompok {
   fotoMentorUrl: string;
   sesi: Sesi;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export interface Peserta {
@@ -52,6 +60,7 @@ export interface Peserta {
   jurusan: string;
   kelompokId: string;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export type Minggu = 'minggu-1' | 'minggu-2' | 'minggu-3';
@@ -66,6 +75,7 @@ export interface Foto {
   minggu: Minggu;
   uploadedBy: string;
   uploadedAt: Date;
+  updatedAt?: Date;
 }
 
 export interface FaqItem {

@@ -75,13 +75,15 @@ export const DivisionModal: React.FC<DivisionModalProps> = ({
           />
         </div>
 
-        {/* Scrollable Content Body (Clicking inside content prevents closing, clicking outside closes, Touch Scroll Enabled) */}
+        {/* Scrollable Content Body (Clicking inside content prevents closing, clicking outside closes, Touch Scroll Enabled)
+            Mobile (< sm): seluruh isi ikut scroll seperti sebelumnya.
+            Desktop (>= sm): jadi flex column tanpa scroll sendiri, agar hanya daftar anggota yang scroll. */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute top-[26%] bottom-[26%] left-[18%] right-[18%] sm:top-[18%] sm:bottom-[18%] sm:left-[10%] sm:right-[10%] z-10 overflow-y-auto hide-scrollbar touch-scroll px-1 sm:px-8 py-2 space-y-3 sm:space-y-5"
+          className="absolute top-[26%] bottom-[26%] left-[18%] right-[18%] sm:top-[18%] sm:bottom-[18%] sm:left-[10%] sm:right-[10%] z-10 overflow-y-auto sm:overflow-hidden sm:flex sm:flex-col hide-scrollbar touch-scroll px-1 sm:px-8 py-2 space-y-3 sm:space-y-5"
         >
-          {/* Header Info Section */}
-          <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:items-start gap-3 sm:gap-6 border-b border-[#4a2e1b]/20 pb-3 sm:pb-5">
+          {/* Header Info Section (desktop: tetap diam, tidak ikut scroll) */}
+          <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:items-start gap-3 sm:gap-6 border-b border-[#4a2e1b]/20 pb-3 sm:pb-5 sm:shrink-0">
             {/* Division Logo Emblem */}
             <div className="shrink-0 relative">
               <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#4a2e1b]/80 bg-[#1f1008] p-1.5 shadow-sm sm:h-20 sm:w-20">
@@ -113,9 +115,10 @@ export const DivisionModal: React.FC<DivisionModalProps> = ({
             </div>
           </div>
 
-          {/* Members List Section */}
-          <div className="pb-4">
-            <div className="mb-3 flex items-center justify-between border-b border-[#4a2e1b]/20 pb-1.5">
+          {/* Members List Section (desktop: mengisi sisa tinggi modal, jadi wadah scroll) */}
+          <div className="pb-4 sm:flex sm:min-h-0 sm:flex-1 sm:flex-col sm:pb-0">
+            {/* Judul "Susunan Anggota" (desktop: tetap diam di atas daftar) */}
+            <div className="mb-3 flex items-center justify-between border-b border-[#4a2e1b]/20 pb-1.5 sm:shrink-0">
               <h4 className="font-heading text-xs sm:text-lg font-bold text-[#2b170c] flex items-center gap-2">
                 <span></span>Susunan Anggota ({division.members.length})
               </h4>
@@ -126,7 +129,9 @@ export const DivisionModal: React.FC<DivisionModalProps> = ({
                 Belum ada data anggota untuk divisi ini.
               </div>
             ) : (
-              <div className="grid gap-2 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+              // Satu-satunya area yang scroll di desktop. Tanpa overflow di mobile,
+              // supaya tidak muncul nested scroll pada layar kecil.
+              <div className="grid gap-2 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 sm:min-h-0 sm:flex-1 sm:content-start sm:overflow-y-auto hide-scrollbar sm:pb-2">
                 {division.members.map((member) => (
                   <DivisionMember key={member.id} member={member} />
                 ))}

@@ -29,7 +29,7 @@ export default function Section4Values() {
   const active = valuesData[activeIndex];
 
   return (
-    <section className="flex h-screen w-screen shrink-0 flex-col items-center justify-center gap-6 px-6 sm:gap-8 sm:px-12 md:px-20">
+    <section className="flex h-full w-screen shrink-0 flex-col items-center justify-center gap-6 px-6 sm:gap-8 sm:px-12 md:px-20">
       <h2 className={`${font.h1} text-neutral-charcoal-deep`}>NILAI 5C</h2>
 
       <div className="flex w-full items-center justify-center gap-2 sm:hidden">

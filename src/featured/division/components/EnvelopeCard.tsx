@@ -8,6 +8,14 @@ interface EnvelopeCardProps {
   onClick: () => void;
 }
 
+/**
+ * Jeda antara klik dan munculnya modal, yaitu waktu yang diberikan agar animasi
+ * amplop terbuka sempat terlihat. Nilai ini adalah SATU-SATUNYA sumber delay pada
+ * alur "CLICK TO OPEN" — datanya sendiri sudah ada di memori, tanpa query apa pun.
+ * Sebelumnya 450ms; dipangkas agar terasa responsif tanpa menghilangkan animasinya.
+ */
+const JEDA_ANIMASI_BUKA_MS = 180;
+
 export const EnvelopeCard: React.FC<EnvelopeCardProps> = ({ division, onClick }) => {
   const [isOpening, setIsOpening] = useState(false);
 
@@ -16,7 +24,7 @@ export const EnvelopeCard: React.FC<EnvelopeCardProps> = ({ division, onClick })
     setTimeout(() => {
       onClick();
       setIsOpening(false);
-    }, 450);
+    }, JEDA_ANIMASI_BUKA_MS);
   };
 
   return (
@@ -34,6 +42,8 @@ export const EnvelopeCard: React.FC<EnvelopeCardProps> = ({ division, onClick })
         <img
           src={amplopImg}
           alt="Amplop Majapahit"
+          /* Elemen utama di atas fold: tetap eager, decode async agar tidak menahan main thread. */
+          decoding="async"
           className="absolute inset-0 w-full h-full object-contain"
         />
 

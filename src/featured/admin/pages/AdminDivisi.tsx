@@ -9,6 +9,7 @@ import { uploadImage } from '../../../lib/cloudinary';
 import { excelHelper } from '../../../lib/excelHelper';
 import DangerConfirmModal from '../../../shared/components/DangerConfirmModal';
 import ConfirmModal from '../../../shared/components/ConfirmModal';
+import { MAKS_DIVISI } from '../../../shared/constants/batasData';
 import type { Divisi, Panitia, PosisiPanitia } from '../../../shared/types/database';
 const divisiKosong = {
   namaDivisi: '',
@@ -83,6 +84,17 @@ export default function AdminDivisi() {
     }
   };
   const simpanDivisi = async () => {
+    if (!editingDivisiId) {
+      // Hitung ulang dari server sesaat sebelum menyimpan, supaya divisi ke-12
+      // tetap ditolak walau data bertambah dari sesi/admin lain setelah halaman dimuat.
+      const divisiTerbaru = await divisiService.ambilSemua();
+      if (divisiTerbaru.length >= MAKS_DIVISI) {
+        setDivisiList(divisiTerbaru);
+        setShowFormDivisi(false);
+        setPesan(`Maksimal ${MAKS_DIVISI} divisi telah tercapai. Divisi baru tidak dapat ditambahkan.`);
+        return;
+      }
+    }
     if (editingDivisiId) {
       await divisiService.perbarui(editingDivisiId, formDivisi);
       catat('perbarui', 'divisi', `Memperbarui divisi: ${formDivisi.namaDivisi}`);
@@ -150,6 +162,9 @@ export default function AdminDivisi() {
   };
   const namaDivisiDari = (id: string) => divisiList.find((d) => d.id === id)?.namaDivisi ?? '-';
 
+  // Dihitung ulang setiap render, jadi tombol otomatis aktif lagi setelah ada divisi yang dihapus.
+  const divisiPenuh = divisiList.length >= MAKS_DIVISI;
+
   const q = searchQuery.trim().toLowerCase();
   const filteredDivisi = divisiList.filter(
     (d) => d.namaDivisi.toLowerCase().includes(q) || d.deskripsiDivisi.toLowerCase().includes(q)
@@ -197,7 +212,23 @@ export default function AdminDivisi() {
     setImporting(true);
     try {
       const sheets = await excelHelper.read(file, ['divisi', 'panitia']);
-      const idDivisiLama = divisiList.map((d) => d.id);
+      // Hitung ulang dari server, lalu tolak seluruh import (divisi maupun panitia)
+      // sebelum ada satu pun data yang ditulis kalau hasilnya melebihi MAKS_DIVISI.
+      const divisiSaatIni = await divisiService.ambilSemua();
+      const idDivisiLama = divisiSaatIni.map((d) => d.id);
+      const barisDivisiBaru = sheets.divisi.filter((row) => {
+        if (!String(row.namaDivisi ?? '').trim()) return false;
+        const id = row.id ? String(row.id) : '';
+        return !(id && idDivisiLama.includes(id));
+      }).length;
+      if (divisiSaatIni.length + barisDivisiBaru > MAKS_DIVISI) {
+        setPesan(
+          `Import dibatalkan karena jumlah divisi akan melebihi batas maksimal ${MAKS_DIVISI} divisi. ` +
+            `Saat ini ada ${divisiSaatIni.length} divisi dan file berisi ${barisDivisiBaru} divisi baru. ` +
+            'Tidak ada data yang diubah.'
+        );
+        return;
+      }
       let jumlahDivisi = 0;
       for (const row of sheets.divisi) {
         const namaDivisi = String(row.namaDivisi ?? '').trim();
@@ -327,7 +358,9 @@ export default function AdminDivisi() {
                 setEditingDivisiId(null);
                 setShowFormDivisi(true);
               }}
-              className={`shrink-0 ${primaryButton}`}
+              disabled={divisiPenuh}
+              title={divisiPenuh ? `Maksimal ${MAKS_DIVISI} divisi telah tercapai.` : undefined}
+              className={`shrink-0 ${primaryButton} ${divisiPenuh ? 'cursor-not-allowed grayscale' : ''}`}
             >
               + Tambah Divisi
             </button>
@@ -338,6 +371,12 @@ export default function AdminDivisi() {
               className={inputBase}
             />
           </div>
+          {divisiPenuh && (
+            <p className="font-body text-sm text-accent-red dark:text-accent-red-light">
+              Maksimal {MAKS_DIVISI} divisi telah tercapai. Hapus salah satu divisi terlebih dahulu untuk menambahkan
+              divisi baru.
+            </p>
+          )}
           {filteredDivisi.length === 0 ? (
             <p className="font-body text-neutral-stone">Tidak ada data yang sesuai dengan pencarian.</p>
           ) : (
