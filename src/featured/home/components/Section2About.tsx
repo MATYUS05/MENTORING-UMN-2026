@@ -3,7 +3,7 @@ import { font } from "../../../shared/typography/font";
 
 export default function Section2About() {
   return (
-    <section className="flex h-screen w-screen shrink-0 flex-col items-center justify-center gap-4 px-6 text-center sm:px-12 md:px-20">
+    <section className="flex h-full w-screen shrink-0 flex-col items-center justify-center gap-4 px-6 text-center sm:px-12 md:px-20">
       <h2 className={`${font.h1} text-neutral-charcoal-deep`}>
         APA ITU MENTORING
       </h2>

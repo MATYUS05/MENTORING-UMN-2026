@@ -21,7 +21,7 @@ export default function Section5Partners() {
   } | null>(null);
 
   return (
-    <section className="hidden h-screen w-screen shrink-0 flex-col items-center justify-center gap-8 overflow-y-auto px-6 py-10 sm:flex sm:px-12 md:px-20">
+    <section className="scrollbar-hide hidden h-full w-screen shrink-0 flex-col items-center justify-center gap-8 overflow-y-auto px-6 py-10 sm:flex sm:px-12 md:px-20">
       <h2 className={`${font.h1} text-neutral-charcoal-deep`}>
         OUR MEDIA PARTNER
       </h2>

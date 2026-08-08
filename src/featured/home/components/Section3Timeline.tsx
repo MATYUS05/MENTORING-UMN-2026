@@ -8,7 +8,7 @@ export default function Section3Timeline() {
   const [activeEvent, setActiveEvent] = useState<TimelineEvent | null>(null);
 
   return (
-    <section className="flex h-screen w-screen shrink-0 flex-col items-center justify-center gap-10 px-6 sm:px-12 md:px-20">
+    <section className="flex h-full w-screen shrink-0 flex-col items-center justify-center gap-10 px-6 sm:px-12 md:px-20">
       <h2 className={`${font.h1} text-neutral-charcoal-deep`}>TIMELINE</h2>
       <div className="flex flex-wrap items-center justify-center gap-8">
         {timelineEvents.map((event) => (

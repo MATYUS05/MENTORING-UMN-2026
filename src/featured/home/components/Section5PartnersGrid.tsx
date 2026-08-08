@@ -21,7 +21,7 @@ export default function Section5PartnersGrid() {
   } | null>(null);
 
   return (
-    <section className="flex h-screen w-screen shrink-0 flex-col items-center justify-center gap-6 overflow-y-auto px-6 py-10 sm:hidden">
+    <section className="scrollbar-hide flex h-full w-screen shrink-0 flex-col items-center justify-center gap-6 overflow-y-auto px-6 py-10 sm:hidden">
       <h2 className={`${font.h1} text-neutral-charcoal-deep`}>
         OUR MEDIA PARTNER
       </h2>

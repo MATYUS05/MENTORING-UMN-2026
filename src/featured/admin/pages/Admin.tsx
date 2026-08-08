@@ -1,8 +1,12 @@
 // src/featured/admin/pages/Admin.tsx
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Building2, Image as IkonGambar, UserRoundCog, Users, UsersRound } from 'lucide-react';
 import { font } from '../../../shared/typography/font';
 import { useAuth } from '../../../app/providers/AuthProvider';
+import StatCard from '../../../shared/components/StatCard';
+import { MAKS_DIVISI } from '../../../shared/constants/batasData';
+import { waktuUpdateTerakhir } from '../../../shared/utils/waktu';
 import { akunService } from '../../../lib/akunService';
 import { pesertaService } from '../../../lib/pesertaService';
 import { panitiaService } from '../../../lib/panitiaService';
@@ -39,6 +43,14 @@ export default function Admin() {
     divisi: null as number | null,
     foto: null as number | null,
   });
+  // null = koleksi belum punya field `updatedAt`, bukan "belum dimuat".
+  const [updateTerakhir, setUpdateTerakhir] = useState<Record<string, Date | null>>({
+    peserta: null,
+    panitia: null,
+    kelompok: null,
+    divisi: null,
+    foto: null,
+  });
 
   useEffect(() => {
     (async () => {
@@ -56,6 +68,13 @@ export default function Admin() {
         divisi: divisi.length,
         foto: foto.length,
       });
+      setUpdateTerakhir({
+        peserta: waktuUpdateTerakhir(peserta),
+        panitia: waktuUpdateTerakhir(panitia),
+        kelompok: waktuUpdateTerakhir(kelompok),
+        divisi: waktuUpdateTerakhir(divisi),
+        foto: waktuUpdateTerakhir(foto),
+      });
       const cocok = divisi.find((d) => d.namaDivisi.toLowerCase() === (userData?.divisi ?? '').toLowerCase());
       setDivisiSaya(cocok ?? null);
     })();
@@ -71,11 +90,20 @@ export default function Admin() {
   };
 
   const statItems = [
-    { label: 'Peserta', value: stats.peserta },
-    { label: 'Panitia', value: stats.panitia },
-    { label: 'Kelompok', value: stats.kelompok },
-    { label: 'Divisi', value: stats.divisi },
-    { label: 'Foto Galeri', value: stats.foto },
+    { label: 'Peserta', value: stats.peserta, icon: Users, lastUpdate: updateTerakhir.peserta },
+    { label: 'Panitia', value: stats.panitia, icon: UserRoundCog, lastUpdate: updateTerakhir.panitia },
+    { label: 'Kelompok', value: stats.kelompok, icon: UsersRound, lastUpdate: updateTerakhir.kelompok },
+    {
+      label: 'Divisi',
+      value: stats.divisi,
+      icon: Building2,
+      lastUpdate: updateTerakhir.divisi,
+      progress:
+        stats.divisi === null
+          ? undefined
+          : { current: stats.divisi, max: MAKS_DIVISI, satuan: 'Divisi' },
+    },
+    { label: 'Foto Galeri', value: stats.foto, icon: IkonGambar, lastUpdate: updateTerakhir.foto },
   ];
 
   return (
@@ -87,15 +115,17 @@ export default function Admin() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {statItems.map((item) => (
-          <div
+          <StatCard
             key={item.label}
-            className={`${cardBase} flex flex-col items-center justify-center p-5 hover:-translate-y-1 hover:border-secondary-deep/60 hover:shadow-md dark:hover:border-secondary-sky/50 transition-all duration-300`}
-          >
-            <p className={`${font.h3} text-neutral-charcoal dark:text-neutral-cream`}>{item.value ?? '...'}</p>
-            <p className={`${font.caption} mt-1 font-medium text-neutral-stone`}>{item.label}</p>
-          </div>
+            label={item.label}
+            value={item.value}
+            icon={item.icon}
+            accent="secondary"
+            progress={item.progress}
+            lastUpdate={item.lastUpdate}
+          />
         ))}
       </div>
 

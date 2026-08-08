@@ -24,7 +24,7 @@ export default function Section1TaglineMobile() {
   const [activeInfo, setActiveInfo] = useState<InfoContent | null>(null);
 
   return (
-    <section className="flex h-screen w-screen shrink-0 flex-col items-center justify-center gap-6 px-6 text-center sm:hidden">
+    <section className="flex h-full w-screen shrink-0 flex-col items-center justify-center gap-6 px-6 text-center sm:hidden">
       <button
         onClick={() => setActiveInfo(TEMA_INFO)}
         className={`${font.h3} text-neutral-charcoal-deep transition-transform duration-200 hover:scale-105`}

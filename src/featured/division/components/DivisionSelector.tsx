@@ -53,6 +53,9 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
             <img
               src={division.logo}
               alt={division.name}
+              /* Rak berada di bawah carousel; logo baru diunduh saat mendekati viewport. */
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-contain p-1.5 rounded-full"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';

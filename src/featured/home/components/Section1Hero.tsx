@@ -25,14 +25,14 @@ export default function Section1Hero() {
   const [activeInfo, setActiveInfo] = useState<InfoContent | null>(null);
 
   return (
-    <section className="hidden h-screen w-screen shrink-0 flex-col items-center justify-center gap-4 px-6 text-center sm:flex sm:px-12 md:px-20">
+    <section className="hidden h-full w-screen shrink-0 flex-col items-center justify-center gap-4 px-6 text-center sm:flex sm:px-12 md:px-20">
       <h1 className={`${font.h1} text-neutral-charcoal-deep`}>
         CHARACTER BUILDING MENTORING 2026
       </h1>
       <img
         src={minerva}
         alt="Minerva"
-        className="h-60 w-60 animate-[float_4s_ease-in-out_infinite] md:h-75 md:w-75"
+        className="h-60 max-h-[40dvh] w-60 animate-[float_4s_ease-in-out_infinite] object-contain md:h-75 md:w-75"
       />
       <button
         onClick={() => setActiveInfo(TEMA_INFO)}

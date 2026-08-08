@@ -3,7 +3,7 @@ import { font } from "../../../shared/typography/font";
 
 export default function Section5Contact() {
   return (
-    <section className="flex h-screen w-screen shrink-0 flex-col items-center justify-center gap-4 px-6 text-center sm:hidden">
+    <section className="flex h-full w-screen shrink-0 flex-col items-center justify-center gap-4 px-6 text-center sm:hidden">
       <h3 className={`${font.h2} text-neutral-charcoal-deep`}>
         CONTACT US AT
       </h3>

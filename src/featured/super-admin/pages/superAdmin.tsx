@@ -1,8 +1,21 @@
 // src/featured/super-admin/pages/superAdmin.tsx
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Building2,
+  Image as IkonGambar,
+  KeyRound,
+  ShieldCheck,
+  UserRound,
+  UserRoundCog,
+  Users,
+  UsersRound,
+} from 'lucide-react';
 import { font } from '../../../shared/typography/font';
 import { useAuth } from '../../../app/providers/AuthProvider';
+import StatCard from '../../../shared/components/StatCard';
+import { MAKS_DIVISI } from '../../../shared/constants/batasData';
+import { waktuUpdateTerakhir } from '../../../shared/utils/waktu';
 import { akunService } from '../../../lib/akunService';
 import { pesertaService } from '../../../lib/pesertaService';
 import { panitiaService } from '../../../lib/panitiaService';
@@ -44,6 +57,15 @@ export default function SuperAdmin() {
     totalAdmin: null as number | null,
     totalSuperadmin: null as number | null,
   });
+  // null = koleksi belum punya field `updatedAt`, bukan "belum dimuat".
+  const [updateTerakhir, setUpdateTerakhir] = useState<Record<string, Date | null>>({
+    peserta: null,
+    panitia: null,
+    kelompok: null,
+    divisi: null,
+    foto: null,
+    akun: null,
+  });
 
   useEffect(() => {
     (async () => {
@@ -65,6 +87,14 @@ export default function SuperAdmin() {
         totalAdmin: akun.filter((a) => a.role === 'admin').length,
         totalSuperadmin: akun.filter((a) => a.role === 'superadmin').length,
       });
+      setUpdateTerakhir({
+        peserta: waktuUpdateTerakhir(peserta),
+        panitia: waktuUpdateTerakhir(panitia),
+        kelompok: waktuUpdateTerakhir(kelompok),
+        divisi: waktuUpdateTerakhir(divisi),
+        foto: waktuUpdateTerakhir(foto),
+        akun: waktuUpdateTerakhir(akun),
+      });
       const cocok = divisi.find((d) => d.namaDivisi.toLowerCase() === (userData?.divisi ?? '').toLowerCase());
       setDivisiSaya(cocok ?? null);
     })();
@@ -80,14 +110,23 @@ export default function SuperAdmin() {
   };
 
   const statItems = [
-    { label: 'Peserta', value: stats.peserta },
-    { label: 'Panitia', value: stats.panitia },
-    { label: 'Kelompok', value: stats.kelompok },
-    { label: 'Divisi', value: stats.divisi },
-    { label: 'Foto Galeri', value: stats.foto },
-    { label: 'Total Akun', value: stats.totalAkun },
-    { label: 'Admin', value: stats.totalAdmin },
-    { label: 'Superadmin', value: stats.totalSuperadmin },
+    { label: 'Peserta', value: stats.peserta, icon: Users, lastUpdate: updateTerakhir.peserta },
+    { label: 'Panitia', value: stats.panitia, icon: UserRoundCog, lastUpdate: updateTerakhir.panitia },
+    { label: 'Kelompok', value: stats.kelompok, icon: UsersRound, lastUpdate: updateTerakhir.kelompok },
+    {
+      label: 'Divisi',
+      value: stats.divisi,
+      icon: Building2,
+      lastUpdate: updateTerakhir.divisi,
+      progress:
+        stats.divisi === null
+          ? undefined
+          : { current: stats.divisi, max: MAKS_DIVISI, satuan: 'Divisi' },
+    },
+    { label: 'Foto Galeri', value: stats.foto, icon: IkonGambar, lastUpdate: updateTerakhir.foto },
+    { label: 'Total Akun', value: stats.totalAkun, icon: KeyRound, lastUpdate: updateTerakhir.akun },
+    { label: 'Admin', value: stats.totalAdmin, icon: UserRound, lastUpdate: updateTerakhir.akun },
+    { label: 'Superadmin', value: stats.totalSuperadmin, icon: ShieldCheck, lastUpdate: updateTerakhir.akun },
   ];
 
   return (
@@ -99,15 +138,17 @@ export default function SuperAdmin() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {statItems.map((item) => (
-          <div
+          <StatCard
             key={item.label}
-            className={`${cardBase} flex flex-col items-center justify-center p-5 hover:-translate-y-1 hover:border-primary-dark/60 hover:shadow-md dark:hover:border-primary-light/50 transition-all duration-300`}
-          >
-            <p className={`${font.h3} text-neutral-charcoal dark:text-neutral-cream`}>{item.value ?? '...'}</p>
-            <p className={`${font.caption} mt-1 font-medium text-neutral-stone`}>{item.label}</p>
-          </div>
+            label={item.label}
+            value={item.value}
+            icon={item.icon}
+            accent="primary"
+            progress={item.progress}
+            lastUpdate={item.lastUpdate}
+          />
         ))}
       </div>
 

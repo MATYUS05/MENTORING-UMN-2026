@@ -1,4 +1,17 @@
 /* src/featured/home/home.css */
+
+/* Tinggi navbar: sticky top 10px + tinggi container 120px */
+.home-shell {
+  --navbar-height: 130px;
+  height: calc(100vh - var(--navbar-height));
+  height: calc(100dvh - var(--navbar-height));
+}
+
+/* Mengunci scroll vertikal selama halaman Home aktif */
+.home-lock-scroll {
+  overflow: hidden;
+}
+
 .scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;

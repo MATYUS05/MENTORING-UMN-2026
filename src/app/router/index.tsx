@@ -1,54 +1,75 @@
 // src/app/router/index.tsx
 
+import { Suspense, lazy, type ReactNode } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import UserLayout from "../layouts/UserLayout";
-import AdminLayout from "../layouts/AdminLayout";
-import SuperAdminLayout from "../layouts/SuperAdminLayout";
-import Home from "../../featured/home/pages/Home";
-import About from "../../featured/about/pages/About";
-import Teams from "../../featured/teams/pages/Teams";
-import Division from "../../featured/division/pages/Division";
-import Faq from "../../featured/faq/pages/Faq";
-import Gallery from "../../featured/gallery/pages/Gallery";
-import Login from "../../featured/auth/pages/Login";
-import Admin from "../../featured/admin/pages/Admin";
-import AdminTeam from "../../featured/admin/pages/AdminTeam";
-import AdminDivisi from "../../featured/admin/pages/AdminDivisi";
-import AdminChatbot from "../../featured/admin/pages/AdminChatbot";
-import AdminFaq from "../../featured/admin/pages/AdminFaq";
-import AdminGaleri from "../../featured/admin/pages/AdminGaleri";
-import SuperAdmin from "../../featured/super-admin/pages/superAdmin";
-import SuperAdminAkun from "../../featured/super-admin/pages/SuperAdminAkun";
-import SuperAdminLogs from "../../featured/super-admin/pages/SuperAdminLogs";
-import DesignSystems from '../../featured/dev/DesignSystems';
-import NotFound from "../../featured/errors/pages/NotFound";
+
+/**
+ * Setiap halaman dimuat lewat lazy() supaya tidak semuanya masuk ke satu bundle.
+ * Sebelumnya seluruh halaman di-import statis, sehingga pengunjung halaman publik
+ * ikut mengunduh kode dashboard admin beserta library Excel (xlsx) yang berat.
+ */
+const AdminLayout = lazy(() => import("../layouts/AdminLayout"));
+const SuperAdminLayout = lazy(() => import("../layouts/SuperAdminLayout"));
+
+const Home = lazy(() => import("../../featured/home/pages/Home"));
+const About = lazy(() => import("../../featured/about/pages/About"));
+const Teams = lazy(() => import("../../featured/teams/pages/Teams"));
+const Division = lazy(() => import("../../featured/division/pages/Division"));
+const Faq = lazy(() => import("../../featured/faq/pages/Faq"));
+const Gallery = lazy(() => import("../../featured/gallery/pages/Gallery"));
+const Login = lazy(() => import("../../featured/auth/pages/Login"));
+const Admin = lazy(() => import("../../featured/admin/pages/Admin"));
+const AdminTeam = lazy(() => import("../../featured/admin/pages/AdminTeam"));
+const AdminDivisi = lazy(() => import("../../featured/admin/pages/AdminDivisi"));
+const AdminChatbot = lazy(() => import("../../featured/admin/pages/AdminChatbot"));
+const AdminFaq = lazy(() => import("../../featured/admin/pages/AdminFaq"));
+const AdminGaleri = lazy(() => import("../../featured/admin/pages/AdminGaleri"));
+const SuperAdmin = lazy(() => import("../../featured/super-admin/pages/superAdmin"));
+const SuperAdminAkun = lazy(() => import("../../featured/super-admin/pages/SuperAdminAkun"));
+const SuperAdminLogs = lazy(() => import("../../featured/super-admin/pages/SuperAdminLogs"));
+const DesignSystems = lazy(() => import('../../featured/dev/DesignSystems'));
+const NotFound = lazy(() => import("../../featured/errors/pages/NotFound"));
+
+/** Ditampilkan sesaat selama chunk halaman diunduh. */
+function MemuatHalaman() {
+  return (
+    <div className="flex min-h-[60vh] w-full items-center justify-center">
+      <p className="font-body text-sm text-neutral-stone">Memuat...</p>
+    </div>
+  );
+}
+
+const suspense = (element: ReactNode) => (
+  <Suspense fallback={<MemuatHalaman />}>{element}</Suspense>
+);
 
 export const router = createBrowserRouter([
   {
     path: "/login-mentoring",
-    element: <Login />,
+    element: suspense(<Login />),
   },
 
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: suspense(<AdminLayout />),
     children: [
-      { path: "", element: <Admin /> },
-      { path: "team", element: <AdminTeam /> },
-      { path: "divisi", element: <AdminDivisi /> },
-      { path: "chatbot", element: <AdminChatbot /> },
-      { path: "faq", element: <AdminFaq /> },
-      { path: "galeri", element: <AdminGaleri /> },
+      { path: "", element: suspense(<Admin />) },
+      { path: "team", element: suspense(<AdminTeam />) },
+      { path: "divisi", element: suspense(<AdminDivisi />) },
+      { path: "chatbot", element: suspense(<AdminChatbot />) },
+      { path: "faq", element: suspense(<AdminFaq />) },
+      { path: "galeri", element: suspense(<AdminGaleri />) },
     ],
   },
 
   {
     path: "/superadmin",
-    element: <SuperAdminLayout />,
+    element: suspense(<SuperAdminLayout />),
     children: [
-      { path: "", element: <SuperAdmin /> },
-      { path: "akun", element: <SuperAdminAkun /> },
-      { path: "logs", element: <SuperAdminLogs /> },
+      { path: "", element: suspense(<SuperAdmin />) },
+      { path: "akun", element: suspense(<SuperAdminAkun />) },
+      { path: "logs", element: suspense(<SuperAdminLogs />) },
     ],
   },
   {
@@ -57,36 +78,36 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />,
+        element: suspense(<Home />),
       },
       {
         path: "/about",
-        element: <About />,
+        element: suspense(<About />),
       },
       {
         path: "/teams",
-        element: <Teams />,
+        element: suspense(<Teams />),
       },
       {
         path: "/division",
-        element: <Division />,
+        element: suspense(<Division />),
       },
       {
         path: "/faq",
-        element: <Faq />,
+        element: suspense(<Faq />),
       },
       {
         path: "/gallery",
-        element: <Gallery />,
+        element: suspense(<Gallery />),
       },
       {
         path: "/design-systems",
-        element: <DesignSystems />,
+        element: suspense(<DesignSystems />),
       },
     ],
   },
   {
     path: "*",
-    element: <NotFound />,
+    element: suspense(<NotFound />),
   },
 ]);

@@ -1,6 +1,7 @@
 // src/featured/teams/pages/Teams.tsx
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Check, ChevronDown } from 'lucide-react';
 import { font } from '../../../shared/typography/font';
 import { kelompokService } from '../../../lib/kelompokService';
 import { pesertaService } from '../../../lib/pesertaService';
@@ -42,8 +43,10 @@ export default function Teams() {
   const [terbuka, setTerbuka] = useState<Record<string, boolean>>({});
   const [saranTampil, setSaranTampil] = useState(false);
   const [saranSorot, setSaranSorot] = useState(-1);
+  const [filterTerbuka, setFilterTerbuka] = useState(false);
 
   const kotakCariRef = useRef<HTMLDivElement>(null);
+  const kotakFilterRef = useRef<HTMLDivElement>(null);
   const daftarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,10 +66,11 @@ export default function Teams() {
     })();
   }, []);
 
-  // Tutup dropdown saran saat klik di luar kotak pencarian.
+  // Tutup dropdown saran / filter saat klik di luar kotaknya masing-masing.
   useEffect(() => {
     function onPointerDown(e: MouseEvent) {
       if (!kotakCariRef.current?.contains(e.target as Node)) setSaranTampil(false);
+      if (!kotakFilterRef.current?.contains(e.target as Node)) setFilterTerbuka(false);
     }
     document.addEventListener('mousedown', onPointerDown);
     return () => document.removeEventListener('mousedown', onPointerDown);
@@ -235,8 +239,8 @@ export default function Teams() {
             NIM.
           </p>
 
-          <div className="mt-8 flex flex-col gap-4">
-            <div ref={kotakCariRef} className="relative">
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <div ref={kotakCariRef} className="relative sm:flex-1">
               <input
                 value={searchInput}
                 onChange={(e) => {
@@ -284,36 +288,83 @@ export default function Teams() {
               )}
             </div>
 
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {SESI_OPTIONS.map((opsi) => {
-                const aktif = filterSesi === opsi.value;
-                return (
-                  <button
-                    key={opsi.value}
-                    type="button"
-                    onClick={() => {
-                      setFilterSesi(opsi.value);
-                      setHalaman(1);
-                    }}
-                    aria-pressed={aktif}
-                    className={`${kelasTombolPapan} ${
-                      aktif
-                        ? 'bg-amber-50 text-[#4A3320] shadow-inner'
-                        : 'bg-white/50 text-[#6b5233] hover:bg-amber-50/80'
-                    }`}
-                  >
-                    {opsi.value !== 'semua' && (
-                      <img
-                        src={sesiIcon[opsi.value]}
-                        alt=""
-                        aria-hidden
-                        className="h-5 w-5 object-contain"
-                      />
-                    )}
-                    {opsi.label}
-                  </button>
-                );
-              })}
+            {/* Filter sesi: satu dropdown di samping search (sebelumnya 4 tombol sejajar).
+                Opsi, label, ikon, dan logic filter tetap sama persis. */}
+            <div ref={kotakFilterRef} className="relative shrink-0 sm:w-56">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterTerbuka((prev) => !prev);
+                  setSaranTampil(false);
+                }}
+                aria-haspopup="listbox"
+                aria-expanded={filterTerbuka}
+                className={`${kelasTombolPapan} h-full w-full justify-between ${
+                  filterSesi !== 'semua'
+                    ? 'bg-amber-50 text-[#4A3320] shadow-inner'
+                    : 'bg-white/50 text-[#6b5233] hover:bg-amber-50/80'
+                }`}
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  {filterSesi !== 'semua' && (
+                    <img
+                      src={sesiIcon[filterSesi]}
+                      alt=""
+                      aria-hidden
+                      className="h-5 w-5 shrink-0 object-contain"
+                    />
+                  )}
+                  <span className="truncate">
+                    {filterSesi === 'semua'
+                      ? 'Filter Sesi'
+                      : SESI_OPTIONS.find((o) => o.value === filterSesi)?.label}
+                  </span>
+                </span>
+                <ChevronDown
+                  aria-hidden
+                  className={`h-4 w-4 shrink-0 transition-transform ${filterTerbuka ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              {filterTerbuka && (
+                <ul
+                  role="listbox"
+                  aria-label="Filter sesi"
+                  className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-lg border-2 border-[#595959] bg-amber-50 py-1 shadow-xl"
+                >
+                  {SESI_OPTIONS.map((opsi) => {
+                    const aktif = filterSesi === opsi.value;
+                    return (
+                      <li key={opsi.value} role="option" aria-selected={aktif}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFilterSesi(opsi.value);
+                            setHalaman(1);
+                            setFilterTerbuka(false);
+                          }}
+                          className={`flex w-full items-center gap-2 px-4 py-2 text-left font-body text-sm font-semibold text-[#4A3320] transition sm:text-base ${
+                            aktif ? 'bg-[#F7E2C6]' : 'hover:bg-[#F7E2C6]'
+                          }`}
+                        >
+                          {opsi.value === 'semua' ? (
+                            <span aria-hidden className="h-5 w-5 shrink-0" />
+                          ) : (
+                            <img
+                              src={sesiIcon[opsi.value]}
+                              alt=""
+                              aria-hidden
+                              className="h-5 w-5 shrink-0 object-contain"
+                            />
+                          )}
+                          <span className="flex-1 truncate">{opsi.label}</span>
+                          {aktif && <Check aria-hidden className="h-4 w-4 shrink-0" />}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
           </div>
 
