@@ -9,6 +9,7 @@ interface DivisionCarouselProps {
   activeIndex: number;
   onActiveIndexChange: (index: number) => void;
   onOpenModal: (division: Division) => void;
+  isModalOpen: boolean;
 }
 
 export const DivisionCarousel: React.FC<DivisionCarouselProps> = ({
@@ -16,6 +17,7 @@ export const DivisionCarousel: React.FC<DivisionCarouselProps> = ({
   activeIndex,
   onActiveIndexChange,
   onOpenModal,
+  isModalOpen,
 }) => {
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
@@ -81,6 +83,7 @@ export const DivisionCarousel: React.FC<DivisionCarouselProps> = ({
             <EnvelopeCard
               division={currentDivision}
               onClick={() => onOpenModal(currentDivision)}
+              isModalOpen={isModalOpen}
             />
           </div>
         </div>
