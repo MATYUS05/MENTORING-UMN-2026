@@ -1,11 +1,13 @@
 // src/featured/division/components/EnvelopeCard.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Division } from '../types';
 import amplopImg from '../../../assets/division/amplop.png';
 
 interface EnvelopeCardProps {
   division: Division;
   onClick: () => void;
+  /** Modal lagi terbuka atau tidak, dipakai buat tahu kapan amplop boleh kembali normal. */
+  isModalOpen: boolean;
 }
 
 /**
@@ -16,16 +18,20 @@ interface EnvelopeCardProps {
  */
 const JEDA_ANIMASI_BUKA_MS = 180;
 
-export const EnvelopeCard: React.FC<EnvelopeCardProps> = ({ division, onClick }) => {
+export const EnvelopeCard: React.FC<EnvelopeCardProps> = ({ division, onClick, isModalOpen }) => {
   const [isOpening, setIsOpening] = useState(false);
 
   const handleClick = () => {
     setIsOpening(true);
-    setTimeout(() => {
-      onClick();
-      setIsOpening(false);
-    }, JEDA_ANIMASI_BUKA_MS);
+    setTimeout(onClick, JEDA_ANIMASI_BUKA_MS);
   };
+
+  // Amplop baru dikembalikan ke posisi semula begitu modal beneran tertutup,
+  // bukan dibarengkan dengan delay buka (yang lebih pendek dari transisi CSS-nya
+  // dan bikin animasi buka kelihatan "patah" tepat saat modal muncul).
+  useEffect(() => {
+    if (!isModalOpen) setIsOpening(false);
+  }, [isModalOpen]);
 
   return (
     <div className="relative mx-auto w-full max-w-[520px] sm:max-w-[560px] md:max-w-[620px] aspect-[3/2] flex items-center justify-center">

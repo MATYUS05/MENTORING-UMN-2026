@@ -14,8 +14,12 @@ import type { Divisi, Panitia } from '../../../shared/types/database';
 export default function DivisionPage() {
   const [divisions, setDivisions] = useState<Division[]>(DEFAULT_DIVISIONS);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [modalDivision, setModalDivision] = useState<Division | null>(null);
+  // Modal menyimpan id, bukan salinan objek Division: supaya kalau `divisions`
+  // diperbarui (mis. data panitia datang belakangan), modal yang sudah terbuka
+  // otomatis ikut menampilkan data terbaru alih-alih snapshot lama yang stale.
+  const [modalDivisionId, setModalDivisionId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalDivision = modalDivisionId ? divisions.find((d) => d.id === modalDivisionId) ?? null : null;
 
   // Fetch Firestore data and merge with fallback / ensure 10 items
   useEffect(() => {
@@ -100,14 +104,14 @@ export default function DivisionPage() {
   }, [divisions.length, isModalOpen]);
 
   const handleOpenModal = (div: Division) => {
-    setModalDivision(div);
+    setModalDivisionId(div.id);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setTimeout(() => {
-      setModalDivision(null);
+      setModalDivisionId(null);
     }, 300);
   };
 
@@ -161,6 +165,7 @@ export default function DivisionPage() {
             activeIndex={activeIndex}
             onActiveIndexChange={setActiveIndex}
             onOpenModal={handleOpenModal}
+            isModalOpen={isModalOpen}
           />
         </section>
 
