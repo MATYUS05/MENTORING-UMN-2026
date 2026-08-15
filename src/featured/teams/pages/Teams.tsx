@@ -9,7 +9,8 @@ import type { Kelompok, Peserta, Sesi } from '../../../shared/types/database';
 import teamsLangit from '../../../assets/teams/teams-langit.png';
 import teamsPasir from '../../../assets/teams/teams-pasir.png';
 import { kayuStyle, kelasTombolPapan, sesiIcon } from '../theme';
-import KelompokItem from '../components/KelompokItem';
+import KelompokCard from '../components/KelompokCard';
+import KelompokModal from '../components/KelompokModal';
 import Pagination from '../components/Pagination';
 
 type FilterSesi = 'semua' | Sesi;
@@ -27,8 +28,7 @@ const SESI_OPTIONS: { value: FilterSesi; label: string }[] = [
   { value: 'pengganti', label: 'Pengganti' },
 ];
 
-const KELOMPOK_PER_HALAMAN = 10;
-/** Saran baru muncul setelah keyword sepanjang ini. */
+const KELOMPOK_PER_HALAMAN = 15;
 const MIN_KARAKTER_SARAN = 3;
 const MAKS_SARAN = 8;
 
@@ -40,7 +40,8 @@ export default function Teams() {
   const [search, setSearch] = useState('');
   const [filterSesi, setFilterSesi] = useState<FilterSesi>('semua');
   const [halaman, setHalaman] = useState(1);
-  const [terbuka, setTerbuka] = useState<Record<string, boolean>>({});
+  const [modalKelompokId, setModalKelompokId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [saranTampil, setSaranTampil] = useState(false);
   const [saranSorot, setSaranSorot] = useState(-1);
   const [filterTerbuka, setFilterTerbuka] = useState(false);
@@ -66,7 +67,6 @@ export default function Teams() {
     })();
   }, []);
 
-  // Tutup dropdown saran / filter saat klik di luar kotaknya masing-masing.
   useEffect(() => {
     function onPointerDown(e: MouseEvent) {
       if (!kotakCariRef.current?.contains(e.target as Node)) setSaranTampil(false);
@@ -119,8 +119,6 @@ export default function Teams() {
     const keyword = searchInput.trim().toLowerCase();
     if (keyword.length < MIN_KARAKTER_SARAN) return [];
 
-    // Saran adalah kata kunci, bukan baris data: label yang sama digabung
-    // jadi satu entri supaya nama populer tidak memenuhi seluruh daftar.
     const kandidat = new Map<string, { label: string; tipe: string; konteks: Set<string> }>();
 
     function tambah(label: string, tipe: string, konteks?: string) {
@@ -170,10 +168,19 @@ export default function Teams() {
     awalIndeks + KELOMPOK_PER_HALAMAN,
   );
 
-  const adaPencarian = search.trim() !== '';
-  // Saat mencari, panel dibuka otomatis agar nama yang ter-highlight langsung terlihat.
-  const cekTerbuka = (id: string) =>
-    adaPencarian ? terbuka[id] !== false : terbuka[id] === true;
+  const modalKelompok = modalKelompokId
+    ? (kelompokList.find((k) => k.id === modalKelompokId) ?? null)
+    : null;
+
+  function handleOpenModal(k: Kelompok) {
+    setModalKelompokId(k.id);
+    setIsModalOpen(true);
+  }
+
+  function handleCloseModal() {
+    setIsModalOpen(false);
+    setTimeout(() => setModalKelompokId(null), 300);
+  }
 
   function pilihSaran(saran: Saran) {
     setSearchInput(saran.label);
@@ -369,9 +376,14 @@ export default function Teams() {
           </div>
 
           {loading && (
-            <p className="mt-8 text-center font-body font-medium text-[#5C4327]">
-              Memuat data kelompok...
-            </p>
+            <div className="mt-12 flex flex-col items-center gap-4">
+              <div
+                role="status"
+                aria-label="Memuat data kelompok"
+                className="h-12 w-12 animate-spin rounded-full border-4 border-[#7A4A24]/25 border-t-[#7A4A24]"
+              />
+              <p className="font-body font-medium text-[#5C4327]">Memuat data kelompok...</p>
+            </div>
           )}
 
           {!loading && filteredKelompok.length === 0 && (
@@ -387,17 +399,16 @@ export default function Teams() {
             </p>
           )}
 
-          <div ref={daftarRef} className="mt-4 flex scroll-mt-24 flex-col gap-4">
+          <div
+            ref={daftarRef}
+            className="mt-4 grid scroll-mt-24 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
             {kelompokHalamanIni.map((k) => (
-              <KelompokItem
+              <KelompokCard
                 key={k.id}
                 kelompok={k}
-                peserta={pesertaPerKelompok.get(k.id) ?? []}
                 keyword={search.trim()}
-                terbuka={cekTerbuka(k.id)}
-                onToggle={() =>
-                  setTerbuka((prev) => ({ ...prev, [k.id]: !cekTerbuka(k.id) }))
-                }
+                onClick={() => handleOpenModal(k)}
               />
             ))}
           </div>
@@ -408,6 +419,14 @@ export default function Teams() {
             onPindah={pindahHalaman}
           />
         </div>
+
+        <KelompokModal
+          kelompok={modalKelompok}
+          peserta={modalKelompok ? (pesertaPerKelompok.get(modalKelompok.id) ?? []) : []}
+          keyword={search.trim()}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
 
         {/* Kaki papan */}
         <div className="relative -z-[1] mx-auto -mt-3 -mb-6 hidden max-w-4xl justify-between px-16 sm:flex">
