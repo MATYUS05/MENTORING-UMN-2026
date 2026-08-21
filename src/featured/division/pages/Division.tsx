@@ -3,30 +3,27 @@ import { useEffect, useState } from 'react';
 import { divisiService } from '../../../lib/divisiService';
 import { panitiaService } from '../../../lib/panitiaService';
 import type { Division, Member } from '../types';
-import { DEFAULT_DIVISIONS } from '../data/mockDivisions';
 import { DivisionCarousel } from '../components/DivisionCarousel';
 import { DivisionSelector } from '../components/DivisionSelector';
 import { DivisionModal } from '../components/DivisionModal';
-import bgImage from '../../../assets/division/divisions bg.png';
-import scrollImg from '../../../assets/division/scroll.png';
+import bgImage from '../../../assets/division/Background.png';
+import scrollImg from '../../../assets/division/scroll_cropped.png';
 import type { Divisi, Panitia } from '../../../shared/types/database';
 
 export default function DivisionPage() {
-  const [divisions, setDivisions] = useState<Division[]>(DEFAULT_DIVISIONS);
+  const [divisions, setDivisions] = useState<Division[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  // Modal menyimpan id, bukan salinan objek Division: supaya kalau `divisions`
-  // diperbarui (mis. data panitia datang belakangan), modal yang sudah terbuka
-  // otomatis ikut menampilkan data terbaru alih-alih snapshot lama yang stale.
   const [modalDivisionId, setModalDivisionId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalDivision = modalDivisionId ? divisions.find((d) => d.id === modalDivisionId) ?? null : null;
 
-  // Fetch Firestore data and merge with fallback / ensure 10 items
+  // Fetch Firestore data
   useEffect(() => {
     let isMounted = true;
 
     const bangunDivisions = (divisiData: Divisi[], panitiaData: Panitia[]): Division[] => {
-      let mappedDivisions: Division[] = divisiData.map((d: Divisi) => {
+      return divisiData.map((d: Divisi) => {
         const members: Member[] = panitiaData
           .filter((p: Panitia) => p.divisiId === d.id)
           .map((p: Panitia) => ({
@@ -45,32 +42,28 @@ export default function DivisionPage() {
           members,
         };
       });
-
-      // Ensure all divisions from default if Firestore has fewer divisions
-      if (mappedDivisions.length < DEFAULT_DIVISIONS.length) {
-        const extraDummies = DEFAULT_DIVISIONS.slice(mappedDivisions.length);
-        mappedDivisions = [...mappedDivisions, ...extraDummies];
-      }
-
-      return mappedDivisions;
     };
 
     (async () => {
       try {
-        // Kedua request tetap berjalan paralel, tapi carousel tidak lagi menunggu
-        // keduanya selesai: nama & logo divisi ditampilkan begitu data divisi tiba.
-        // Data panitia hanya dipakai untuk daftar anggota di dalam modal.
         const promisPanitia = panitiaService.ambilSemua().catch(() => [] as Panitia[]);
         const divisiData = await divisiService.ambilSemua();
 
-        if (!isMounted || !divisiData || divisiData.length === 0) return;
-        setDivisions(bangunDivisions(divisiData, []));
-
-        const panitiaData = await promisPanitia;
         if (!isMounted) return;
-        setDivisions(bangunDivisions(divisiData, panitiaData));
+
+        if (divisiData && divisiData.length > 0) {
+          setDivisions(bangunDivisions(divisiData, []));
+          setIsLoading(false);
+
+          const panitiaData = await promisPanitia;
+          if (!isMounted) return;
+          setDivisions(bangunDivisions(divisiData, panitiaData));
+        } else {
+          setIsLoading(false);
+        }
       } catch (error) {
-        console.warn('Firestore fetch fallback to default divisions:', error);
+        console.error('Error fetching division data from Firestore:', error);
+        if (isMounted) setIsLoading(false);
       }
     })();
 
@@ -116,7 +109,7 @@ export default function DivisionPage() {
   };
 
   return (
-    <div className="relative min-h-screen -mt-[132px] pt-[132px] w-full text-[#f8ebd0] select-none font-body flex flex-col justify-between overflow-hidden">
+    <div className="relative min-h-screen -mt-[132px] pt-[148px] sm:pt-[156px] w-full text-[#f8ebd0] select-none font-body flex flex-col justify-between overflow-hidden">
       {/* Keyframe Animations */}
       <style>{`
         @keyframes slideLeft {
@@ -159,14 +152,23 @@ export default function DivisionPage() {
         </header>
 
         {/* Center Hero Carousel */}
-        <section id="division-envelope-section" className="w-full flex-1 flex flex-col items-center justify-center my-2">
-          <DivisionCarousel
-            divisions={divisions}
-            activeIndex={activeIndex}
-            onActiveIndexChange={setActiveIndex}
-            onOpenModal={handleOpenModal}
-            isModalOpen={isModalOpen}
-          />
+        <section id="division-envelope-section" className="w-full flex-1 flex flex-col items-center justify-center my-2 min-h-[280px]">
+          {isLoading && divisions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-600/30 border-t-amber-600" />
+              <p className="font-heading text-sm font-bold text-[#3a2012] tracking-wider animate-pulse">
+                Memuat Divisi...
+              </p>
+            </div>
+          ) : (
+            <DivisionCarousel
+              divisions={divisions}
+              activeIndex={activeIndex}
+              onActiveIndexChange={setActiveIndex}
+              onOpenModal={handleOpenModal}
+              isModalOpen={isModalOpen}
+            />
+          )}
         </section>
 
         {/* Bottom Division Selector Rak */}

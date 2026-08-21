@@ -71,7 +71,7 @@ export const DivisionCarousel: React.FC<DivisionCarouselProps> = ({
           ref={containerRef}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="relative flex-1 overflow-hidden py-2 sm:py-4"
+          className="relative flex-1 overflow-hidden py-2 pb-7 sm:py-4 sm:pb-9"
         >
           <div
             key={currentDivision.id}
