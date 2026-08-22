@@ -8,6 +8,7 @@ import { DivisionSelector } from '../components/DivisionSelector';
 import { DivisionModal } from '../components/DivisionModal';
 import bgImage from '../../../assets/division/Background.png';
 import scrollImg from '../../../assets/division/scroll_cropped.png';
+import envelopeAndScrollImg from '../../../assets/division/Envelope and scroll.png';
 import type { Divisi, Panitia } from '../../../shared/types/database';
 
 export default function DivisionPage() {
@@ -72,13 +73,13 @@ export default function DivisionPage() {
     };
   }, []);
 
-  // Latar perkamen (scroll.png) dan varian font Futura Medium baru diunduh saat modal
-  // pertama kali dibuka. Keduanya dihangatkan ke cache setelah halaman settle supaya
-  // klik "CLICK TO OPEN" pertama tidak menunggu unduhan, tanpa membebani initial load.
+  // Latar perkamen (scroll.png) dan animasi transisi (Envelope and scroll.png)
+  // dihangatkan ke cache setelah halaman settle supaya klik "CLICK TO OPEN" instan tanpa lag.
   useEffect(() => {
     const timer = window.setTimeout(() => {
       new Image().src = scrollImg;
-    }, 1200);
+      new Image().src = envelopeAndScrollImg;
+    }, 1000);
     return () => window.clearTimeout(timer);
   }, []);
 
@@ -120,13 +121,8 @@ export default function DivisionPage() {
           from { opacity: 0; transform: translateX(-35px) scale(0.97); }
           to { opacity: 1; transform: translateX(0) scale(1); }
         }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.96); }
-          to { opacity: 1; transform: scale(1); }
-        }
         .animate-slideLeft { animation: slideLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-slideRight { animation: slideRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-fadeIn { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
       `}</style>
 
       {/* Clean Background Image (Scoped ONLY to Division Page bounds) */}
