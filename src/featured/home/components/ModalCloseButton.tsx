@@ -7,7 +7,7 @@ export default function ModalCloseButton({ onClick }: ModalCloseButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-neutral-stone transition hover:text-neutral-charcoal-deep"
+      className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-neutral-cream/90 text-neutral-stone shadow-md backdrop-blur-sm transition hover:text-neutral-charcoal-deep"
     >
       <svg
         viewBox="0 0 24 24"

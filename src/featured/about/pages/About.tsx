@@ -13,7 +13,7 @@ import {
   type Activity,
 } from '../components/AboutComponent'
 
-import aboutBg from '../../../assets/about/aboutbg.png'
+import About_BG from '../../../assets/about/About_BG.webp'
 
 const zacheryDescription =
   'Zachery (Burung Hantu): Zachery (Latin) merupakan bentuk perwujudan dari logo Mentoring UMN 2021 yang menggambarkan sifat kejujuran, kecerdasan, dan keyakinan yang tinggi. Zachery akan menemani Mentee mengarungi perjalanan panjang yang tak terlupakan.'
@@ -81,7 +81,7 @@ export default function About() {
   return (
     <div className="relative">
       {/* Single fixed background — same on mobile, tablet, and desktop */}
-      <SceneBackground src={aboutBg} alt="Zachery" />
+      <SceneBackground src={About_BG} alt="Zachery" />
 
       {/* Desktop-only: floating "Kenal Zachery" button, top-left, over the scene */}
       <ZacheryReveal variant="floating" description={zacheryDescription} />

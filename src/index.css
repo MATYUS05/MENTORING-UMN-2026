@@ -112,3 +112,29 @@
     transform: scale(1);
   }
 }
+
+@keyframes arrowBobLeft {
+  0%, 100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(-5px);
+  }
+}
+
+@keyframes arrowBobRight {
+  0%, 100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-arrow-bob-left {
+  animation: arrowBobLeft 1.8s ease-in-out infinite;
+}
+
+.animate-arrow-bob-right {
+  animation: arrowBobRight 1.8s ease-in-out infinite;
+}

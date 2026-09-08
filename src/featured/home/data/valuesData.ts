@@ -1,10 +1,10 @@
 // src/featured/home/data/valuesData.ts
 const placeholder = "/placeholder.webp";
-import carring5C from "../../../assets/home/caring.png";
-import credible5C from "../../../assets/home/credible.png";
-import competitive5C from "../../../assets/home/competitive.png";
-import competent5C from "../../../assets/home/competent.png";
-import customerDelight5C from "../../../assets/home/Customer_Delight.png";
+import carring5C from "../../../assets/home/caring.webp";
+import credible5C from "../../../assets/home/credible.webp";
+import competitive5C from "../../../assets/home/competitive.webp";
+import competent5C from "../../../assets/home/competent.webp";
+import customerDelight5C from "../../../assets/home/Customer_Delight.webp";
 
 export interface ValueItem {
   id: number;

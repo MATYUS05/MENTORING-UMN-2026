@@ -1,7 +1,7 @@
 // src/featured/home/components/Section1Hero.tsx
 import { useState } from "react";
 import { font } from "../../../shared/typography/font";
-import minerva from "../../../assets/home/minerva.png";
+import maskot from "../../../assets/home/maskot.webp";
 import InfoModal, { type InfoContent } from "./InfoModal";
 
 const TEMA_INFO: InfoContent = {
@@ -30,8 +30,8 @@ export default function Section1Hero() {
         CHARACTER BUILDING MENTORING 2026
       </h1>
       <img
-        src={minerva}
-        alt="Minerva"
+        src={maskot}
+        alt="maskot"
         className="h-60 max-h-[40dvh] w-60 animate-[float_4s_ease-in-out_infinite] object-contain md:h-75 md:w-75"
       />
       <button

@@ -1,6 +1,7 @@
-import React, { useEffect, useState, type ReactNode } from 'react'
+import React, { useState, type ReactNode } from 'react'
 import { colors } from '../../../shared/theme/colors'
 import { font } from '../../../shared/typography/font'
+import { useHeaderBottom } from '../../../shared/hooks/useHeaderBottom'
 
 const PLACEHOLDER_IMG = 'https://placehold.co/600x400/EFE3CF/8C7B68?text=Image'
 
@@ -280,31 +281,6 @@ export function Modal({
 const FLOATING_BUTTON_GAP = 16 // px
 
 const FLOATING_BUTTON_FALLBACK_TOP = 96 // px
-
-function useHeaderBottom(fallback: number) {
-  const [bottom, setBottom] = useState(fallback)
-
-  useEffect(() => {
-    const header = document.querySelector('header')
-    if (!header) return
-
-    const update = () => setBottom(header.getBoundingClientRect().bottom)
-    update()
-
-    const resizeObserver = new ResizeObserver(update)
-    resizeObserver.observe(header)
-    window.addEventListener('resize', update)
-    window.addEventListener('scroll', update, { passive: true })
-
-    return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', update)
-      window.removeEventListener('scroll', update)
-    }
-  }, [])
-
-  return bottom
-}
 
 export function ZacheryReveal({
   description,

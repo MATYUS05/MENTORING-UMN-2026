@@ -1,33 +1,29 @@
-/* Styling background responsif untuk Navbar */
+/* src/shared/style/Navbar.css */
 .navbar-container {
-    background-image: url("../../assets/navbar/header mobile.png");
-    background-size:100% 100%;
-    background-position:center;
-    background-repeat:no-repeat;
-
-    filter: drop-shadow(0 12px 20px rgba(0,0,0,.18));               /* Tinggi navbar di HP */
+  background-image: url("../../assets/navbar/mobile.webp");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #c9a789;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.18));
 }
 
-/* Tampilan Tablet (>= 640px) */
 @media (min-width: 640px) {
-    .navbar-container {
-        background-image: url('../../assets/navbar/header tab.png');
-    }
+  .navbar-container {
+    background-image: url("../../assets/navbar/tab.webp");
+  }
 }
 
-/* Tampilan Desktop (>= 1024px) */
 @media (min-width: 1024px) {
-    .navbar-container {
-        background-image: url('../../assets/navbar/header desktop.png');
-    }
+  .navbar-container {
+    background-image: url("../../assets/navbar/desktop.webp");
+  }
 }
 
 .mobile-dropdown {
-    background-image: url("../../assets/navbar/kertas.png");
-    /* background: red; */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-
-    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .18));
+  background-image: url("../../assets/navbar/Kertas_lama.webp");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
 }

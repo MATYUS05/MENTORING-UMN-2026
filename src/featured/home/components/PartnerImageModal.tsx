@@ -31,7 +31,7 @@ export default function PartnerImageModal({
         <img
           src={partner.src}
           alt={partner.name}
-          className="h-48 w-48 rounded-xl border-2 border-neutral-stone object-cover"
+          className="h-48 w-48 rounded-xl object-cover"
         />
         <span className={`${font.h3} text-neutral-charcoal-deep`}>
           {partner.name}

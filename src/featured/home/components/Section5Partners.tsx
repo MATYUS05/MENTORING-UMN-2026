@@ -21,7 +21,7 @@ export default function Section5Partners() {
   } | null>(null);
 
   return (
-    <section className="scrollbar-hide hidden h-full w-screen shrink-0 flex-col items-center justify-center gap-8 overflow-y-auto px-6 py-10 sm:flex sm:px-12 md:px-20">
+    <section className="scrollbar-hide hidden h-full w-screen shrink-0 flex-col items-center justify-center gap-8 overflow-y-auto px-6 pt-35 pb-10 sm:flex sm:px-12 md:px-20">
       <h2 className={`${font.h1} text-neutral-charcoal-deep`}>
         OUR MEDIA PARTNER
       </h2>
@@ -30,12 +30,12 @@ export default function Section5Partners() {
           <button
             key={partner.name}
             onClick={() => setActivePartner(partner)}
-            className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-neutral-surface/80 transition-transform duration-200 hover:scale-105"
+            className="h-20 w-auto shrink-0 transition-transform duration-200 hover:scale-105"
           >
             <img
               src={partner.src}
               alt={partner.name}
-              className="h-full w-full object-cover"
+              className="h-full w-auto rounded-[30px] object-contain"
             />
           </button>
         ))}
