@@ -1,10 +1,9 @@
-// src/featured/gallery/pages/Gallery.tsx
 import { useEffect, useMemo, useState } from 'react';
 import { font } from '../../../shared/typography/font';
 import { fotoService } from '../../../lib/fotoService';
 import type { Foto, Minggu, Sesi } from '../../../shared/types/database';
 
-import galeriBg from '../../../assets/galeri/galeri bg.svg';
+import galeriBg from '../../../assets/galeri/Gallery_BG.png';
 import gemAll from '../../../assets/galeri/gem_all.png';
 import gemPagi from '../../../assets/galeri/gem_pagi.png';
 import gemSiang from '../../../assets/galeri/gem_siang.png';
@@ -19,26 +18,41 @@ type SessionFilterOption = {
   image: string;
 };
 
-type WeekConfig = {
+type WeekOption = {
   value: Minggu;
   label: string;
-  revealDate: Date;
 };
 
-const countdown: 'off' | 'on' = 'on';
-//const countdown: 'on' | 'off' = 'off';
+const TARGET_DATE = new Date('2026-09-01T23:59:59+07:00');
 
-const WEEK_CONFIG: WeekConfig[] = [
-  { value: 'minggu-1', label: 'Minggu 1', revealDate: new Date('2026-09-01T00:00:00+07:00') },
-  { value: 'minggu-2', label: 'Minggu 2', revealDate: new Date('2026-09-08T00:00:00+07:00') },
-  { value: 'minggu-3', label: 'Minggu 3', revealDate: new Date('2026-09-15T00:00:00+07:00') },
-];
+// Tema: peta pelayaran tua. Palet & tekstur dipusatkan di sini biar konsisten.
+const THEME = {
+  parchment: '#EDE0C3',
+  parchmentDeep: '#E1D2A8',
+  parchmentEdge: '#C9B384',
+  ink: '#1F3347', // navy laut dalam, untuk judul
+  inkSoft: '#4A3826', // coklat tinta, untuk body text
+  brass: '#B8862F',
+  brassSoft: '#D4A94A',
+  wax: '#8C2E1E',
+  ocean: '#0B2B3D',
+};
+
+// Tekstur noise halus (SVG data URI) supaya panel parchment tidak terasa flat/digital.
+const PAPER_GRAIN =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E";
 
 const sessionFilters: SessionFilterOption[] = [
   { value: 'semua', label: 'Semua Sesi', image: gemAll },
   { value: 'pagi', label: 'Sesi Pagi', image: gemPagi },
   { value: 'siang', label: 'Sesi Siang', image: gemSiang },
   { value: 'pengganti', label: 'Sesi Pengganti', image: gemPengganti },
+];
+
+const weekOptions: WeekOption[] = [
+  { value: 'minggu-1', label: 'Minggu 1' },
+  { value: 'minggu-2', label: 'Minggu 2' },
+  { value: 'minggu-3', label: 'Minggu 3' },
 ];
 
 function formatCountdown(targetDate: Date, now: Date) {
@@ -62,19 +76,16 @@ function formatCountdown(targetDate: Date, now: Date) {
   };
 }
 
-function isWeekRevealed(week: Minggu, now: Date): boolean {
-  if (countdown === 'off') return true;
-  const cfg = WEEK_CONFIG.find((w) => w.value === week);
-  if (!cfg) return true;
-  return now.getTime() >= cfg.revealDate.getTime();
-}
-
-function findNearestUpcomingWeek(now: Date): WeekConfig | null {
-  if (countdown === 'off') return null;
+// Kompas kecil sebagai signature element di sebelah judul.
+function CompassRose({ className = '' }: { className?: string }) {
   return (
-    WEEK_CONFIG.filter((w) => now.getTime() < w.revealDate.getTime()).sort(
-      (a, b) => a.revealDate.getTime() - b.revealDate.getTime(),
-    )[0] ?? null
+    <svg viewBox="0 0 48 48" className={className} fill="none">
+      <circle cx="24" cy="24" r="21" stroke={THEME.brass} strokeWidth="1.5" />
+      <circle cx="24" cy="24" r="15.5" stroke={THEME.brass} strokeWidth="0.75" opacity="0.6" />
+      <path d="M24 4 L27 24 L24 44 L21 24 Z" fill={THEME.wax} opacity="0.85" />
+      <path d="M4 24 L24 21 L44 24 L24 27 Z" fill={THEME.brass} opacity="0.85" />
+      <circle cx="24" cy="24" r="2.5" fill={THEME.ink} />
+    </svg>
   );
 }
 
@@ -97,49 +108,39 @@ export default function Gallery() {
   }, []);
 
   useEffect(() => {
-    const interval = window.setInterval(() => setCurrentTime(new Date()), 1000);
+    const interval = window.setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
     return () => window.clearInterval(interval);
   }, []);
-
-  const nearestUpcomingWeek = useMemo(() => findNearestUpcomingWeek(currentTime), [currentTime]);
 
   const filteredFoto = useMemo(() => {
     return fotoList.filter((foto) => {
       const sesiMatch = filterSesi === 'semua' || foto.sesi === filterSesi;
-      const mingguDipilihMatch = filterMinggu === 'semua' || foto.minggu === filterMinggu;
-      return sesiMatch && mingguDipilihMatch && isWeekRevealed(foto.minggu, currentTime);
+      const mingguMatch = filterMinggu === 'semua' || foto.minggu === filterMinggu;
+
+      return sesiMatch && mingguMatch;
     });
-  }, [fotoList, filterSesi, filterMinggu, currentTime]);
+  }, [filterMinggu, filterSesi, fotoList]);
 
   const selectedSession =
     sessionFilters.find((item) => item.value === filterSesi) ?? sessionFilters[0];
 
-  const weekLock = useMemo<WeekConfig | null>(() => {
-    if (countdown === 'off') return null;
+  const countdown = formatCountdown(TARGET_DATE, currentTime);
 
-    if (filterMinggu !== 'semua') {
-      const cfg = WEEK_CONFIG.find((w) => w.value === filterMinggu);
-      return cfg && !isWeekRevealed(cfg.value, currentTime) ? cfg : null;
-    }
-
-    const adaMingguTerbuka = WEEK_CONFIG.some((w) => isWeekRevealed(w.value, currentTime));
-    return adaMingguTerbuka ? null : nearestUpcomingWeek;
-  }, [filterMinggu, currentTime, nearestUpcomingWeek]);
-
-  const lockCountdown = weekLock ? formatCountdown(weekLock.revealDate, currentTime) : null;
-  const lockCountdownItems = lockCountdown
-    ? [
-        { label: 'Hari', value: lockCountdown.days },
-        { label: 'Jam', value: lockCountdown.hours },
-        { label: 'Menit', value: lockCountdown.minutes },
-        { label: 'Detik', value: lockCountdown.seconds },
-      ]
-    : [];
+  const countdownItems = [
+    { label: 'Hari', value: countdown.days },
+    { label: 'Jam', value: countdown.hours },
+    { label: 'Menit', value: countdown.minutes },
+    { label: 'Detik', value: countdown.seconds },
+  ];
 
   return (
     <div className="relative overflow-hidden">
+      {/* Peta latar, dibiarkan apa adanya tanpa tint warna */}
       <div
-        className="pointer-events-none fixed inset-0 -z-10"
+        className="pointer-events-none fixed inset-0 -z-20"
         style={{
           backgroundImage: `url(${galeriBg})`,
           backgroundSize: 'cover',
@@ -147,63 +148,117 @@ export default function Gallery() {
           backgroundRepeat: 'no-repeat',
         }}
       />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-white/50" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8 lg:py-10">
-        <section className="rounded-[1.8rem] border border-black/10 bg-white/92 p-4 shadow-sm md:p-5 lg:p-6">
+        {/* ===== Cartouche header ===== */}
+        <section
+          className="relative rounded-[1.8rem] border-[3px] p-4 shadow-[0_10px_30px_-12px_rgba(11,43,61,0.45)] md:p-5 lg:p-6"
+          style={{
+            borderColor: THEME.brass,
+            backgroundColor: THEME.parchment,
+            backgroundImage: `url(${PAPER_GRAIN})`,
+          }}
+        >
+          <div
+            className="pointer-events-none absolute inset-[6px] rounded-[1.4rem] border"
+            style={{ borderColor: `${THEME.wax}33` }}
+          />
+
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
             <div className="inline-block">
-              <h1 className={`${font.h1} text-slate-900`}>Gallery Mentoring</h1>
+              <div className="flex items-center gap-3">
+                <CompassRose className="h-9 w-9 shrink-0" />
+                <div>
+                  <p
+                    className="text-[11px] font-semibold uppercase tracking-[0.32em]"
+                    style={{ color: THEME.brass, fontFamily: 'Georgia, "Times New Roman", serif' }}
+                  >
+                    Log Ekspedisi
+                  </p>
+                  <h1 className={`${font.h1}`} style={{ color: THEME.ink }}>
+                    Gallery Mentoring
+                  </h1>
+                </div>
+              </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-[250px_290px]">
-                <div className="flex h-40.75 flex-col items-center justify-center gap-2 rounded-3xl border border-black/10 bg-[#f6f6f6] px-6 text-center">
+                <div
+                  className="flex h-[163px] flex-col items-center justify-center gap-2 rounded-[1.5rem] border px-6 text-center"
+                  style={{ borderColor: THEME.parchmentEdge, backgroundColor: '#F7EFDD' }}
+                >
                   <img src={selectedSession.image} alt="" className="h-14 w-14 object-contain" />
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-700">
+                  <span
+                    className="text-[11px] font-semibold uppercase tracking-[0.28em]"
+                    style={{ color: THEME.inkSoft }}
+                  >
                     {selectedSession.label}
                   </span>
                 </div>
 
-                <div className="flex h-40.75 flex-col justify-center rounded-3xl border border-black/10 bg-[#fafafa] px-5 py-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
-                    Total Ditampilkan
+                <div
+                  className="flex h-[163px] flex-col justify-center rounded-[1.5rem] border px-5 py-5"
+                  style={{ borderColor: THEME.parchmentEdge, backgroundColor: '#F7EFDD' }}
+                >
+                  <p
+                    className="text-[11px] font-semibold uppercase tracking-[0.28em]"
+                    style={{ color: THEME.brass }}
+                  >
+                    Total Ditemukan
                   </p>
                   <p className="mt-1.5 flex items-baseline gap-1.5">
-                    <span className="text-2xl font-bold text-slate-900">{filteredFoto.length}</span>
-                    <span className="text-sm text-slate-600">foto</span>
+                    <span className="text-2xl font-bold" style={{ color: THEME.ink }}>
+                      {filteredFoto.length}
+                    </span>
+                    <span className="text-sm" style={{ color: THEME.inkSoft }}>
+                      foto
+                    </span>
                   </p>
-                  <p className="mt-1.5 text-xs leading-snug text-slate-500">
+                  <p className="mt-1.5 text-xs leading-snug" style={{ color: THEME.inkSoft }}>
                     {filterSesi === 'semua' && filterMinggu === 'semua'
-                      ? 'Menampilkan semua dokumentasi yang sudah terbuka.'
+                      ? 'Menampilkan semua jejak dokumentasi yang tersedia.'
                       : `Menampilkan dokumentasi ${selectedSession.label}${
                           filterMinggu === 'semua'
                             ? ''
-                            : ` · ${WEEK_CONFIG.find((w) => w.value === filterMinggu)?.label}`
+                            : ` · ${weekOptions.find((week) => week.value === filterMinggu)?.label}`
                         }.`}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="flex w-full flex-col gap-4 lg:w-105">
+            <div className="flex w-full flex-col gap-4 lg:w-[420px]">
               <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+                <p
+                  className="mb-3 text-xs font-semibold uppercase tracking-[0.28em]"
+                  style={{ color: THEME.brass }}
+                >
                   Filter Sesi
                 </p>
 
                 <div className="grid grid-cols-2 gap-2">
                   {sessionFilters.map((item) => {
                     const active = filterSesi === item.value;
+
                     return (
                       <button
                         key={item.value}
                         type="button"
                         onClick={() => setFilterSesi(item.value)}
-                        className={`flex h-11 w-full items-center justify-center gap-2 rounded-full border px-3 text-sm font-medium transition
-                        ${
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-full border px-3 text-sm font-medium transition"
+                        style={
                           active
-                            ? 'border-slate-900 bg-slate-900 text-white'
-                            : 'border-black/10 bg-white text-slate-700 hover:border-slate-400'
-                        }`}
+                            ? {
+                                borderColor: THEME.wax,
+                                backgroundColor: THEME.wax,
+                                color: '#FBF3E1',
+                                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.25)',
+                              }
+                            : {
+                                borderColor: THEME.parchmentEdge,
+                                backgroundColor: '#F7EFDD',
+                                color: THEME.inkSoft,
+                              }
+                        }
                       >
                         <img src={item.image} alt="" className="h-4 w-4 object-contain" />
                         <span>{item.label}</span>
@@ -215,88 +270,124 @@ export default function Gallery() {
 
               <div>
                 <div className="mb-3 flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-                    Minggu
+                  <p
+                    className="text-xs font-semibold uppercase tracking-[0.28em]"
+                    style={{ color: THEME.brass }}
+                  >
+                    Rute Minggu
                   </p>
 
                   <button
                     type="button"
                     onClick={() => setFilterMinggu('semua')}
-                    className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition ${
+                    className="rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition"
+                    style={
                       filterMinggu === 'semua'
-                        ? 'border-slate-900 bg-slate-900 text-white'
-                        : 'border-black/10 bg-white text-slate-600 hover:border-slate-400'
-                    }`}
+                        ? {
+                            borderColor: THEME.wax,
+                            backgroundColor: THEME.wax,
+                            color: '#FBF3E1',
+                          }
+                        : {
+                            borderColor: THEME.parchmentEdge,
+                            backgroundColor: '#F7EFDD',
+                            color: THEME.inkSoft,
+                          }
+                    }
                   >
                     Semua Minggu
                   </button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                  {WEEK_CONFIG.map((week) => {
-                    const active = filterMinggu === week.value;
-                    const revealed = isWeekRevealed(week.value, currentTime);
-                    const sisaHari = formatCountdown(week.revealDate, currentTime).days;
-                    const statusText = revealed
-                      ? 'Sudah dibuka'
-                      : sisaHari === '00'
-                        ? 'Buka hari ini'
-                        : `${sisaHari} hari lagi`;
+                {/* Garis rute putus-putus di belakang, seolah menghubungkan pelabuhan */}
+                <div className="relative">
+                  <div
+                    className="pointer-events-none absolute left-4 right-4 top-1/2 -translate-y-1/2 border-t-2 border-dashed"
+                    style={{ borderColor: `${THEME.wax}55` }}
+                  />
+                  <div className="relative grid grid-cols-3 gap-2">
+                    {weekOptions.map((week) => {
+                      const active = filterMinggu === week.value;
 
-                    return (
-                      <button
-                        key={week.value}
-                        type="button"
-                        onClick={() => setFilterMinggu(week.value)}
-                        className={`rounded-2xl border px-3 py-3 text-left transition ${
-                          active
-                            ? 'border-slate-900 bg-slate-900 text-white'
-                            : 'border-black/10 bg-white text-slate-700 hover:border-slate-400'
-                        }`}
-                      >
-                        <p className="text-sm font-semibold">{week.label}</p>
-                        <p className={`mt-1 text-xs ${active ? 'text-white/75' : 'text-slate-500'}`}>
-                          {statusText}
-                        </p>
-                      </button>
-                    );
-                  })}
+                      return (
+                        <button
+                          key={week.value}
+                          type="button"
+                          onClick={() => setFilterMinggu(week.value)}
+                          className="rounded-2xl border px-3 py-3 text-left transition"
+                          style={
+                            active
+                              ? {
+                                  borderColor: THEME.wax,
+                                  backgroundColor: THEME.ink,
+                                  color: '#FBF3E1',
+                                }
+                              : {
+                                  borderColor: THEME.parchmentEdge,
+                                  backgroundColor: '#F7EFDD',
+                                  color: THEME.inkSoft,
+                                }
+                          }
+                        >
+                          <p className="text-sm font-semibold">{week.label}</p>
+                          <p
+                            className="mt-1 text-xs"
+                            style={{ color: active ? '#FBF3E199' : THEME.brass }}
+                          >
+                            {countdown.days} hari
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
+        {/* ===== Loading ===== */}
         {loading && (
-          <div className="mt-4 rounded-[1.8rem] border border-black/10 bg-white/92 px-6 py-10 text-center shadow-sm">
-            <p className="text-slate-600">Memuat foto galeri...</p>
+          <div
+            className="mt-4 rounded-[1.8rem] border px-6 py-10 text-center shadow-sm"
+            style={{ borderColor: THEME.parchmentEdge, backgroundColor: THEME.parchment }}
+          >
+            <p style={{ color: THEME.inkSoft }}>Sedang memuat peta dokumentasi...</p>
           </div>
         )}
 
-        {!loading && weekLock && (
-          <div className="mt-4 rounded-[1.8rem] border border-dashed border-black/15 bg-white/92 px-6 py-12 text-center shadow-sm">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-              Dokumentasi {weekLock.label}
+        {/* ===== Empty state ===== */}
+        {!loading && filteredFoto.length === 0 && (
+          <div
+            className="mt-4 rounded-[1.8rem] border border-dashed px-6 py-12 text-center shadow-sm"
+            style={{ borderColor: `${THEME.wax}55`, backgroundColor: THEME.parchment }}
+          >
+            <p
+              className="mb-4 text-xs font-semibold uppercase tracking-[0.28em]"
+              style={{ color: THEME.brass }}
+            >
+              Dokumentasi Mentoring
             </p>
 
-            <div className="mx-auto mb-6 max-w-xs rounded-3xl border border-black/10 bg-[#fafafa] p-4">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Terbuka pada{' '}
-                {weekLock.revealDate.toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
+            <div
+              className="mx-auto mb-6 max-w-xs rounded-[1.5rem] border p-4"
+              style={{ borderColor: THEME.parchmentEdge, backgroundColor: '#F7EFDD' }}
+            >
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: THEME.inkSoft }}>
+                Hitung Mundur ke 1 September 2026
               </p>
 
               <div className="grid grid-cols-4 gap-2">
-                {lockCountdownItems.map((item) => (
+                {countdownItems.map((item) => (
                   <div
                     key={item.label}
-                    className="rounded-2xl border border-black/10 bg-white px-2 py-3 text-center"
+                    className="rounded-2xl border px-2 py-3 text-center"
+                    style={{ borderColor: THEME.brass, backgroundColor: THEME.ink }}
                   >
-                    <p className="text-lg font-bold text-slate-900 md:text-xl">{item.value}</p>
-                    <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                    <p className="text-lg font-bold md:text-xl" style={{ color: '#FBF3E1' }}>
+                      {item.value}
+                    </p>
+                    <p className="mt-1 text-[10px] uppercase tracking-[0.2em]" style={{ color: THEME.brassSoft }}>
                       {item.label}
                     </p>
                   </div>
@@ -304,53 +395,46 @@ export default function Gallery() {
               </div>
             </div>
 
-            <p className="text-lg font-semibold text-slate-800">
-              Foto {weekLock.label} belum bisa dilihat.
+            <p className="text-lg font-semibold" style={{ color: THEME.ink }}>
+              Belum ada titik peta untuk rute ini.
             </p>
-            <p className="mt-2 text-sm text-slate-500">
-              Nantikan dokumentasinya begitu hitung mundur di atas selesai.
-            </p>
-          </div>
-        )}
-
-        {!loading && !weekLock && filteredFoto.length === 0 && (
-          <div className="mt-4 rounded-[1.8rem] border border-dashed border-black/15 bg-white/92 px-6 py-12 text-center shadow-sm">
-            <p className="text-lg font-semibold text-slate-800">Belum ada foto untuk filter ini.</p>
-            <p className="mt-2 text-sm text-slate-500">
-              Coba ganti sesi atau minggu untuk melihat dokumentasi lain.
+            <p className="mt-2 text-sm" style={{ color: THEME.inkSoft }}>
+              Coba ganti sesi atau minggu untuk menjelajah dokumentasi lain.
             </p>
           </div>
         )}
 
-        {!loading && !weekLock && filteredFoto.length > 0 && (
-          <section className="mt-4 rounded-[1.8rem] border border-black/10 bg-white/92 p-4 shadow-sm md:p-5">
+        {/* ===== Gallery grid ===== */}
+        {!loading && filteredFoto.length > 0 && (
+          <section
+            className="mt-4 rounded-[1.8rem] border p-4 shadow-sm md:p-5"
+            style={{ borderColor: THEME.parchmentEdge, backgroundColor: THEME.parchment }}
+          >
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em]" style={{ color: THEME.brass }}>
                   Dokumentasi Mentoring
                 </p>
-                <h2 className="mt-1 text-xl font-semibold text-slate-900 md:text-2xl">Gallery</h2>
+                <h2 className="mt-1 text-xl font-semibold md:text-2xl" style={{ color: THEME.ink }}>
+                  Galeri Ekspedisi
+                </h2>
               </div>
             </div>
 
-            {nearestUpcomingWeek && filterMinggu === 'semua' && (
-              <div className="mb-4 rounded-2xl border border-black/10 bg-[#fafafa] px-4 py-3 text-xs text-slate-600">
-                Foto <span className="font-semibold text-slate-900">{nearestUpcomingWeek.label}</span> akan
-                terbuka dalam{' '}
-                <span className="font-semibold text-slate-900">
-                  {formatCountdown(nearestUpcomingWeek.revealDate, currentTime).days} hari
-                </span>
-                .
-              </div>
-            )}
-
             <div className="columns-2 gap-3 md:columns-4 lg:columns-5">
-              {filteredFoto.map((foto) => (
+              {filteredFoto.map((foto, idx) => (
                 <figure
                   key={foto.id}
-                  className="mb-3 break-inside-avoid overflow-hidden rounded-[1.2rem] border border-black/10 bg-white p-1.5 transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                  className={`group relative mb-3 break-inside-avoid overflow-hidden rounded-sm border p-2 pb-4 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:z-10 ${
+                    idx % 2 === 0 ? '-rotate-1' : 'rotate-1'
+                  }`}
+                  style={{ borderColor: THEME.parchmentEdge, backgroundColor: '#F7EFDD' }}
                 >
-                  <div className="overflow-hidden rounded-[0.95rem] bg-slate-100">
+                  <span
+                    className="absolute -top-1.5 left-1/2 z-10 h-3 w-3 -translate-x-1/2 rounded-full shadow-sm"
+                    style={{ background: `radial-gradient(circle at 35% 30%, ${THEME.brassSoft}, ${THEME.wax})` }}
+                  />
+                  <div className="overflow-hidden bg-slate-100">
                     <img
                       src={foto.fotoUrl}
                       alt="Dokumentasi mentoring"
@@ -358,6 +442,7 @@ export default function Gallery() {
                         e.currentTarget.src = '/placeholder.webp';
                       }}
                       className="h-auto w-full object-cover transition duration-500 group-hover:scale-105"
+                      style={{ filter: 'sepia(0.12) saturate(1.05) contrast(1.03)' }}
                       loading="lazy"
                     />
                   </div>
