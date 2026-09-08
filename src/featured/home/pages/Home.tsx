@@ -17,6 +17,7 @@ import Section5Contact from "../components/Section5Contact";
 import Section5Partners from "../components/Section5Partners";
 import Section5Sponsors from "../components/Section5Sponsors";
 import Section6Cta from "../components/Section6Cta";
+import { sprint } from "../../../shared/constants/sprint";
 
 export default function Home() {
   const { containerRef, scrollLeft, maxScrollLeft } = useHorizontalScroll();
@@ -52,7 +53,7 @@ export default function Home() {
         <Section5Contact />
         <Section5Partners />
         <Section5Sponsors />
-        <Section6Cta />
+        {!sprint && <Section6Cta />}
       </div>
       <IslandButton scrollLeft={scrollLeft} maxScrollLeft={maxScrollLeft} />
     </div>

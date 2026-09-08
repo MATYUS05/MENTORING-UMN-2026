@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import laut from "../../../assets/home/Ombak.webp";
 import pulau from "../../../assets/home/pulau.webp";
+import { sprint } from "../../../shared/constants/sprint";
 
 interface IslandButtonProps {
   scrollLeft: number;
@@ -40,19 +41,21 @@ export default function IslandButton({
 
   return (
     <div className="pointer-events-none fixed inset-0 z-20 overflow-hidden">
-      <button
-        type="button"
-        onClick={handleExplore}
-        aria-label="Ketuk pulau untuk menjelajah lebih lanjut"
-        className="pointer-events-auto absolute bottom-[calc(8vh-30px)] cursor-pointer border-0 bg-transparent p-0 md:bottom-[calc(8vh-55px)]"
-        style={{
-          left: pulauScreenX,
-          transform: `translateX(-50%) scale(${pulauScale})`,
-          transformOrigin: "bottom center",
-        }}
-      >
-        <img src={pulau} alt="Pulau" className="w-90 sm:w-135 md:w-90" />
-      </button>
+      {!sprint && (
+        <button
+          type="button"
+          onClick={handleExplore}
+          aria-label="Ketuk pulau untuk menjelajah lebih lanjut"
+          className="pointer-events-auto absolute bottom-[calc(8vh-30px)] cursor-pointer border-0 bg-transparent p-0 md:bottom-[calc(8vh-55px)]"
+          style={{
+            left: pulauScreenX,
+            transform: `translateX(-50%) scale(${pulauScale})`,
+            transformOrigin: "bottom center",
+          }}
+        >
+          <img src={pulau} alt="Pulau" className="w-90 sm:w-135 md:w-90" />
+        </button>
+      )}
       <div
         className="absolute bottom-0 left-0 h-[14vh] w-full animate-[wave-bob-front_2.6s_ease-in-out_infinite] bg-repeat-x"
         style={{

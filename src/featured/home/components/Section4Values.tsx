@@ -118,12 +118,12 @@ export default function Section4Values() {
         <CarouselArrow
           direction="left"
           onClick={goPrev}
-          className="absolute -left-16 top-1/2 z-10 h-14 w-14 -translate-y-1/2 md:-left-20 md:h-16 md:w-16"
+          className="absolute -left-7 top-1/2 z-10 h-16 w-16 -translate-y-1/2 md:-left-8 md:h-20 md:w-20"
         />
         <CarouselArrow
           direction="right"
           onClick={goNext}
-          className="absolute -right-16 top-1/2 z-10 h-14 w-14 -translate-y-1/2 md:-right-20 md:h-16 md:w-16"
+          className="absolute -right-7 top-1/2 z-10 h-16 w-16 -translate-y-1/2 md:-right-8 md:h-20 md:w-20"
         />
         <div className="relative flex h-full w-full items-center gap-4 px-10 sm:gap-6 sm:px-16">
           <div className="flex w-3/5 shrink-0 items-center justify-center">

@@ -5,6 +5,7 @@ import { font } from '../../../shared/typography/font';
 import { chatbotService } from '../../../lib/chatbotService';
 import PageBackground from '../../../shared/components/PageBackground';
 import type { FaqItem } from '../../../shared/types/database';
+import { sprint } from '../../../shared/constants/sprint';
 
 import faqBg from '../../../assets/faq/faq bg.png';
 import maskotObor from '../../../assets/faq/maskot obor.png';
@@ -216,6 +217,7 @@ export default function Faq() {
         )}
 
         {/* ===== CTA chatbot ===== */}
+        {!sprint && (
         <div className="mx-auto mt-6 flex max-w-5xl flex-col items-center gap-6 md:flex-row md:items-center md:gap-0">
           {/* Maskot: 1/2 wilayah, di luar kartu, dengan glow coklat */}
           <div className="relative flex w-full shrink-0 items-center justify-center md:w-1/2">
@@ -274,6 +276,7 @@ export default function Faq() {
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

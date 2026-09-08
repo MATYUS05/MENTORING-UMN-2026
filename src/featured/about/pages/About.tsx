@@ -13,6 +13,7 @@ import {
   ZacheryReveal,
   type Activity,
 } from '../components/AboutComponent'
+import { sprint } from '../../../shared/constants/sprint'
 
 // Section ids in scroll order. Some only exist on tablet/mobile (lg:hidden).
 const DESKTOP_SECTION_IDS = [
@@ -246,7 +247,7 @@ export default function About() {
       <SceneBackground src={About_BG} alt="Zachery" />
 
       {/* Desktop-only: floating "Kenal Zachery" button, top-left, over the scene */}
-      <ZacheryReveal variant="floating" description={zacheryDescription} />
+      {!sprint && <ZacheryReveal variant="floating" description={zacheryDescription} />}
 
       {/* Hero — sits over the scene background */}
       <Section id="about-hero" className={heroSection} style={heroStyle}>
@@ -280,27 +281,32 @@ export default function About() {
       </Section>
 
       {/* Our Logo — one meaning per snap section */}
-      {logoMeanings.map((item, i) => (
-        <Section key={item.title} id={`about-logo-${i + 1}`} className={snapSection} style={snapStyle}>
-          <div className="w-full">
-            {i === 0 && <SectionTitle>Our Logo</SectionTitle>}
-            <LogoMeaningRow title={item.title} description={item.description} reverse={i % 2 === 1} />
-          </div>
-        </Section>
-      ))}
+      {!sprint &&
+        logoMeanings.map((item, i) => (
+          <Section key={item.title} id={`about-logo-${i + 1}`} className={snapSection} style={snapStyle}>
+            <div className="w-full">
+              {i === 0 && <SectionTitle>Our Logo</SectionTitle>}
+              <LogoMeaningRow title={item.title} description={item.description} reverse={i % 2 === 1} />
+            </div>
+          </Section>
+        ))}
 
       {/* Our Activity */}
-      <Section id="about-activity" className={snapSection} style={snapStyle}>
-        <div className="w-full">
-          <SectionTitle>Our Activity</SectionTitle>
-          <ActivityCarousel activities={activities} />
-        </div>
-      </Section>
+      {!sprint && (
+        <Section id="about-activity" className={snapSection} style={snapStyle}>
+          <div className="w-full">
+            <SectionTitle>Our Activity</SectionTitle>
+            <ActivityCarousel activities={activities} />
+          </div>
+        </Section>
+      )}
 
       {/* Mobile/Tablet only — desktop uses the floating button instead */}
-      <Section id="about-zachery" className={`${snapSection} lg:hidden`} style={snapStyle}>
-        <ZacheryReveal variant="inline" description={zacheryDescription} />
-      </Section>
+      {!sprint && (
+        <Section id="about-zachery" className={`${snapSection} lg:hidden`} style={snapStyle}>
+          <ZacheryReveal variant="inline" description={zacheryDescription} />
+        </Section>
+      )}
     </div>
   )
 }

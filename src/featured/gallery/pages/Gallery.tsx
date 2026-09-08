@@ -24,7 +24,11 @@ type WeekOption = {
   label: string;
 };
 
-const TARGET_DATE = new Date('2026-09-01T23:59:59+07:00');
+const WEEK_DATES: Record<Minggu, Date> = {
+  'minggu-1': new Date('2026-09-19T23:59:59+07:00'),
+  'minggu-2': new Date('2026-09-26T23:59:59+07:00'),
+  'minggu-3': new Date('2026-10-03T23:59:59+07:00'),
+};
 
 // Tema: peta pelayaran tua. Palet & tekstur dipusatkan di sini biar konsisten.
 const THEME = {
@@ -120,26 +124,31 @@ export default function Gallery() {
     return () => window.clearInterval(interval);
   }, []);
 
+  // Minggu yang relevan untuk penantian/countdown: minggu yang dipilih,
+  // atau minggu 1 kalau filternya "semua".
+  const targetWeek: Minggu = filterMinggu === 'semua' ? 'minggu-1' : filterMinggu;
+  const targetWeekReached = currentTime.getTime() >= WEEK_DATES[targetWeek].getTime();
+
   const filteredFoto = useMemo(() => {
+    if (!targetWeekReached) {
+      return [];
+    }
+
     return fotoList.filter((foto) => {
       const sesiMatch = filterSesi === 'semua' || foto.sesi === filterSesi;
       const mingguMatch = filterMinggu === 'semua' || foto.minggu === filterMinggu;
 
       return sesiMatch && mingguMatch;
     });
-  }, [filterMinggu, filterSesi, fotoList]);
+  }, [filterMinggu, filterSesi, fotoList, targetWeekReached]);
 
   const selectedSession =
     sessionFilters.find((item) => item.value === filterSesi) ?? sessionFilters[0];
 
-  const countdown = formatCountdown(TARGET_DATE, currentTime);
+  const mentoringDayNumber = targetWeek.split('-')[1];
 
-  const countdownItems = [
-    { label: 'Hari', value: countdown.days },
-    { label: 'Jam', value: countdown.hours },
-    { label: 'Menit', value: countdown.minutes },
-    { label: 'Detik', value: countdown.seconds },
-  ];
+  const countdown = formatCountdown(WEEK_DATES[targetWeek], currentTime);
+  const countdownString = `${countdown.days}:${countdown.hours}:${countdown.minutes}:${countdown.seconds}`;
 
   return (
     <div className="relative">
@@ -303,6 +312,8 @@ export default function Gallery() {
                   <div className="relative grid grid-cols-3 gap-2">
                     {weekOptions.map((week) => {
                       const active = filterMinggu === week.value;
+                      const weekReached = currentTime.getTime() >= WEEK_DATES[week.value].getTime();
+                      const weekCountdown = formatCountdown(WEEK_DATES[week.value], currentTime);
 
                       return (
                         <button
@@ -331,7 +342,7 @@ export default function Gallery() {
                             className="mt-1 text-xs"
                             style={{ color: active ? '#FBF3E199' : THEME.brass }}
                           >
-                            {countdown.days} hari
+                            {weekReached ? 'Sudah dimulai' : `${weekCountdown.days} hari lagi`}
                           </p>
                         </button>
                       );
@@ -356,48 +367,12 @@ export default function Gallery() {
 
         {/* ===== Empty state ===== */}
         {!loading && filteredFoto.length === 0 && (
-          <div
-            className="mt-4 rounded-[1.8rem] border border-dashed px-6 py-12 text-center shadow-sm"
-            style={{ borderColor: `${THEME.wax}55`, backgroundColor: THEME.parchment }}
-          >
-            <p
-              className="mb-4 text-xs font-semibold uppercase tracking-[0.28em]"
-              style={{ color: THEME.brass }}
-            >
-              Dokumentasi Mentoring
-            </p>
-
-            <div
-              className="mx-auto mb-6 max-w-xs rounded-[1.5rem] border p-4"
-              style={{ borderColor: THEME.parchmentEdge, backgroundColor: '#F7EFDD' }}
-            >
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: THEME.inkSoft }}>
-                Hitung Mundur ke 1 September 2026
-              </p>
-
-              <div className="grid grid-cols-4 gap-2">
-                {countdownItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-2xl border px-2 py-3 text-center"
-                    style={{ borderColor: THEME.brass, backgroundColor: THEME.ink }}
-                  >
-                    <p className="text-lg font-bold md:text-xl" style={{ color: '#FBF3E1' }}>
-                      {item.value}
-                    </p>
-                    <p className="mt-1 text-[10px] uppercase tracking-[0.2em]" style={{ color: THEME.brassSoft }}>
-                      {item.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <p className="text-lg font-semibold" style={{ color: THEME.ink }}>
-              Belum ada titik peta untuk rute ini.
-            </p>
-            <p className="mt-2 text-sm" style={{ color: THEME.inkSoft }}>
-              Coba ganti sesi atau minggu untuk menjelajah dokumentasi lain.
+          <div className="mt-4 px-6 py-12 text-center">
+            <h2 className={`${font.h1} text-charcoal-glow-strong`}>
+              MENTORING DAY {mentoringDayNumber} IS COMING
+            </h2>
+            <p className={`${font.h1} text-charcoal-glow-strong mt-2`}>
+              {countdownString}
             </p>
           </div>
         )}
