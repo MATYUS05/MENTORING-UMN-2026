@@ -1,7 +1,8 @@
 // src/featured/division/components/EnvelopeCard.tsx
 import React, { useEffect, useState } from 'react';
 import type { Division } from '../types';
-import amplopImg from '../../../assets/division/amplop.png';
+import amplopImg from '../../../assets/division/envelope_cropped.png';
+import envelopeAndScrollImg from '../../../assets/division/Envelope and scroll.png';
 
 interface EnvelopeCardProps {
   division: Division;
@@ -11,87 +12,135 @@ interface EnvelopeCardProps {
 }
 
 /**
- * Jeda antara klik dan munculnya modal, yaitu waktu yang diberikan agar animasi
- * amplop terbuka sempat terlihat. Nilai ini adalah SATU-SATUNYA sumber delay pada
- * alur "CLICK TO OPEN" — datanya sendiri sudah ada di memori, tanpa query apa pun.
- * Sebelumnya 450ms; dipangkas agar terasa responsif tanpa menghilangkan animasinya.
+ * Waktu jeda agar pengguna dapat melihat amplop terbuka dengan gulungan perkamen
+ * di posisinya dengan ukuran yang sama persis sebelum modal perkamen interaktif dibuka.
  */
-const JEDA_ANIMASI_BUKA_MS = 180;
+const JEDA_ANIMASI_BUKA_MS = 500;
 
 export const EnvelopeCard: React.FC<EnvelopeCardProps> = ({ division, onClick, isModalOpen }) => {
   const [isOpening, setIsOpening] = useState(false);
 
+  // Preload asset animasi pembuka agar instan saat diklik
+  useEffect(() => {
+    const img = new Image();
+    img.src = envelopeAndScrollImg;
+  }, []);
+
   const handleClick = () => {
+    if (isOpening || isModalOpen) return;
     setIsOpening(true);
-    setTimeout(onClick, JEDA_ANIMASI_BUKA_MS);
+    setTimeout(() => {
+      onClick();
+    }, JEDA_ANIMASI_BUKA_MS);
   };
 
-  // Amplop baru dikembalikan ke posisi semula begitu modal beneran tertutup,
-  // bukan dibarengkan dengan delay buka (yang lebih pendek dari transisi CSS-nya
-  // dan bikin animasi buka kelihatan "patah" tepat saat modal muncul).
   useEffect(() => {
-    if (!isModalOpen) setIsOpening(false);
+    if (!isModalOpen) {
+      // Kembalikan amplop ke state normal dengan jeda halus setelah modal tertutup
+      const timeout = setTimeout(() => {
+        setIsOpening(false);
+      }, 200);
+      return () => clearTimeout(timeout);
+    }
   }, [isModalOpen]);
 
   return (
-    <div className="relative mx-auto w-full max-w-[520px] sm:max-w-[560px] md:max-w-[620px] aspect-[3/2] flex items-center justify-center">
+    <div className="relative mx-auto w-full max-w-[540px] sm:max-w-[620px] md:max-w-[700px] lg:max-w-[760px] aspect-[2891/1597] flex items-center justify-center">
       {/* Interactive Envelope Body */}
       <div
         onClick={handleClick}
         className={`
           group relative w-full h-full cursor-pointer select-none
-          transition-all duration-500 hover:-translate-y-2 active:scale-98
-          ${isOpening ? 'scale-105 opacity-90' : ''}
+          transition-all duration-300 ease-out will-change-transform
+          hover:-translate-y-2 active:scale-[0.98]
+          ${isOpening ? 'scale-[1.02] -translate-y-1' : ''}
         `}
       >
-        {/* The Envelope Asset (900x600 aspect 3/2) */}
+        {/* 1. Closed Envelope Asset */}
         <img
           src={amplopImg}
-          alt="Amplop Majapahit"
-          /* Elemen utama di atas fold: tetap eager, decode async agar tidak menahan main thread. */
+          alt="Amplop Majapahit Tertutup"
           decoding="async"
-          className="absolute inset-0 w-full h-full object-contain"
+          className={`
+            absolute inset-0 w-full h-full object-contain
+            transition-all duration-300 ease-out
+            ${isOpening ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)]'}
+          `}
         />
 
-        {/* Content Centered Over Envelope Body (Order: Nama -> Logo -> Click to Open) */}
+        {/* 2. Opened Envelope & Scroll Asset (Identical size and placement in-place) */}
+        <img
+          src={envelopeAndScrollImg}
+          alt="Amplop dan Perkamen Terbuka"
+          decoding="async"
+          className={`
+            absolute inset-0 w-full h-full object-contain pointer-events-none
+            transition-all duration-300 ease-out
+            ${isOpening ? 'opacity-100 scale-250 -translate-y-[25%] drop-shadow-[0_0_28px_rgba(245,158,11,0.7)]' : 'opacity-0 scale-95 pointer-events-none'}
+          `}
+        />
+
+        {/* Content Centered Over Closed Envelope Body (Fades out when opening) */}
         <div
           className={`
-            absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 sm:gap-10 md:gap-11 px-6 pt-5 pb-4 sm:px-10 sm:pt-8 sm:pb-6 text-center
-            transition-transform duration-500
-            ${isOpening ? '-translate-y-6 opacity-0' : 'group-hover:-translate-y-1'}
+            absolute inset-0 z-10
+            transition-all duration-300 ease-out
+            ${isOpening ? '-translate-y-6 opacity-0 pointer-events-none scale-95' : 'group-hover:-translate-y-1 opacity-100'}
           `}
         >
-          {/* 1. Nama Divisi (Atas Logo) */}
-          <h2 className="font-heading text-xl font-extrabold tracking-tight text-[#3a2012] line-clamp-2 max-w-[85%] sm:text-2xl md:text-3xl lg:text-4xl">
-            {division.name}
-          </h2>
+          {/* Nama Divisi */}
+          <div className="absolute top-[36%] sm:top-[37%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[88%] text-center flex flex-col items-center justify-center space-y-1 sm:space-y-1.5">
+            <span className="font-heading text-xs sm:text-sm md:text-base lg:text-lg uppercase tracking-[0.3em] font-extrabold text-[#7a4120] drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)]">
+              DIVISI
+            </span>
+            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-[#2b1408] line-clamp-1 drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
+              {division.name}
+            </h2>
+          </div>
 
-          {/* 2. Logo Divisi Emblem (Tengah) */}
-          <div className="relative -translate-y-2.5 sm:-translate-y-2 md:-translate-y-5">
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#4a2e1b]/80 bg-[#1f1008] p-1.5 sm:h-18 sm:w-18 md:h-24 md:w-24">
+          {/* Logo Divisi Emblem (Tepat di Tengah Lingkaran Segel Merah: x=49.4%, y=73.7%) */}
+          <div className="absolute top-[73%] left-[49.9%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+            <div
+              className={`
+                relative flex w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-22 lg:h-22
+                items-center justify-center rounded-full overflow-hidden p-0
+                shadow-[0_0_12px_rgba(180,30,30,0.6)]
+                transition-all duration-300 ease-out
+                group-hover:scale-110
+              `}
+            >
               {division.logo && (division.logo.startsWith('http') || division.logo.startsWith('/')) ? (
                 <img
                   src={division.logo}
                   alt={division.name}
-                  className="h-full w-full object-contain rounded-full"
+                  className="h-full w-full object-cover scale-[1.45] rounded-full"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
               ) : null}
-              <span className={`text-3xl sm:text-4xl md:text-5xl ${division.logo && (division.logo.startsWith('http') || division.logo.startsWith('/')) ? 'hidden' : ''}`}>
+              <span className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl ${division.logo && (division.logo.startsWith('http') || division.logo.startsWith('/')) ? 'hidden' : ''}`}>
                 {division.logo || '📜'}
               </span>
             </div>
           </div>
 
-          {/* 3. Click to Open Callout Badge (Bawah Logo) */}
-          <div className="font-body inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-900/90 bg-[#3a2012] px-4 py-1.5 sm:px-6 sm:py-2.5 text-xs sm:text-sm md:text-base font-bold uppercase tracking-widest text-[#fde68a] transition-all duration-300 group-hover:scale-105 group-hover:bg-[#4d2915] group-hover:border-amber-500">
-            <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-amber-400 animate-ping" />
+          {/* Click to Open Callout Badge */}
+          <div
+            className={`
+              absolute -bottom-10 sm:-bottom-10 left-1/2 -translate-x-1/2 z-20 font-heading
+              inline-flex items-center gap-2 sm:gap-2.5 rounded-xl sm:rounded-2xl border-2 border-[#d4af37]/80
+              bg-gradient-to-r from-[#231107] via-[#3c1d0e] to-[#231107] px-4 py-1.5 sm:px-6 sm:py-2
+              text-xs sm:text-sm md:text-base font-bold tracking-wider text-[#fde68a]
+              transition-all duration-300 ease-out
+              group-hover:scale-105 group-hover:border-[#fde68a] group-hover:via-[#4e2613]
+            `}
+          >
+            <span className="text-amber-400 text-xs sm:text-sm transition-transform duration-300 group-hover:rotate-45">✦</span>
             <span>CLICK TO OPEN</span>
-            <svg className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            <svg className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 text-amber-300 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
           </div>
         </div>
@@ -99,3 +148,9 @@ export const EnvelopeCard: React.FC<EnvelopeCardProps> = ({ division, onClick, i
     </div>
   );
 };
+
+
+
+
+
+
