@@ -1,10 +1,11 @@
-import React from 'react'
-import { colors } from '../../../shared/theme/colors'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import { font } from '../../../shared/typography/font'
+import { colors } from '../../../shared/theme/colors'
+import SandCard from '../../../shared/components/SandCard'
+import { useHeaderBottom } from '../../../shared/hooks/useHeaderBottom'
 import {
   Section,
   SectionTitle,
-  ImagePlaceholder,
   PillarCard,
   LogoMeaningRow,
   ActivityCarousel,
@@ -13,6 +14,31 @@ import {
   type Activity,
 } from '../components/AboutComponent'
 
+// Section ids in scroll order. Some only exist on tablet/mobile (lg:hidden).
+const DESKTOP_SECTION_IDS = [
+  'about-hero',
+  'about-tagline',
+  'about-logo-1',
+  'about-logo-2',
+  'about-logo-3',
+  'about-activity',
+]
+const MOBILE_SECTION_IDS = [
+  'about-hero',
+  'about-tagline',
+  'about-logo-1',
+  'about-logo-2',
+  'about-logo-3',
+  'about-activity',
+  'about-zachery',
+]
+
+const LG_BREAKPOINT = '(min-width: 1024px)'
+const SNAP_GAP = 5 // px gap below the navbar
+const SNAP_FALLBACK_MS = 1200 // ms — safety net if the browser never fires 'scrollend'
+const WHEEL_THRESHOLD = 2 // px — very small movement is enough to trigger a jump
+const SWIPE_THRESHOLD = 30 // px — for touch
+
 import About_BG from '../../../assets/about/About_BG.webp'
 
 const zacheryDescription =
@@ -20,19 +46,14 @@ const zacheryDescription =
 
 const pillars = [
   {
-    title: 'Seek',
+    title: 'Brave the Step',
     description:
-      'Tahap yang membimbing mahasiswa mengenali potensi, minat, dan tujuan hidup melalui refleksi diri. Mereka diajak mengeksplorasi peluang di sekitar serta memahami arah impian yang ingin dicapai melalui mentoring.',
+      '"Brave the Step" merefleksikan tindakan berani meninggalkan zona nyaman dan kepastian untuk memulai perjalanan akademik dan pengembangan diri yang baru.',
   },
   {
-    title: 'Strive',
+    title: 'Build the Impact',
     description:
-      'Tahap ini menekankan usaha, ketekunan, dan semangat tinggi. Mahasiswa diajak untuk mengasah kemampuan, menghadapi tantangan, memperbaiki diri, dan terus berkembang demi mencapai tujuan serta memberi dampak bagi lingkungan sekitar.',
-  },
-  {
-    title: 'Surpass',
-    description:
-      'Mendorong mahasiswa melampaui ekspektasi dengan menciptakan dampak nyata. Setelah melalui proses refleksi dan perjuangan, mereka diharapkan memberi kontribusi positif yang luas dan menginspirasi lingkungan sekitar secara berkelanjutan.',
+      '"Build the Impact" menegaskan komitmen untuk tidak sekadar berproses, namun secara aktif mengarahkan potensi untuk menciptakan kontribusi yang nyata dan penuh makna bagi diri sendiri dan lingkungan.',
   },
 ]
 
@@ -78,6 +99,147 @@ const activities: Activity[] = [
 ]
 
 export default function About() {
+  const headerBottom = useHeaderBottom(96)
+  const offset = headerBottom + SNAP_GAP
+
+  // Very sensitive, JS-driven scroll-snap: one wheel notch or swipe = exactly one
+  // section, and every section stops right below the navbar with a small gap.
+  // Order: hero -> tagline -> (tagline 2 on tablet/mobile) -> logo 1 -> logo 2 ->
+  // logo 3 -> our activity -> kenal zachery (tablet/mobile).
+  const currentIndexRef = useRef(0)
+  const pastLastRef = useRef(false)
+  const isAnimatingRef = useRef(false)
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const touchStartYRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const getIds = () =>
+      window.matchMedia(LG_BREAKPOINT).matches ? DESKTOP_SECTION_IDS : MOBILE_SECTION_IDS
+
+    const clearFallbackTimer = () => {
+      if (fallbackTimerRef.current !== null) {
+        clearTimeout(fallbackTimerRef.current)
+        fallbackTimerRef.current = null
+      }
+    }
+
+    const onScrollEnd = () => {
+      isAnimatingRef.current = false
+      clearFallbackTimer()
+    }
+    window.addEventListener('scrollend', onScrollEnd)
+
+    const goTo = (index: number) => {
+      const ids = getIds()
+      const clamped = Math.max(0, Math.min(index, ids.length - 1))
+      const el = document.getElementById(ids[clamped])
+      if (!el) return
+      currentIndexRef.current = clamped
+      isAnimatingRef.current = true
+      clearFallbackTimer()
+      // Safety net: not every browser fires 'scrollend' reliably, so force-clear
+      // the lock after a while so scroll input never gets stuck ignored forever.
+      fallbackTimerRef.current = setTimeout(onScrollEnd, SNAP_FALLBACK_MS)
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+
+    const lastSectionTop = () => {
+      const ids = getIds()
+      const el = document.getElementById(ids[ids.length - 1])
+      return el ? el.getBoundingClientRect().top + window.scrollY : Infinity
+    }
+
+    const onWheel = (e: WheelEvent) => {
+      // A section change is still animating — block this input outright, before
+      // any other check, so not even a tiny trackpad delta can bleed through as
+      // native scroll and disturb the transition or be recorded for later.
+      if (isAnimatingRef.current) {
+        e.preventDefault()
+        return
+      }
+
+      if (Math.abs(e.deltaY) < WHEEL_THRESHOLD) return
+
+      // Past the last section (in the footer area): let native scroll run,
+      // but resume snapping once the user scrolls back up into the section.
+      if (pastLastRef.current) {
+        if (e.deltaY < 0 && window.scrollY <= lastSectionTop() - offset) {
+          pastLastRef.current = false
+        } else {
+          return
+        }
+      }
+
+      const ids = getIds()
+      const isLast = currentIndexRef.current === ids.length - 1
+
+      if (isLast && e.deltaY > 0) {
+        pastLastRef.current = true
+        return
+      }
+
+      e.preventDefault()
+      goTo(currentIndexRef.current + (e.deltaY > 0 ? 1 : -1))
+    }
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartYRef.current = e.touches[0].clientY
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (pastLastRef.current || touchStartYRef.current === null) return
+      if (isAnimatingRef.current) {
+        e.preventDefault()
+        return
+      }
+
+      const deltaY = touchStartYRef.current - e.touches[0].clientY
+      if (Math.abs(deltaY) < SWIPE_THRESHOLD) return
+
+      const ids = getIds()
+      const isLast = currentIndexRef.current === ids.length - 1
+
+      if (isLast && deltaY > 0) {
+        pastLastRef.current = true
+        touchStartYRef.current = null
+        return
+      }
+
+      e.preventDefault()
+      goTo(currentIndexRef.current + (deltaY > 0 ? 1 : -1))
+      touchStartYRef.current = null
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => {
+      window.removeEventListener('scrollend', onScrollEnd)
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+      clearFallbackTimer()
+    }
+  }, [offset])
+
+  // Hero is tall enough that centering it looks right below the navbar already.
+  // Shorter sections need to be top-aligned instead, or centering leaves them
+  // floating in the middle of the screen instead of sitting under the navbar.
+  const heroSection = 'flex items-center pb-14 sm:pb-20'
+  const snapSection = 'flex items-start'
+  const snapStyle: CSSProperties = {
+    minHeight: `calc(100vh - ${offset}px)`,
+    scrollMarginTop: offset,
+    // Section normally adds its own py-14/py-20 — that's what was pushing
+    // content far from the navbar, not the small gap above. Zero it out here
+    // and let flex-centering handle spacing within the trimmed height instead.
+    paddingTop: 0,
+    paddingBottom: 0,
+  }
+  // Hero keeps its bottom padding (pb-14 sm:pb-20 above) so the gap before the
+  // Tagline section matches the natural gap between the other sections.
+  const heroStyle: CSSProperties = { ...snapStyle, paddingBottom: undefined }
+
   return (
     <div className="relative">
       {/* Single fixed background — same on mobile, tablet, and desktop */}
@@ -86,59 +248,57 @@ export default function About() {
       {/* Desktop-only: floating "Kenal Zachery" button, top-left, over the scene */}
       <ZacheryReveal variant="floating" description={zacheryDescription} />
 
-      {/* Hero — sits over the scene background, text + image side by side per the Figma */}
-      <Section className="flex min-h-screen items-center pt-10 sm:pt-14">
-        <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-12">
-          <div
-            className="flex-1 rounded-2xl p-6 text-center sm:p-8 lg:text-left"
-            style={{ backgroundColor: `${colors.neutral.surface}E6` }}
-          >
-            <h1 className={font.h1} style={{ color: colors.neutral.charcoal }}>
-              Transforming Vision To Action, Turning Potential To Impact
-            </h1>
-            <p className={`${font.body} mt-4`} style={{ color: colors.neutral.stone }}>
-              Dunia perkuliahan penuh potensi dan peluang. Melalui tema &ldquo;Transforming Vision to
-              Action, Turning Potential to Impact&rdquo;, mahasiswa diajak mengembangkan diri,
-              mewujudkan visi, dan menciptakan dampak nyata bagi lingkungan melalui nilai 5C.
-            </p>
+      {/* Hero — sits over the scene background */}
+      <Section id="about-hero" className={heroSection} style={heroStyle}>
+        <SandCard innerClassName="p-6 text-center sm:p-8 lg:text-left">
+          <h1 className={font.h1} style={{ color: colors.neutral.charcoal }}>
+            Navigating Beyond Familiar Shores to Anchor Potential into Purposeful Impact
+          </h1>
+          <p className={`${font.body} mt-4`} style={{ color: colors.neutral.stone }}>
+            &ldquo;Navigating Beyond Familiar Shores&rdquo; merepresentasikan keberanian mahasiswa
+            untuk melangkah keluar dari zona nyaman menghadapi ketidakpastian, kegagalan, dan
+            keraguan sebagai bagian dari proses bertumbuh.
+          </p>
+          <p className={`${font.body} mt-4`} style={{ color: colors.neutral.stone }}>
+            &ldquo;to Anchor Potential into Purposeful Impact&rdquo; menekankan bahwa setiap
+            individu memiliki potensi, namun potensi hanya akan bermakna ketika diarahkan dengan
+            kesadaran, nilai, dan tujuan yang jelas.
+          </p>
+        </SandCard>
+      </Section>
+
+      {/* Tagline / Pillars — Brave the Step + Build the Impact */}
+      <Section id="about-tagline" className={snapSection} style={snapStyle}>
+        <div className="w-full">
+          <SectionTitle>Tagline</SectionTitle>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {pillars.map((pillar) => (
+              <PillarCard key={pillar.title} title={pillar.title} description={pillar.description} />
+            ))}
           </div>
-          <ImagePlaceholder alt="About" className="aspect-video w-full flex-1 lg:max-w-md" />
         </div>
       </Section>
 
-      {/* Tagline / Pillars */}
-      <Section className="pt-0">
-        <SectionTitle>Tagline</SectionTitle>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {pillars.map((pillar) => (
-            <PillarCard key={pillar.title} title={pillar.title} description={pillar.description} />
-          ))}
-        </div>
-      </Section>
-
-      {/* Our Logo */}
-      <Section>
-        <SectionTitle>Our Logo</SectionTitle>
-        <div className="flex flex-col gap-10 sm:gap-12">
-          {logoMeanings.map((item, i) => (
-            <LogoMeaningRow
-              key={item.title}
-              title={item.title}
-              description={item.description}
-              reverse={i % 2 === 1}
-            />
-          ))}
-        </div>
-      </Section>
+      {/* Our Logo — one meaning per snap section */}
+      {logoMeanings.map((item, i) => (
+        <Section key={item.title} id={`about-logo-${i + 1}`} className={snapSection} style={snapStyle}>
+          <div className="w-full">
+            {i === 0 && <SectionTitle>Our Logo</SectionTitle>}
+            <LogoMeaningRow title={item.title} description={item.description} reverse={i % 2 === 1} />
+          </div>
+        </Section>
+      ))}
 
       {/* Our Activity */}
-      <Section>
-        <SectionTitle>Our Activity</SectionTitle>
-        <ActivityCarousel activities={activities} />
+      <Section id="about-activity" className={snapSection} style={snapStyle}>
+        <div className="w-full">
+          <SectionTitle>Our Activity</SectionTitle>
+          <ActivityCarousel activities={activities} />
+        </div>
       </Section>
 
       {/* Mobile/Tablet only — desktop uses the floating button instead */}
-      <Section className="lg:hidden">
+      <Section id="about-zachery" className={`${snapSection} lg:hidden`} style={snapStyle}>
         <ZacheryReveal variant="inline" description={zacheryDescription} />
       </Section>
     </div>

@@ -6,6 +6,7 @@ import type { Division, Member } from '../types';
 import { DivisionCarousel } from '../components/DivisionCarousel';
 import { DivisionSelector } from '../components/DivisionSelector';
 import { DivisionModal } from '../components/DivisionModal';
+import PageBackground from '../../../shared/components/PageBackground';
 import bgImage from '../../../assets/division/Background.png';
 import scrollImg from '../../../assets/division/scroll_cropped.png';
 import envelopeAndScrollImg from '../../../assets/division/Envelope and scroll.png';
@@ -110,7 +111,7 @@ export default function DivisionPage() {
   };
 
   return (
-    <div className="relative min-h-screen -mt-[132px] pt-[148px] sm:pt-[156px] w-full text-[#f8ebd0] select-none font-body flex flex-col justify-between overflow-hidden">
+    <div className="relative min-h-screen w-full text-[#f8ebd0] select-none font-body flex flex-col justify-between">
       {/* Keyframe Animations */}
       <style>{`
         @keyframes slideLeft {
@@ -125,15 +126,9 @@ export default function DivisionPage() {
         .animate-slideRight { animation: slideRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
       `}</style>
 
-      {/* Clean Background Image (Scoped ONLY to Division Page bounds) */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('${bgImage}')`,
-          }}
-        />
-      </div>
+      {/* Background image, ditempel lewat portal ke <body> supaya menutupi
+          seluruh halaman termasuk di belakang navbar dan footer */}
+      <PageBackground src={bgImage} />
 
       {/* Main Page Container (Fills viewport height & pushes global Footer to bottom) */}
       <div className="relative z-10 mx-auto flex max-w-7xl w-full flex-1 flex-col items-center justify-between px-4 pt-2 sm:pt-4 lg:px-8">

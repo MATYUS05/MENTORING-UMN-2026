@@ -25,7 +25,7 @@ export default function InfoModal({ content, onClose }: InfoModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <ModalCloseButton onClick={onClose} />
-        <h3 className={`${font.h3} pr-8 text-neutral-charcoal-deep`}>
+        <h3 className={`${font.h3} pr-8 text-charcoal-glow`}>
           {content.title}
         </h3>
         <div className="mt-4 flex flex-col gap-3 text-left">

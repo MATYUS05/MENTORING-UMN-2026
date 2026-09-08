@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./shared/style/SandCard.css";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
@@ -170,4 +171,29 @@
   .ayun-paku {
     animation: none;
   }
+}
+
+.text-charcoal-glow {
+  background-image: linear-gradient(to bottom, var(--color-neutral-stone) 0%, var(--color-neutral-charcoal) 40%, var(--color-neutral-charcoal) 70%, #000000 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 6px rgba(180, 124, 91, 0.55));
+}
+
+.text-charcoal-glow-soft {
+  background-image: linear-gradient(to bottom, var(--color-neutral-charcoal) 0%, #000000 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 3px rgba(180, 124, 91, 0.35));
+}
+
+.text-brown-glow {
+  color: var(--color-primary-light);
+  text-shadow:
+    0 0 8px rgba(231, 196, 140, 0.85),
+    0 0 20px rgba(231, 196, 140, 0.55);
 }

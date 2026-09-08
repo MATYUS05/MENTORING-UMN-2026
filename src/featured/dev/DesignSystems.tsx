@@ -171,7 +171,10 @@ function DesignSystemContent() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-cream px-6 py-10 dark:bg-neutral-charcoal-deep relative">
+    <div className="min-h-screen px-6 py-10 relative">
+      {/* Background, pinned to the viewport so it always fully covers it (incl. overscroll) */}
+      <div className="fixed inset-0 -z-10 bg-neutral-cream dark:bg-neutral-charcoal-deep" aria-hidden />
+
       {/* Theme toggle fixed di kanan atas */}
       <div className="fixed top-20 right-8 z-50">
         <ThemeToggle />

@@ -12,8 +12,10 @@ import Section2About from "../components/Section2About";
 import Section3Timeline from "../components/Section3Timeline";
 import Section4Values from "../components/Section4Values";
 import Section5PartnersGrid from "../components/Section5PartnersGrid";
+import Section5SponsorsGrid from "../components/Section5SponsorsGrid";
 import Section5Contact from "../components/Section5Contact";
 import Section5Partners from "../components/Section5Partners";
+import Section5Sponsors from "../components/Section5Sponsors";
 import Section6Cta from "../components/Section6Cta";
 
 export default function Home() {
@@ -46,8 +48,10 @@ export default function Home() {
         <Section3Timeline />
         <Section4Values />
         <Section5PartnersGrid />
+        <Section5SponsorsGrid />
         <Section5Contact />
         <Section5Partners />
+        <Section5Sponsors />
         <Section6Cta />
       </div>
       <IslandButton scrollLeft={scrollLeft} maxScrollLeft={maxScrollLeft} />

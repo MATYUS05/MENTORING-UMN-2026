@@ -34,7 +34,7 @@ export default function ParallaxOcean({ scrollLeft }: ParallaxOceanProps) {
       <img
         src={kapal}
         alt="Kapal"
-        className="absolute bottom-[calc(5vh-0px)] left-[35%] w-42.25 -translate-x-1/2 animate-[bob_4s_ease-in-out_infinite] sm:w-52 md:bottom-[calc(5vh-20px)] md:w-58.5"
+        className="absolute bottom-[calc(5vh-10px)] left-[35%] w-42.25 -translate-x-1/2 animate-[bob_4s_ease-in-out_infinite] sm:w-52 md:bottom-[calc(5vh-25px)] md:w-58.5"
       />
     </div>
   );

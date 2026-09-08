@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { font } from '../../../shared/typography/font';
 import { fotoService } from '../../../lib/fotoService';
+import PageBackground from '../../../shared/components/PageBackground';
 import type { Foto, Minggu, Sesi } from '../../../shared/types/database';
 
 import galeriBg from '../../../assets/galeri/Gallery_BG.png';
@@ -39,6 +40,10 @@ const THEME = {
 };
 
 // Tekstur noise halus (SVG data URI) supaya panel parchment tidak terasa flat/digital.
+const INNER_SHADOW =
+  'inset -3px 3px 6px 0 rgba(0,0,0,0.35), inset 4px -4px 8px 0 rgba(255,255,255,1)';
+const INNER_SHADOW_ACTIVE = 'inset -3px 3px 6px 0 rgba(0,0,0,0.35)';
+
 const PAPER_GRAIN =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E";
 
@@ -137,26 +142,26 @@ export default function Gallery() {
   ];
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Peta latar, dibiarkan apa adanya tanpa tint warna */}
-      <div
-        className="pointer-events-none fixed inset-0 -z-20"
-        style={{
-          backgroundImage: `url(${galeriBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
+    <div className="relative">
+      {/* Peta latar, ditempel lewat portal ke <body> supaya menutupi seluruh
+          halaman termasuk di belakang navbar dan footer, dan tetap ikut scroll */}
+      <PageBackground src={galeriBg} />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8 lg:py-10">
         {/* ===== Cartouche header ===== */}
-        <section
-          className="relative rounded-[1.8rem] border-[3px] p-4 shadow-[0_10px_30px_-12px_rgba(11,43,61,0.45)] md:p-5 lg:p-6"
+        <div
+          className="rounded-[1.8rem] p-[3px] shadow-[0_10px_30px_-12px_rgba(11,43,61,0.45)]"
           style={{
-            borderColor: THEME.brass,
+            background: `linear-gradient(to bottom left, ${THEME.brass}, #5C4318)`,
+          }}
+        >
+        <section
+          className="relative rounded-[calc(1.8rem-3px)] p-4 md:p-5 lg:p-6"
+          style={{
             backgroundColor: THEME.parchment,
             backgroundImage: `url(${PAPER_GRAIN})`,
+            boxShadow:
+              'inset 8px -8px 16px 0 rgba(0,0,0,0.55), inset -8px 8px 16px 0 rgba(255,255,255,0.9)',
           }}
         >
           <div
@@ -167,37 +172,35 @@ export default function Gallery() {
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
             <div className="inline-block">
               <div className="flex items-center gap-3">
-                <CompassRose className="h-9 w-9 shrink-0" />
-                <div>
-                  <p
-                    className="text-[11px] font-semibold uppercase tracking-[0.32em]"
-                    style={{ color: THEME.brass, fontFamily: 'Georgia, "Times New Roman", serif' }}
-                  >
-                    Log Ekspedisi
-                  </p>
-                  <h1 className={`${font.h1}`} style={{ color: THEME.ink }}>
-                    Gallery Mentoring
-                  </h1>
-                </div>
+                <CompassRose className="h-9 w-9 shrink-0 sm:h-11 sm:w-11 md:h-14 md:w-14 lg:h-16 lg:w-16" />
+                <h1 className={`${font.h1}`} style={{ color: THEME.ink }}>
+                  Gallery Mentoring
+                </h1>
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-[250px_290px]">
                 <div
                   className="flex h-[163px] flex-col items-center justify-center gap-2 rounded-[1.5rem] border px-6 text-center"
-                  style={{ borderColor: THEME.parchmentEdge, backgroundColor: '#F7EFDD' }}
+                  style={{
+                    borderColor: THEME.parchmentEdge,
+                    backgroundColor: '#F7EFDD',
+                    boxShadow: INNER_SHADOW,
+                  }}
                 >
-                  <img src={selectedSession.image} alt="" className="h-14 w-14 object-contain" />
-                  <span
-                    className="text-[11px] font-semibold uppercase tracking-[0.28em]"
-                    style={{ color: THEME.inkSoft }}
-                  >
-                    {selectedSession.label}
-                  </span>
+                  <img
+                    src={selectedSession.image}
+                    alt=""
+                    className="h-[109px] w-[109px] object-contain"
+                  />
                 </div>
 
                 <div
-                  className="flex h-[163px] flex-col justify-center rounded-[1.5rem] border px-5 py-5"
-                  style={{ borderColor: THEME.parchmentEdge, backgroundColor: '#F7EFDD' }}
+                  className="flex h-[163px] flex-col items-center justify-center rounded-[1.5rem] border px-5 py-5 text-center"
+                  style={{
+                    borderColor: THEME.parchmentEdge,
+                    backgroundColor: '#F7EFDD',
+                    boxShadow: INNER_SHADOW,
+                  }}
                 >
                   <p
                     className="text-[11px] font-semibold uppercase tracking-[0.28em]"
@@ -205,22 +208,11 @@ export default function Gallery() {
                   >
                     Total Ditemukan
                   </p>
-                  <p className="mt-1.5 flex items-baseline gap-1.5">
-                    <span className="text-2xl font-bold" style={{ color: THEME.ink }}>
-                      {filteredFoto.length}
-                    </span>
-                    <span className="text-sm" style={{ color: THEME.inkSoft }}>
-                      foto
-                    </span>
-                  </p>
-                  <p className="mt-1.5 text-xs leading-snug" style={{ color: THEME.inkSoft }}>
-                    {filterSesi === 'semua' && filterMinggu === 'semua'
-                      ? 'Menampilkan semua jejak dokumentasi yang tersedia.'
-                      : `Menampilkan dokumentasi ${selectedSession.label}${
-                          filterMinggu === 'semua'
-                            ? ''
-                            : ` · ${weekOptions.find((week) => week.value === filterMinggu)?.label}`
-                        }.`}
+                  <p
+                    className={`${font.h1} mt-1.5`}
+                    style={{ color: THEME.ink }}
+                  >
+                    {filteredFoto.length}
                   </p>
                 </div>
               </div>
@@ -251,12 +243,13 @@ export default function Gallery() {
                                 borderColor: THEME.wax,
                                 backgroundColor: THEME.wax,
                                 color: '#FBF3E1',
-                                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.25)',
+                                boxShadow: INNER_SHADOW_ACTIVE,
                               }
                             : {
                                 borderColor: THEME.parchmentEdge,
                                 backgroundColor: '#F7EFDD',
                                 color: THEME.inkSoft,
+                                boxShadow: INNER_SHADOW,
                               }
                         }
                       >
@@ -287,11 +280,13 @@ export default function Gallery() {
                             borderColor: THEME.wax,
                             backgroundColor: THEME.wax,
                             color: '#FBF3E1',
+                            boxShadow: INNER_SHADOW_ACTIVE,
                           }
                         : {
                             borderColor: THEME.parchmentEdge,
                             backgroundColor: '#F7EFDD',
                             color: THEME.inkSoft,
+                            boxShadow: INNER_SHADOW,
                           }
                     }
                   >
@@ -321,11 +316,13 @@ export default function Gallery() {
                                   borderColor: THEME.wax,
                                   backgroundColor: THEME.ink,
                                   color: '#FBF3E1',
+                                  boxShadow: INNER_SHADOW,
                                 }
                               : {
                                   borderColor: THEME.parchmentEdge,
                                   backgroundColor: '#F7EFDD',
                                   color: THEME.inkSoft,
+                                  boxShadow: INNER_SHADOW,
                                 }
                           }
                         >
@@ -345,6 +342,7 @@ export default function Gallery() {
             </div>
           </div>
         </section>
+        </div>
 
         {/* ===== Loading ===== */}
         {loading && (
@@ -406,21 +404,7 @@ export default function Gallery() {
 
         {/* ===== Gallery grid ===== */}
         {!loading && filteredFoto.length > 0 && (
-          <section
-            className="mt-4 rounded-[1.8rem] border p-4 shadow-sm md:p-5"
-            style={{ borderColor: THEME.parchmentEdge, backgroundColor: THEME.parchment }}
-          >
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em]" style={{ color: THEME.brass }}>
-                  Dokumentasi Mentoring
-                </p>
-                <h2 className="mt-1 text-xl font-semibold md:text-2xl" style={{ color: THEME.ink }}>
-                  Galeri Ekspedisi
-                </h2>
-              </div>
-            </div>
-
+          <section className="mt-4">
             <div className="columns-2 gap-3 md:columns-4 lg:columns-5">
               {filteredFoto.map((foto, idx) => (
                 <figure

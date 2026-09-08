@@ -77,7 +77,7 @@ export default function Section4Values() {
 
   return (
     <section className="flex h-full w-screen shrink-0 flex-col items-center justify-center gap-2 px-6 sm:gap-4 sm:px-12 md:px-20">
-      <h2 className={`${font.h1} text-neutral-charcoal-deep`}>NILAI 5C</h2>
+      <h2 className={`${font.h1} text-charcoal-glow`}>NILAI 5C</h2>
 
       <div className="flex w-full items-center justify-center gap-2 sm:hidden">
         <CarouselArrow direction="left" onClick={goPrev} className="h-10 w-10" />
@@ -99,10 +99,10 @@ export default function Section4Values() {
               alt={active.title}
               className="aspect-square w-[75%] rounded-lg object-cover"
             />
-            <h3 className="font-heading text-xl font-semibold tracking-tight text-neutral-charcoal-deep">
+            <h3 className="font-heading text-xl font-semibold tracking-tight text-charcoal-glow">
               {active.title}
             </h3>
-            <p className="font-body text-base font-normal leading-snug text-neutral-charcoal">
+            <p className="font-body text-base font-normal leading-snug text-charcoal-glow-soft">
               {active.description}
             </p>
           </div>
@@ -130,14 +130,14 @@ export default function Section4Values() {
             <img
               src={active.image}
               alt={active.title}
-              className="aspect-square w-full rounded-lg object-cover"
+              className="aspect-square w-[75.6%] rounded-lg object-cover"
             />
           </div>
           <div className="flex w-2/5 min-w-0 flex-col items-start gap-3 text-left sm:gap-4">
-            <h3 className={`${font.h2} text-neutral-charcoal-deep`}>
+            <h3 className={`${font.h2} text-charcoal-glow`}>
               {active.title}
             </h3>
-            <p className={`${font.bodySmall} text-neutral-charcoal`}>
+            <p className={`${font.bodySmall} text-charcoal-glow-soft`}>
               {active.description}
             </p>
           </div>

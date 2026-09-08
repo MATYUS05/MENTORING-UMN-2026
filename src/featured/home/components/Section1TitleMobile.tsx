@@ -5,7 +5,7 @@ import maskot from "../../../assets/home/maskot.webp";
 export default function Section1TitleMobile() {
   return (
     <section className="flex h-full w-screen shrink-0 flex-col items-center justify-center gap-6 px-6 text-center sm:hidden">
-      <h1 className={`${font.h1} text-neutral-charcoal-deep`}>
+      <h1 className={`${font.h1} text-charcoal-glow`}>
         CHARACTER BUILDING MENTORING 2026
       </h1>
       <img

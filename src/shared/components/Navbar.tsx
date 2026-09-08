@@ -79,7 +79,7 @@ export default function Navbar() {
           />
         </picture>
 
-        <div className="absolute inset-0 flex translate-y-5 sm:translate-y-4.75 items-center justify-between px-[7%] sm:px-[12%] lg:px-[9%] lg:pr-[13%]">
+        <div className="absolute inset-0 flex translate-y-5 sm:translate-y-4.5 lg:translate-y-4.75 items-center justify-between px-[7%] sm:px-[12%] lg:px-[9%] lg:pr-[13%]">
           <Link
             to="/"
             className="flex shrink-0 items-center gap-2 translate-x-11 sm:translate-x-0 sm:gap-3"
@@ -87,7 +87,7 @@ export default function Navbar() {
             <img
               src={mentoringLogo}
               alt="Mentoring UMN"
-              className="h-16 w-16 object-contain sm:h-10 sm:w-10 lg:h-12 lg:w-12"
+              className="h-12.75 w-12.75 -translate-x-0.5 translate-y-0.5 object-contain sm:h-10 sm:w-10 sm:translate-x-0 sm:-translate-y-0.5 lg:h-12 lg:w-12 lg:translate-y-0"
             />
             <h1 className={`${font.navbar} hidden text-slate-900 sm:block`}>MENTORING UMN</h1>
           </Link>

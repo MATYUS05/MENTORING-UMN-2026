@@ -44,7 +44,7 @@ export default function IslandButton({
         type="button"
         onClick={handleExplore}
         aria-label="Ketuk pulau untuk menjelajah lebih lanjut"
-        className="pointer-events-auto absolute bottom-[calc(8vh-30px)] cursor-pointer border-0 bg-transparent p-0 md:bottom-[calc(8vh-35px)]"
+        className="pointer-events-auto absolute bottom-[calc(8vh-30px)] cursor-pointer border-0 bg-transparent p-0 md:bottom-[calc(8vh-55px)]"
         style={{
           left: pulauScreenX,
           transform: `translateX(-50%) scale(${pulauScale})`,

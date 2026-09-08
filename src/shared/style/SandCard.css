@@ -1,0 +1,59 @@
+/* Reusable "sand" card surface: gradient border, gold outer glow,
+   textured sand fill with a top/right highlight and left/bottom inner shadow. */
+
+.sand-card {
+  --sand-card-radius: 1rem;
+  --sand-card-border: 2px;
+  position: relative;
+  display: block;
+  border-radius: var(--sand-card-radius);
+  padding: var(--sand-card-border);
+  background: linear-gradient(to bottom left, var(--color-primary-dark), #483224);
+  box-shadow: 0 0 18px 2px rgba(248, 212, 134, 0.55);
+}
+
+.sand-card__inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--sand-card-radius) - var(--sand-card-border));
+  background-color: var(--color-primary-light);
+  box-shadow:
+    inset 0 8px 16px rgba(255, 255, 255, 0.65),
+    inset -8px 0 16px rgba(255, 255, 255, 0.55),
+    inset 8px 0 16px rgba(0, 0, 0, 0.3),
+    inset 0 -8px 16px rgba(0, 0, 0, 0.32);
+}
+
+.sand-card__inner::before,
+.sand-card__inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-repeat: repeat;
+}
+
+/* fine grain */
+.sand-card__inner::before {
+  opacity: 0.3;
+  mix-blend-mode: multiply;
+  background-size: 90px 90px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.4' intercept='-0.3'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* coarser grain/speckle for depth */
+.sand-card__inner::after {
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-size: 220px 220px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.6' intercept='-0.4'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.sand-card__content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
