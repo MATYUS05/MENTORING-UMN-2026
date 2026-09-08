@@ -138,3 +138,36 @@
 .animate-arrow-bob-right {
   animation: arrowBobRight 1.8s ease-in-out infinite;
 }
+
+@keyframes ayunPaku {
+  0%, 100% {
+    transform: rotate(-1.4deg);
+  }
+
+  50% {
+    transform: rotate(1.4deg);
+  }
+}
+
+.ayun-paku {
+  transform-origin: 49.4% 14%;
+  animation: ayunPaku 3.6s ease-in-out infinite;
+}
+
+.ayun-paku:nth-child(3n + 2) {
+  animation-delay: -1.2s;
+}
+
+.ayun-paku:nth-child(3n + 3) {
+  animation-delay: -2.4s;
+}
+
+.ayun-paku:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ayun-paku {
+    animation: none;
+  }
+}
