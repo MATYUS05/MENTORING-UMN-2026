@@ -1,58 +1,61 @@
-/* src/shared/components/Footer.module.css */
-
-/* 1. MOBILE FIRST (Default) */
+/* src/shared/style/Footer.css */
 .footerBg {
-    background-image: url('../../assets/footer/footer mobile.png');
-    background-size: 100% 100%;    /* Agar gambar fleksibel memenuhi area footer */
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 100%;
+  position: relative;
+  width: 100%;
 }
 
-/* 2. TABLET (Layar >= 640px) */
-@media (min-width: 640px) {
-    .footerBg {
-        background-image: url('../../assets/footer/footer tab.png');
-        background-size: 100% 100%;    /* Agar gambar fleksibel memenuhi area footer */
-    }
+.footerBg-image {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-/* 3. DESKTOP (Layar >= 1024px) */
-@media (min-width: 1024px) {
-    .footerBg {
-        background-image: url('../../assets/footer/footer desktop.png');
-        background-size: 100% 100%;       /* Tampilan desktop biasanya lebih pas pakai cover */
-    }
+.footerBg-content {
+  position: absolute;
+  inset: 0;
 }
 
-.footer-brand{
-    position:relative;
+.footer-marquee-all {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 6%,
+    black 94%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 6%,
+    black 94%,
+    transparent
+  );
 }
 
-.footer-brand::after{
-    content: "";
-    position: absolute;
-    inset-block: 12%;
-    right: calc(var(--footer-gap) / -2);
-
-    width: 3.5px;
-    border-radius: 3px;
-
-    background:#D8873D55;
+.footer-marquee-all-track {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  will-change: transform;
 }
 
-.footer-contact{
-    position:relative;
+.footer-item {
+  flex-shrink: 0;
+  border-right: 1.5px solid #d8873d55;
 }
 
-.footer-contact::after{
-    content: "";
-    position: absolute;
-    inset-block: 12%;
-    right: calc(var(--footer-gap) / -2);
+.footer-medpar-grid {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
 
-    width: 3.5px;
-    border-radius: 3px;
-
-    background:#D8873D55;
+.footer-medpar-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 14px;
 }

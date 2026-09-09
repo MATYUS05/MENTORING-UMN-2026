@@ -251,7 +251,7 @@ export default function Teams() {
   return (
     <div className="relative -mt-[132px] flex min-h-screen flex-col pt-[132px]">
       <div className="fixed inset-0 -z-[30] bg-[#61DAE3]" aria-hidden />
-      <div className="pointer-events-none absolute inset-0 -z-[20] overflow-hidden" aria-hidden>
+      <div className="pointer-events-none fixed inset-0 -z-[20] overflow-hidden" aria-hidden>
         <img src={sky} alt="" className="absolute inset-x-0 top-0 w-full" />
       </div>
       <div className="mx-auto w-full max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">
@@ -509,7 +509,7 @@ export default function Teams() {
         />
       </div>
 
-      <div className="pointer-events-none relative -z-10 min-h-[200px] w-full flex-1 overflow-hidden bg-[#FEE384]">
+      <div className="pointer-events-none relative -z-10 -mb-45 min-h-50 w-full flex-1 overflow-hidden bg-[#FEE384]">
         <div className="absolute inset-x-0 top-0 aspect-[1439/565] w-full overflow-hidden">
           <img src={pasir} alt="" aria-hidden className="absolute -bottom-0.5 w-full" />
         </div>

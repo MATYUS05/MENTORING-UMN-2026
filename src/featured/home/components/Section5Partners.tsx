@@ -21,8 +21,8 @@ export default function Section5Partners() {
   } | null>(null);
 
   return (
-    <section className="scrollbar-hide hidden h-full w-screen shrink-0 flex-col items-center justify-center gap-8 overflow-y-auto px-6 py-10 sm:flex sm:px-12 md:px-20">
-      <h2 className={`${font.h1} text-neutral-charcoal-deep`}>
+    <section className="scrollbar-hide hidden h-full w-screen shrink-0 flex-col items-center justify-center gap-8 overflow-y-auto px-6 pt-0 pb-10 sm:flex sm:px-12 md:px-20">
+      <h2 className={`${font.h1} text-charcoal-glow`}>
         OUR MEDIA PARTNER
       </h2>
       <div className="flex w-full max-w-205 flex-wrap justify-center gap-2 sm:gap-3">
@@ -30,27 +30,15 @@ export default function Section5Partners() {
           <button
             key={partner.name}
             onClick={() => setActivePartner(partner)}
-            className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-neutral-surface/80 transition-transform duration-200 hover:scale-105"
+            className="h-20 w-auto shrink-0 transition-transform duration-200 hover:scale-105"
           >
             <img
               src={partner.src}
               alt={partner.name}
-              className="h-full w-full object-cover"
+              className="h-full w-auto rounded-[30px] object-contain"
             />
           </button>
         ))}
-      </div>
-      <div className="text-center">
-        <h3 className={`${font.h3} text-neutral-charcoal-deep`}>
-          CONTACT US AT
-        </h3>
-        <p className={`${font.body} mt-2 max-w-md text-neutral-charcoal`}>
-          Universitas Multimedia Nusantara Jl. Scientia Boulevard, Gading
-          Serpong, Tangerang, Banten 15811 Indonesia
-        </p>
-        <p className={`${font.body} mt-1 text-neutral-charcoal`}>
-          +62-21.5422.0808 +62-21.5422.0800
-        </p>
       </div>
       <PartnerImageModal
         partner={activePartner}

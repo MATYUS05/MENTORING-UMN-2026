@@ -1,11 +1,6 @@
 /* src/featured/home/home.css */
 
-/* Tinggi navbar: sticky top 10px + tinggi container 120px */
-.home-shell {
-  --navbar-height: 130px;
-  height: calc(100vh - var(--navbar-height));
-  height: calc(100dvh - var(--navbar-height));
-}
+/* home-shell height/margin is set inline in Home.tsx, measured from the real <header> height */
 
 /* Mengunci scroll vertikal selama halaman Home aktif */
 .home-lock-scroll {
@@ -38,4 +33,14 @@
 @keyframes wave-bob-front {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(9px); }
+}
+
+@keyframes pulau-text-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulau-text-blink {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.85; }
 }

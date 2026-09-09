@@ -1,6 +1,8 @@
-import React, { useEffect, useState, type ReactNode } from 'react'
+import React, { useState, type ReactNode } from 'react'
 import { colors } from '../../../shared/theme/colors'
 import { font } from '../../../shared/typography/font'
+import { useHeaderBottom } from '../../../shared/hooks/useHeaderBottom'
+import SandCard from '../../../shared/components/SandCard'
 
 const PLACEHOLDER_IMG = 'https://placehold.co/600x400/EFE3CF/8C7B68?text=Image'
 
@@ -8,7 +10,9 @@ const PLACEHOLDER_IMG = 'https://placehold.co/600x400/EFE3CF/8C7B68?text=Image'
 
 export function Container({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`mx-auto w-full max-w-6xl px-5 sm:px-8 lg:px-10 ${className}`}>
+    <div
+      className={`mx-auto w-full max-w-6xl px-5 sm:px-8 lg:mr-0 lg:ml-auto lg:max-w-[66.6667%] lg:px-10 ${className}`}
+    >
       {children}
     </div>
   )
@@ -79,19 +83,24 @@ export function CirclePlaceholder({
 
 /*  for Seek / Strive / Surpass  */
 
-export function PillarCard({ title, description }: { title: string; description: string }) {
+export function PillarCard({
+  title,
+  description,
+  className,
+}: {
+  title: string
+  description: string
+  className?: string
+}) {
   return (
-    <div
-      className="flex h-full flex-col gap-3 rounded-2xl border p-6 shadow-sm transition"
-      style={{ backgroundColor: colors.neutral.surface, borderColor: colors.neutral.sand }}
-    >
+    <SandCard className={`h-full ${className ?? ''}`} innerClassName="flex flex-col gap-3 p-6">
       <h3 className={font.h3} style={{ color: colors.neutral.charcoal }}>
         {title}
       </h3>
       <p className={font.body} style={{ color: colors.neutral.stone }}>
         {description}
       </p>
-    </div>
+    </SandCard>
   )
 }
 
@@ -115,17 +124,14 @@ export function LogoMeaningRow({
       }`}
     >
       <CirclePlaceholder src={image} alt={title} className="h-40 w-40 shrink-0 sm:h-48 sm:w-48" />
-      <div
-        className="flex-1 rounded-2xl border p-6 text-center shadow-sm lg:text-left"
-        style={{ backgroundColor: colors.neutral.surface, borderColor: colors.neutral.sand }}
-      >
+      <SandCard className="flex-1" innerClassName="p-6 text-center lg:text-left">
         <h3 className={`${font.h3} mb-2`} style={{ color: colors.neutral.charcoal }}>
           {title}
         </h3>
         <p className={font.body} style={{ color: colors.neutral.stone }}>
           {description}
         </p>
-      </div>
+      </SandCard>
     </div>
   )
 }
@@ -140,10 +146,7 @@ export interface Activity {
 
 export function ActivityCard({ activity }: { activity: Activity }) {
   return (
-    <div
-      className="flex h-full flex-col overflow-hidden rounded-2xl border shadow-sm"
-      style={{ backgroundColor: colors.neutral.surface, borderColor: colors.neutral.sand }}
-    >
+    <SandCard className="h-full" innerClassName="flex flex-col">
       <ImagePlaceholder
         src={activity.image}
         alt={activity.title}
@@ -158,7 +161,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
           {activity.description}
         </p>
       </div>
-    </div>
+    </SandCard>
   )
 }
 
@@ -280,31 +283,6 @@ export function Modal({
 const FLOATING_BUTTON_GAP = 16 // px
 
 const FLOATING_BUTTON_FALLBACK_TOP = 96 // px
-
-function useHeaderBottom(fallback: number) {
-  const [bottom, setBottom] = useState(fallback)
-
-  useEffect(() => {
-    const header = document.querySelector('header')
-    if (!header) return
-
-    const update = () => setBottom(header.getBoundingClientRect().bottom)
-    update()
-
-    const resizeObserver = new ResizeObserver(update)
-    resizeObserver.observe(header)
-    window.addEventListener('resize', update)
-    window.addEventListener('scroll', update, { passive: true })
-
-    return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', update)
-      window.removeEventListener('scroll', update)
-    }
-  }, [])
-
-  return bottom
-}
 
 export function ZacheryReveal({
   description,

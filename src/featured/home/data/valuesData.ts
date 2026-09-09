@@ -4,7 +4,7 @@ import carring5C from "../../../assets/home/caring.png";
 import credible5C from "../../../assets/home/credible.png";
 import competitive5C from "../../../assets/home/competitive.png";
 import competent5C from "../../../assets/home/competent.png";
-import customerDelight5C from "../../../assets/home/Customer_Delight.png";
+import customerDelight5C from "../../../assets/home/customerdelight.png";
 
 export interface ValueItem {
   id: number;

@@ -1,7 +1,7 @@
 // src/featured/home/components/Section1Hero.tsx
 import { useState } from "react";
 import { font } from "../../../shared/typography/font";
-import minerva from "../../../assets/home/minerva.png";
+import maskot from "../../../assets/home/maskot.webp";
 import InfoModal, { type InfoContent } from "./InfoModal";
 
 const TEMA_INFO: InfoContent = {
@@ -26,23 +26,23 @@ export default function Section1Hero() {
 
   return (
     <section className="hidden h-full w-screen shrink-0 flex-col items-center justify-center gap-4 px-6 text-center sm:flex sm:px-12 md:px-20">
-      <h1 className={`${font.h1} text-neutral-charcoal-deep`}>
+      <h1 className={`${font.h1} text-charcoal-glow`}>
         CHARACTER BUILDING MENTORING 2026
       </h1>
       <img
-        src={minerva}
-        alt="Minerva"
+        src={maskot}
+        alt="maskot"
         className="h-60 max-h-[40dvh] w-60 animate-[float_4s_ease-in-out_infinite] object-contain md:h-75 md:w-75"
       />
       <button
         onClick={() => setActiveInfo(TEMA_INFO)}
-        className={`${font.h3} text-neutral-charcoal-deep transition-transform duration-200 hover:scale-105`}
+        className={`${font.h3} text-charcoal-glow transition-transform duration-200 hover:scale-105`}
       >
         Brave the Step, Build the Impact
       </button>
       <button
         onClick={() => setActiveInfo(TAGLINE_INFO)}
-        className={`${font.h3} max-w-2xl italic text-neutral-charcoal transition-transform duration-200 hover:scale-105`}
+        className={`${font.h3} max-w-2xl italic text-charcoal-glow-soft transition-transform duration-200 hover:scale-105`}
       >
         "Navigating Beyond Familiar Shores to Anchor Potential into Purposeful
         Impact"

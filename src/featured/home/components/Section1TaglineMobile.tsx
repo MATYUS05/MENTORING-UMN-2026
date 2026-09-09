@@ -27,13 +27,13 @@ export default function Section1TaglineMobile() {
     <section className="flex h-full w-screen shrink-0 flex-col items-center justify-center gap-6 px-6 text-center sm:hidden">
       <button
         onClick={() => setActiveInfo(TEMA_INFO)}
-        className={`${font.h3} text-neutral-charcoal-deep transition-transform duration-200 hover:scale-105`}
+        className={`${font.h3} text-charcoal-glow transition-transform duration-200 hover:scale-105`}
       >
         Brave the Step, Build the Impact
       </button>
       <button
         onClick={() => setActiveInfo(TAGLINE_INFO)}
-        className={`${font.h3} max-w-md italic text-neutral-charcoal transition-transform duration-200 hover:scale-105`}
+        className={`${font.h3} max-w-md italic text-charcoal-glow-soft transition-transform duration-200 hover:scale-105`}
       >
         "Navigating Beyond Familiar Shores to Anchor Potential into Purposeful
         Impact"

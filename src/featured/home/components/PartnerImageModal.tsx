@@ -1,6 +1,7 @@
 // src/featured/home/components/PartnerImageModal.tsx
 import { font } from "../../../shared/typography/font";
 import ModalCloseButton from "./ModalCloseButton";
+import SandCard from "../../../shared/components/SandCard";
 
 interface Partner {
   name: string;
@@ -23,20 +24,21 @@ export default function PartnerImageModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-charcoal-deep/40 px-6"
       onClick={onClose}
     >
-      <div
-        className="relative flex max-w-sm flex-col items-center gap-4 rounded-2xl border-2 border-neutral-stone bg-neutral-cream p-6 shadow-xl"
+      <SandCard
+        className="max-w-sm"
+        innerClassName="flex flex-col items-center gap-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <ModalCloseButton onClick={onClose} />
         <img
           src={partner.src}
           alt={partner.name}
-          className="h-48 w-48 rounded-xl border-2 border-neutral-stone object-cover"
+          className="h-48 w-48 rounded-xl object-cover"
         />
-        <span className={`${font.h3} text-neutral-charcoal-deep`}>
+        <span className={`${font.h3} text-charcoal-glow`}>
           {partner.name}
         </span>
-      </div>
+      </SandCard>
     </div>
   );
 }
