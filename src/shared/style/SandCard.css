@@ -26,6 +26,12 @@
     inset 0 -8px 16px rgba(0, 0, 0, 0.32);
 }
 
+/* Used when the card is already wrapped in an outer framed border that
+   provides its own inner shadow, so the default one isn't stacked on top. */
+.sand-card__inner--flat {
+  box-shadow: none;
+}
+
 .sand-card__inner::before,
 .sand-card__inner::after {
   content: "";

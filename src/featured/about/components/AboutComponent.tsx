@@ -4,7 +4,7 @@ import { font } from '../../../shared/typography/font'
 import { useHeaderBottom } from '../../../shared/hooks/useHeaderBottom'
 import SandCard from '../../../shared/components/SandCard'
 
-const PLACEHOLDER_IMG = 'https://placehold.co/600x400/EFE3CF/8C7B68?text=Image'
+const PLACEHOLDER_IMG = '/placeholder.webp'
 
 /*  Layout primitives */
 
@@ -39,10 +39,7 @@ export function Section({
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
     <div className="mb-10 flex flex-col items-center gap-2 text-center sm:mb-14">
-      <h2 className={font.h2} style={{ color: colors.neutral.charcoal }}>
-        {children}
-      </h2>
-      <span className="h-px w-14" style={{ backgroundColor: colors.neutral.stone }} />
+      <h2 className={`${font.h1} text-charcoal-glow`}>{children}</h2>
     </div>
   )
 }
@@ -78,7 +75,40 @@ export function CirclePlaceholder({
   alt?: string
   className?: string
 }) {
-  return <ImagePlaceholder src={src} alt={alt} rounded="rounded-full" className={className} />
+  return (
+    <div
+      className={`rounded-full p-px ${className}`}
+      style={{
+        backgroundColor: colors.primary.dark,
+        boxShadow: `0 0 16px 2px ${colors.accent.gold}99`,
+      }}
+    >
+      <div
+        className="h-full w-full rounded-full p-1"
+        style={{
+          background: `linear-gradient(to bottom left, ${colors.accent.gold}, ${colors.primary.dark})`,
+        }}
+      >
+        <div
+          className="h-full w-full rounded-full p-1"
+          style={{
+            background: `linear-gradient(to bottom left, ${colors.primary.dark}, ${colors.accent.gold})`,
+          }}
+        >
+          <div className="relative h-full w-full overflow-hidden rounded-full">
+            <ImagePlaceholder src={src} alt={alt} rounded="rounded-full" className="h-full w-full" />
+            <div
+              className="pointer-events-none absolute inset-0 rounded-full"
+              style={{
+                boxShadow:
+                  'inset -10px 10px 16px 0 rgba(0,0,0,0.55), inset 10px -10px 16px 0 rgba(0,0,0,0.275)',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 /*  for Seek / Strive / Surpass  */
@@ -119,8 +149,8 @@ export function LogoMeaningRow({
 }) {
   return (
     <div
-      className={`flex flex-col items-center gap-6 sm:gap-8 lg:flex-row ${
-        reverse ? 'lg:flex-row-reverse' : ''
+      className={`flex flex-row items-center gap-6 sm:gap-8 ${
+        reverse ? 'flex-row-reverse' : ''
       }`}
     >
       <CirclePlaceholder src={image} alt={title} className="h-40 w-40 shrink-0 sm:h-48 sm:w-48" />

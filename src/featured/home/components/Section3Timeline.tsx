@@ -4,6 +4,7 @@ import { font } from "../../../shared/typography/font";
 import { timelineEvents, type TimelineEvent } from "../data/timelineEvents";
 import EventModal from "./EventModal";
 import SandCard from "../../../shared/components/SandCard";
+import FramedBorder from "../../../shared/components/FramedBorder";
 
 export default function Section3Timeline() {
   const [activeEvent, setActiveEvent] = useState<TimelineEvent | null>(null);
@@ -23,28 +24,38 @@ export default function Section3Timeline() {
               {index > 0 && (
                 <div className="h-0 w-10 shrink-0 border-t-2 border-dashed border-neutral-stone sm:w-16 md:w-20" />
               )}
-              <SandCard
-                as="button"
-                onClick={() => setActiveEvent(event)}
-                radius="0.75rem"
-                className="w-64 shrink-0 transition hover:scale-[1.03] sm:w-80 md:w-96"
-                innerClassName="flex flex-col items-center gap-4 p-6"
-              >
-                {event.image ? (
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="aspect-video w-full rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="flex aspect-video w-full items-center justify-center rounded-lg bg-[#3B2418]">
-                    <span className={`${font.h1} text-brown-glow`}>???</span>
+              <FramedBorder radius="1.75rem" className="w-72 shrink-0 transition hover:scale-[1.03] sm:w-80 md:w-96">
+                <SandCard
+                  as="button"
+                  onClick={() => setActiveEvent(event)}
+                  radius="1.75rem"
+                  borderWidth="0"
+                  className="block w-full"
+                  style={{ background: "transparent", boxShadow: "none" }}
+                  innerClassName="sand-card__inner--flat p-7"
+                >
+                  <div className="flex w-full flex-col items-center gap-7">
+                    {event.image ? (
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        className="aspect-video w-full rounded-xl border-2 border-neutral-stone object-cover"
+                      />
+                    ) : (
+                      <div className="flex aspect-video w-full items-center justify-center gap-3 rounded-xl border-2 border-neutral-stone bg-[#3B2418]">
+                        {"???".split("").map((mark, i) => (
+                          <span key={i} className={`${font.h1} text-brown-glow`}>
+                            {mark}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <span className="font-heading text-base font-extrabold uppercase tracking-[0.2em] text-charcoal-glow-soft sm:text-lg md:text-xl">
+                      {event.title}
+                    </span>
                   </div>
-                )}
-                <span className={`${font.h3} text-charcoal-glow-soft`}>
-                  {event.title}
-                </span>
-              </SandCard>
+                </SandCard>
+              </FramedBorder>
             </div>
           ))}
         </div>

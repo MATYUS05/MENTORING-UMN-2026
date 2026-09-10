@@ -22,6 +22,8 @@ const DESKTOP_SECTION_IDS = [
   'about-logo-1',
   'about-logo-2',
   'about-logo-3',
+  'about-logo-4',
+  'about-logo-5',
   'about-activity',
 ]
 const MOBILE_SECTION_IDS = [
@@ -30,6 +32,8 @@ const MOBILE_SECTION_IDS = [
   'about-logo-1',
   'about-logo-2',
   'about-logo-3',
+  'about-logo-4',
+  'about-logo-5',
   'about-activity',
   'about-zachery',
 ]
@@ -60,19 +64,29 @@ const pillars = [
 
 const logoMeanings = [
   {
-    title: 'Motion Lines',
+    title: 'Kompas',
     description:
-      'Melambangkan perpindahan dan kemajuan. Simbol ini merepresentasikan ajakan untuk berubah dan bergerak maju, sejalan dengan semangat "Transforming" dan "Turning" dalam tema Mentoring 2025.',
+      'Melambangkan peran mentor sebagai penunjuk arah. Mentor tidak menentukan jalan hidup mentee, tetapi membantu agar langkah yang diambil tetap terarah.',
   },
   {
-    title: 'Shooting Star',
+    title: 'Bentuk Globe dan Unsur Benua',
     description:
-      'Melambangkan harapan, tujuan, maupun cita-cita yang dimiliki tunas bangsa Indonesia, yaitu para mahasiswa-mahasiswa yang baru saja menginjak dunia perkuliahan penuh dengan tantangan, kenang-kenangan mendatang, serta kejutan lainnya.',
+      'Menggambarkan dunia perkuliahan sebagai ruang baru yang luas untuk dieksplorasi. Ada banyak pilihan dan peluang, dan setiap mahasiswa punya cara dan waktunya sendiri untuk berkembang.',
   },
   {
-    title: 'Airplane',
+    title: 'Jalur Melengkung',
     description:
-      'Melambangkan perjalanan transformatif mahasiswa baru menuju perubahan. Simbol ini merepresentasikan proses seru dan menantang dari siswa menjadi mahasiswa, sejalan dengan semangat tema Mentoring 2025 yang inspiratif.',
+      'Menunjukkan bahwa proses bertumbuh tidak selalu berjalan lurus atau mulus. Rasa bingung, ragu, atau salah langkah adalah hal yang wajar, selama tetap mau melangkah ke depan.',
+  },
+  {
+    title: 'Kapal',
+    description:
+      'Melambangkan keberanian untuk mengeksplorasi hal baru dan keluar dari zona nyaman.',
+  },
+  {
+    title: 'Warna Biru, Kuning, Oranye dan Merah',
+    description:
+      'Biru sebagai rasa tenang dan aman, kuning sebagai harapan dan optimisme, merah sebagai keberanian untuk mencoba hal baru dan oranye sebagai energi untuk bertahan.',
   },
 ]
 
@@ -223,11 +237,8 @@ export default function About() {
     }
   }, [offset])
 
-  // Hero is tall enough that centering it looks right below the navbar already.
-  // Shorter sections need to be top-aligned instead, or centering leaves them
-  // floating in the middle of the screen instead of sitting under the navbar.
   const heroSection = 'flex items-center pb-14 sm:pb-20'
-  const snapSection = 'flex items-start'
+  const snapSection = 'flex items-center'
   const snapStyle: CSSProperties = {
     minHeight: `calc(100vh - ${offset}px)`,
     scrollMarginTop: offset,

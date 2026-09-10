@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Kelompok, Peserta } from '../../../shared/types/database';
 import { gayaKertasModal, sesiIcon } from '../theme';
 import Highlight from './Highlight';
+import SmartImage from '../../../shared/components/SmartImage';
 
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [tersalin, setTersalin] = useState(false);
@@ -98,12 +99,9 @@ export default function KelompokModal({ kelompok, peserta, keyword, isOpen, onCl
 
         <div className="relative flex min-h-0 flex-1 flex-col px-[6cqw] pt-[5cqw] pb-[6cqw]">
           <div className="flex shrink-0 items-start gap-4 border-b-4 border-dashed border-[#C9793E]/60 pb-4">
-            <img
-              src={kelompok.fotoMentorUrl || '/placeholder.webp'}
+            <SmartImage
+              src={kelompok.fotoMentorUrl}
               alt={kelompok.namaMentor}
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder.webp';
-              }}
               className="h-20 w-20 shrink-0 rounded-xl border-2 border-[#595959] bg-white object-cover"
             />
 

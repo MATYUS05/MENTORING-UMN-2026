@@ -1,5 +1,4 @@
 // src/featured/home/data/valuesData.ts
-const placeholder = "/placeholder.webp";
 import carring5C from "../../../assets/home/caring.png";
 import credible5C from "../../../assets/home/credible.png";
 import competitive5C from "../../../assets/home/competitive.png";

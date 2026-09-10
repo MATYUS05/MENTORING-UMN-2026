@@ -2,6 +2,7 @@ import type { Kelompok } from '../../../shared/types/database';
 import { sesiIcon } from '../theme';
 import paperIcon from '../../../assets/teams/Paper Icon.webp';
 import Highlight from './Highlight';
+import SmartImage from '../../../shared/components/SmartImage';
 
 type Props = {
   kelompok: Kelompok;
@@ -25,12 +26,9 @@ export default function KelompokCard({ kelompok, keyword, onClick }: Props) {
         />
 
         <div className="absolute top-[14%] right-[24%] bottom-[18%] left-[24%] flex flex-col items-center justify-center gap-2 text-center">
-          <img
-            src={kelompok.fotoMentorUrl || '/placeholder.webp'}
+          <SmartImage
+            src={kelompok.fotoMentorUrl}
             alt={kelompok.namaMentor}
-            onError={(e) => {
-              e.currentTarget.src = '/placeholder.webp';
-            }}
             loading="lazy"
             className="aspect-square w-[62%] shrink-0 rounded-lg border-2 border-[#595959] bg-white object-cover"
           />

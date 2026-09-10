@@ -7,6 +7,7 @@ import { pesertaService } from '../../../lib/pesertaService';
 import { logService } from '../../../lib/logService';
 import { excelHelper } from '../../../lib/excelHelper';
 import { uploadImage } from '../../../lib/cloudinary';
+import SmartImage from '../../../shared/components/SmartImage';
 import DangerConfirmModal from '../../../shared/components/DangerConfirmModal';
 import ConfirmModal from '../../../shared/components/ConfirmModal';
 import InputWithCounter from '../../../shared/components/InputWithCounter';
@@ -731,12 +732,9 @@ export default function AdminTeam() {
                 Foto Mentor
               </label>
               <div className="flex items-center gap-3">
-                <img
-                  src={formKelompok.fotoMentorUrl || '/placeholder.webp'}
+                <SmartImage
+                  src={formKelompok.fotoMentorUrl}
                   alt="Preview foto mentor"
-                  onError={(e) => {
-                    e.currentTarget.src = '/placeholder.webp';
-                  }}
                   className="h-16 w-16 shrink-0 rounded-full border-2 border-neutral-stone/20 object-cover"
                 />
                 <input
@@ -751,6 +749,19 @@ export default function AdminTeam() {
                 />
               </div>
               {uploadingFotoMentor && <p className="font-body text-xs text-neutral-stone">Mengunggah...</p>}
+              <div className="flex items-center gap-2">
+                <span className="font-body text-xs text-neutral-stone">atau</span>
+                <div className="h-px flex-1 bg-neutral-stone/20 dark:bg-neutral-stone/15" />
+              </div>
+              <input
+                value={formKelompok.fotoMentorUrl}
+                onChange={(e) => setFormKelompok({ ...formKelompok, fotoMentorUrl: e.target.value })}
+                placeholder="Tempel link gambar (Cloudinary atau Google Drive)"
+                className={inputBase}
+              />
+              <p className="font-body text-xs text-neutral-stone">
+                Untuk link Google Drive, atur akses berbagi file ke "Siapa saja yang memiliki link".
+              </p>
             </div>
             <select
               value={formKelompok.sesi}

@@ -1,8 +1,7 @@
 // src/lib/fotoService.ts
 
 import { addDoc, collection, doc, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { db, functions } from './firebase';
+import { db } from './firebase';
 import type { Foto } from '../shared/types/database';
 
 const COLLECTION = 'gallery';
