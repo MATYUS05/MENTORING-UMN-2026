@@ -218,7 +218,7 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
         type="button"
         onClick={() => handleSelect(originalIndex)}
         aria-label={`Pilih Divisi ${division.name}`}
-        className="group relative flex flex-col items-center justify-center shrink-0 transition-all duration-300 focus:outline-none cursor-pointer"
+        className="group relative flex flex-col items-center justify-center shrink-0 transition-all duration-300 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 active:outline-none border-none rounded-full cursor-pointer select-none [-webkit-tap-highlight-color:transparent]"
       >
         {/* Division Name Tooltip (Shows On Hover Only) */}
         <div className="absolute -top-8 sm:-top-10 md:-top-11 z-40 whitespace-nowrap rounded-md border border-amber-600/80 bg-[#1c0e07]/95 px-2 py-0.5 sm:px-3 sm:py-1 font-heading text-[10px] sm:text-xs md:text-sm font-bold text-[#fde68a] backdrop-blur-md opacity-0 pointer-events-none transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-1 shadow-lg">
@@ -226,8 +226,8 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1c0e07]" />
         </div>
 
-        {/* Circular Logo Badge (Full round, no clipping) */}
-        <div className={`relative flex ${isMobile ? 'h-16 w-16 xs:h-20 xs:w-20' : 'h-13 w-13 sm:h-18 sm:w-18 md:h-22 md:w-22 lg:h-26 lg:w-26'} items-center justify-center rounded-full border-2 transition-all duration-300 group-hover:scale-110 group-hover:border-amber-400 group-hover:bg-transparent ${isActive ? 'border-amber-400 bg-transparent ring-2 ring-amber-400/70 shadow-[0_0_18px_rgba(245,158,11,0.7)] scale-105' : 'border-[#4a2e1b]/80 bg-transparent'}`}>
+        {/* Circular Logo Badge */}
+        <div className={`relative flex ${isMobile ? 'h-16 w-16 xs:h-20 xs:w-20' : 'h-13 w-13 sm:h-18 sm:w-18 md:h-22 md:w-22 lg:h-26 lg:w-26'} items-center justify-center rounded-full overflow-hidden border-2 transition-all duration-300 group-hover:scale-110 group-hover:border-amber-400 group-hover:bg-transparent ${isActive ? 'border-amber-400 bg-transparent ring-2 ring-amber-400/70 shadow-[0_0_18px_rgba(245,158,11,0.7)] scale-105' : 'border-transparent bg-transparent'}`}>
           {division.logo && (division.logo.startsWith('http') || division.logo.startsWith('/')) ? (
             <img
               src={division.logo}
@@ -235,7 +235,7 @@ export const DivisionSelector: React.FC<DivisionSelectorProps> = ({
               loading="lazy"
               decoding="async"
               draggable={false}
-              className="h-full w-full object-contain p-0 rounded-full pointer-events-none select-none"
+              className="h-full w-full object-contain p-0 rounded-full border-none outline-none pointer-events-none select-none"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 e.currentTarget.nextElementSibling?.classList.remove('hidden');

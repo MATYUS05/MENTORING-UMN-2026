@@ -111,7 +111,7 @@ export default function DivisionPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full text-[#f8ebd0] select-none font-body flex flex-col justify-between">
+    <div className="relative min-h-screen w-full text-[#f8ebd0] select-none font-body flex flex-col justify-between overflow-x-hidden">
       {/* Keyframe Animations */}
       <style>{`
         @keyframes slideLeft {

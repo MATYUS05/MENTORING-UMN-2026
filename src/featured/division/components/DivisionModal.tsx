@@ -1,5 +1,5 @@
-// src/featured/division/components/DivisionModal.tsx
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Division } from '../types';
 import { DivisionMember } from './DivisionMember';
 import scrollImg from '../../../assets/division/scroll_cropped.png';
@@ -67,9 +67,9 @@ export const DivisionModal: React.FC<DivisionModalProps> = ({
 
   if (!isRendered || !currentDivision) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-8"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-8 overflow-hidden pointer-events-auto"
     >
       {/* Hide Scrollbar & Touch Scroll Rules */}
       <style>{`
@@ -94,8 +94,8 @@ export const DivisionModal: React.FC<DivisionModalProps> = ({
       {/* Modal Parchment Container */}
       <div
         className={`
-          relative z-10 w-[96vw] max-w-[420px] sm:max-w-4xl md:max-w-5xl
-          aspect-[4/5] sm:aspect-[2210/1575] max-h-[88vh] flex flex-col my-auto
+          relative z-10 w-[94vw] max-w-[360px] xs:max-w-[400px] sm:max-w-2xl md:max-w-4xl lg:max-w-5xl
+          aspect-[4/5] sm:aspect-[2210/1575] max-h-[85vh] sm:max-h-[88vh] flex flex-col mx-auto my-auto
           text-[#3a2012] overflow-hidden will-change-transform
           transition-all duration-350 cubic-bezier(0.16, 1, 0.3, 1)
           ${isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.88] translate-y-6'}
@@ -113,10 +113,10 @@ export const DivisionModal: React.FC<DivisionModalProps> = ({
         {/* Scrollable Content Body (Strict Safe Area Insets to avoid wooden rolls & upward curved bottom edge across all devices) */}
         <div
           className={`
-            absolute top-[13%] bottom-[24%] left-[17%] right-[17%]
+            absolute top-[13%] bottom-[22%] left-[16%] right-[16%]
             sm:top-[12%] sm:bottom-[20%] sm:left-[14%] sm:right-[14%]
             md:bottom-[19%]
-            z-10 overflow-y-auto sm:overflow-hidden sm:flex sm:flex-col
+            z-10 overflow-y-auto sm:flex sm:flex-col
             hide-scrollbar touch-scroll px-0.5 sm:px-4 py-0.5 space-y-1.5 sm:space-y-3
             transition-all duration-300 delay-75 ease-out
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
@@ -126,12 +126,12 @@ export const DivisionModal: React.FC<DivisionModalProps> = ({
           <div className="relative flex flex-col items-center text-center gap-1 sm:gap-2 border-b border-[#4a2e1b]/30 pb-2 sm:pb-3.5 sm:shrink-0 px-8 sm:px-12">
             {/* Division Logo Emblem */}
             <div className="shrink-0 relative">
-              <div className="relative flex h-11 w-11 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-full p-0 shadow-sm">
+              <div className="relative flex h-11 w-11 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-full overflow-hidden p-0 shadow-sm">
                 {currentDivision.logo.startsWith('http') || currentDivision.logo.startsWith('/') ? (
                   <img
                     src={currentDivision.logo}
                     alt={currentDivision.name}
-                    className="h-full w-full object-contain rounded-full"
+                    className="h-full w-full object-contain rounded-full border-none outline-none"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                       e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -190,7 +190,8 @@ export const DivisionModal: React.FC<DivisionModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
