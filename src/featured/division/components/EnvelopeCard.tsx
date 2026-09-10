@@ -1,8 +1,8 @@
 // src/featured/division/components/EnvelopeCard.tsx
 import React, { useEffect, useState } from 'react';
 import type { Division } from '../types';
-import amplopImg from '../../../assets/division/envelope_cropped.png';
-import envelopeAndScrollImg from '../../../assets/division/Envelope and scroll.png';
+import amplopImg from '../../../assets/division/envelope_cropped.webp';
+import envelopeAndScrollImg from '../../../assets/division/Envelope and scroll.webp';
 
 interface EnvelopeCardProps {
   division: Division;

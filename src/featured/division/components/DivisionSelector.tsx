@@ -1,7 +1,7 @@
 // src/featured/division/components/DivisionSelector.tsx
 import React, { useEffect, useMemo, useRef } from 'react';
 import type { Division } from '../types';
-import shelfImg from '../../../assets/division/shelf_cropped.png';
+import shelfImg from '../../../assets/division/shelf_cropped.webp';
 
 interface DivisionSelectorProps {
   divisions: Division[];

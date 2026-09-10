@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Division } from '../types';
 import { DivisionMember } from './DivisionMember';
-import scrollImg from '../../../assets/division/scroll_cropped.png';
+import scrollImg from '../../../assets/division/scroll_cropped.webp';
 
 interface DivisionModalProps {
   division: Division | null;

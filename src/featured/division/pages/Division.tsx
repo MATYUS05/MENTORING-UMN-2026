@@ -7,9 +7,9 @@ import { DivisionCarousel } from '../components/DivisionCarousel';
 import { DivisionSelector } from '../components/DivisionSelector';
 import { DivisionModal } from '../components/DivisionModal';
 import PageBackground from '../../../shared/components/PageBackground';
-import bgImage from '../../../assets/division/Background.png';
-import scrollImg from '../../../assets/division/scroll_cropped.png';
-import envelopeAndScrollImg from '../../../assets/division/Envelope and scroll.png';
+import bgImage from '../../../assets/division/Background.webp';
+import scrollImg from '../../../assets/division/scroll_cropped.webp';
+import envelopeAndScrollImg from '../../../assets/division/Envelope and scroll.webp';
 import type { Divisi, Panitia } from '../../../shared/types/database';
 
 export default function DivisionPage() {
